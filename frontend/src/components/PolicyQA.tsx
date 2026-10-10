@@ -11,6 +11,8 @@ import {
   Check,
   FileText,
   HelpCircle,
+  Sparkles,
+  Layers,
 } from 'lucide-react';
 import { QuestionResponse } from '../types';
 import { askQuestion } from '../api/client';
@@ -231,6 +233,27 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
                     Insufficient Policy Evidence
                   </span>
                 )}
+
+                {/* Subtle Response-Mode Indicator */}
+                {response.generation_mode === 'RAG + LLM' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-cyan-950/90 text-cyan-300 border border-cyan-500/40" title="Retrieved via semantic hybrid search and synthesized with LLM">
+                    <Sparkles className="w-3 h-3 text-cyan-400" />
+                    RAG + LLM
+                  </span>
+                )}
+                {response.generation_mode === 'Hybrid Retrieval' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-950/90 text-blue-300 border border-blue-500/40" title="Retrieved via BM25 + dense vector hybrid search with grounded synthesis">
+                    <Layers className="w-3 h-3 text-blue-400" />
+                    Hybrid Retrieval
+                  </span>
+                )}
+                {response.generation_mode === 'Keyword Retrieval Fallback' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-900/90 text-slate-300 border border-slate-700/60" title="Retrieved via BM25 keyword index">
+                    <Search className="w-3 h-3 text-slate-400" />
+                    Keyword Retrieval Fallback
+                  </span>
+                )}
+
                 <span className="text-xs text-slate-400">
                   {response.citations?.length || 0} source citation{response.citations?.length === 1 ? '' : 's'}
                 </span>

@@ -151,6 +151,10 @@ export interface QuestionResponse {
   status: string;
   is_sufficient_evidence: boolean;
   provider: string;
+  generation_mode?: string; // "RAG + LLM", "Hybrid Retrieval", "Keyword Retrieval Fallback"
+  retrieval_mode?: string; // "hybrid", "vector", "keyword"
+  embedding_provider?: string;
+  llm_provider?: string;
   citations: CitationItem[];
   disclaimer: string;
   conversation_id: string;

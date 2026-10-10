@@ -44,7 +44,11 @@ class QuestionResponse(BaseModel):
     status: str  # "answered", "insufficient_evidence"
     is_sufficient_evidence: bool
     provider: str  # "retrieval_grounded_guidance"
-    citations: List[CitationItem]
-    disclaimer: str
+    generation_mode: Optional[str] = "Hybrid Retrieval"  # "RAG + LLM", "Hybrid Retrieval", "Keyword Retrieval Fallback"
+    retrieval_mode: Optional[str] = "hybrid"  # "hybrid", "vector", "keyword"
+    embedding_provider: Optional[str] = "local"
+    llm_provider: Optional[str] = "fallback"
+    citations: List[CitationItem] = []
+    disclaimer: str = ""
     conversation_id: str
     created_at: datetime

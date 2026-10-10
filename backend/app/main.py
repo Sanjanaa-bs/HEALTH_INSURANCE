@@ -12,11 +12,16 @@ from backend.app.api.v1.router import api_v1_router
 from backend.app.schemas.common import ErrorResponse, ErrorDetail
 
 
+from backend.app.rag.vector_store import vector_store_instance
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan context for startup and shutdown events."""
     # Initialize database tables on startup
     init_db()
+    # Load persistent vector store index
+    vector_store_instance.load()
     yield
 
 

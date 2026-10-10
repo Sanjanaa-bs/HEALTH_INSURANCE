@@ -12,7 +12,10 @@ from backend.app.schemas.qa import (
     QuestionResponse,
     CitationItem,
 )
+from backend.app.config import settings
 from backend.app.search import search_document_chunks
+from backend.app.services.retrieval import hybrid_search
+from backend.app.services.llm_provider import get_llm_provider
 
 STOPWORDS = {
     "what", "is", "the", "for", "are", "about", "does", "say", "to", "of",
@@ -66,7 +69,19 @@ def build_evidence_grounded_answer(
     q_lower = question.lower()
 
     # Topic detection for direct, clear plain-language answers
-    if any(k in q_lower for k in ["waiting period", "pre-existing", "ped", "pre existing"]):
+    if "cataract" in q_lower:
+        direct_summary = (
+            "### Direct Policy Answer\n"
+            "Under the **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)**, "
+            "treatment for Cataract is subject to a **24-month waiting period** from the inception of the policy. "
+            "After 24 months of continuous coverage, cataract treatment is payable up to the specific sub-limits per eye or sum insured cap specified in the policy schedule.\n\n"
+            "**Key Conditions & Limitations:**\n"
+            "- **Waiting Period**: 24 months continuous coverage required.\n"
+            "- **Sub-Limits**: Expenses per eye per policy period are restricted to policy sub-limits."
+        )
+        sections.append(direct_summary)
+
+    elif any(k in q_lower for k in ["pre-existing", "ped", "pre existing", "waiting period"]):
         direct_summary = (
             "### Direct Policy Answer\n"
             "Under the **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)**, "
@@ -99,18 +114,6 @@ def build_evidence_grounded_answer(
             "**Key Conditions & Limitations:**\n"
             "- **Inpatient Admissibility**: Pre-hospitalization coverage applies provided the main inpatient hospitalization claim is admissible under the policy.\n"
             "- **Documentation**: Claims must be supported by original diagnostic reports, doctor prescriptions, and itemized pharmacy bills."
-        )
-        sections.append(direct_summary)
-
-    elif "cataract" in q_lower:
-        direct_summary = (
-            "### Direct Policy Answer\n"
-            "Under the **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)**, "
-            "treatment for Cataract is subject to a **24-month waiting period** from the inception of the policy. "
-            "After 24 months of continuous coverage, cataract treatment is payable up to the specific sub-limits per eye or sum insured cap specified in the policy schedule.\n\n"
-            "**Key Conditions & Limitations:**\n"
-            "- **Waiting Period**: 24 months continuous coverage required.\n"
-            "- **Sub-Limits**: Expenses per eye per policy period are restricted to policy sub-limits."
         )
         sections.append(direct_summary)
 
@@ -176,13 +179,24 @@ def answer_insurance_question(
             detail="Question cannot be empty or whitespace only.",
         )
 
-    # Search indexed passages
-    raw_results = search_document_chunks(
-        db=db,
-        query_text=clean_q,
-        document_type=request.document_type,
-        limit=request.max_citations,
-    )
+    # Execute Hybrid Retrieval (BM25 Keyword + Vector Semantic Search)
+    try:
+        raw_results, retrieval_mode = hybrid_search(
+            db=db,
+            query_text=clean_q,
+            document_type=request.document_type,
+            top_k=request.max_citations,
+            alpha=settings.RAG_HYBRID_ALPHA,
+        )
+    except Exception:
+        # Safe fallback to standard BM25 retrieval
+        raw_results = search_document_chunks(
+            db=db,
+            query_text=clean_q,
+            document_type=request.document_type,
+            limit=request.max_citations,
+        )
+        retrieval_mode = "keyword"
 
     # Extract keywords for relevance check
     keywords = extract_meaningful_keywords(clean_q)
@@ -194,12 +208,13 @@ def answer_insurance_question(
     if raw_results and keywords:
         required_matches = 2 if len(keywords) >= 3 else 1
         for r in raw_results:
-            full_content = (f"{r.get('section_heading', '')} {r.get('full_text', '')} {r.get('excerpt', '')}").lower()
+            full_content = (f"{r.get('section_heading', '')} {r.get('full_text', '')} {r.get('supporting_text', '')} {r.get('excerpt', '')}").lower()
             matching_kw = [kw for kw in keywords if kw in full_content]
             if len(matching_kw) >= required_matches:
                 is_relevant = True
                 clean_passage = (
-                    r.get("excerpt", "")
+                    r.get("supporting_text")
+                    or r.get("excerpt", "")
                     .replace("<b>", "")
                     .replace("</b>", "")
                     .strip()
@@ -224,6 +239,8 @@ def answer_insurance_question(
     if not is_relevant or not valid_citations:
         status_label = "insufficient_evidence"
         is_sufficient = False
+        generation_mode = "Keyword Retrieval Fallback"
+        llm_provider_name = "fallback"
         answer_text = (
             f"I cannot verify an answer to your question ('{clean_q}') from the available policy documents or claims guidance. "
             "The system strictly abstains when verified evidence is absent to prevent inaccurate statements regarding insurance coverage, waiting periods, or exclusions. "
@@ -233,8 +250,23 @@ def answer_insurance_question(
     else:
         status_label = "answered"
         is_sufficient = True
-        answer_text = build_evidence_grounded_answer(clean_q, valid_citations)
         citations_output = valid_citations
+
+        # Attempt Generative RAG via LLM provider if configured
+        llm = get_llm_provider()
+        llm_answer, used_llm = llm.generate_answer(
+            clean_q,
+            [c.model_dump() for c in valid_citations],
+        )
+
+        if llm_answer:
+            answer_text = llm_answer
+            generation_mode = "RAG + LLM"
+            llm_provider_name = used_llm
+        else:
+            answer_text = build_evidence_grounded_answer(clean_q, valid_citations)
+            generation_mode = "Hybrid Retrieval" if retrieval_mode in ["hybrid", "vector"] else "Keyword Retrieval Fallback"
+            llm_provider_name = "fallback"
 
     # Manage conversation session
     conv_id = request.conversation_id or str(uuid.uuid4())
@@ -266,6 +298,10 @@ def answer_insurance_question(
         status=status_label,
         is_sufficient_evidence=is_sufficient,
         provider="retrieval_grounded_guidance",
+        generation_mode=generation_mode,
+        retrieval_mode=retrieval_mode,
+        embedding_provider=settings.EMBEDDING_PROVIDER,
+        llm_provider=llm_provider_name,
         citations=citations_output,
         disclaimer=DISCLAIMER_TEXT,
         conversation_id=conv_id,
