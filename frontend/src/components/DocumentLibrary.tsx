@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Document, SearchResultItem } from '../types';
 import { fetchDocuments, searchDocuments } from '../api/client';
+import { HighlightedExcerpt } from './HighlightedExcerpt';
 
 interface DocumentLibraryProps {
   onAskAboutClause?: (query: string) => void;
@@ -42,7 +43,7 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
     }
   };
 
-  const handleSearch = async (e?: React.FormEvent) => {
+  const handleSearch = async (e?: React.FormEvent, documentType = selectedType) => {
     if (e) e.preventDefault();
     if (!searchQuery.trim()) {
       setSearchResults([]);
@@ -51,7 +52,7 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
     setSearching(true);
     setError(null);
     try {
-      const data = await searchDocuments(searchQuery.trim(), selectedType || undefined);
+      const data = await searchDocuments(searchQuery.trim(), documentType || undefined);
       setSearchResults(data.results || []);
     } catch (e: any) {
       setError(e.message || 'Search failed');
@@ -72,22 +73,22 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
     <div className="space-y-8 pb-12">
       {/* 1. PAGE HEADER */}
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/30 text-cyan-300 text-xs font-semibold">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/30 text-cyan-300 text-[11px] font-semibold tracking-wide">
           <BookOpen className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Official Legal Sources & Guidance Documents</span>
+          <span>DOCUMENTS & REFERENCES</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">
-          Document Library & Policy Search
+        <h1 className="page-title text-4xl sm:text-[2.75rem] font-semibold text-white tracking-tight">
+          The wording behind your cover
         </h1>
-        <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
-          Browse and search indexed policy contracts, Customer Information Sheets (CIS), operational claim guides, and IRDAI health insurance regulatory FAQs.
+        <p className="text-base text-slate-300 max-w-3xl leading-relaxed">
+          Search the policy, customer information sheet, claims guidance, and regulatory references in one place.
         </p>
       </div>
 
       {/* 2. SEARCH & FILTER BAR */}
-      <div className="bg-navy-850 border border-navy-800 rounded-2xl p-6 shadow-xl space-y-4">
+      <div className="editorial-card p-5 sm:p-7 space-y-4">
         <form onSubmit={handleSearch} className="space-y-3">
-          <div className="flex flex-col sm:flex-row items-stretch gap-2.5">
+          <div className="flex flex-col lg:flex-row items-stretch gap-2.5">
             <div className="relative flex-1">
               <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
               <input
@@ -95,15 +96,19 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search policy wording and clauses (e.g. room rent, waiting period, cataract, exclusions)..."
-                className="w-full bg-white border border-slate-300 hover:border-slate-400 rounded-xl pl-11 pr-4 py-3 text-sm text-[#0C162E] font-medium placeholder:text-[#64748B] caret-[#0C162E] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-sm transition"
+                className="w-full bg-white border border-slate-300 hover:border-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-sm text-[#1C3437] font-medium placeholder:text-[#718383] caret-[#1C3437] focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition"
                 aria-label="Search policy wording"
               />
             </div>
 
             <select
               value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="bg-white border border-slate-300 hover:border-slate-400 rounded-xl px-3.5 py-3 text-xs sm:text-sm text-[#0C162E] font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-sm transition cursor-pointer"
+              onChange={(e) => {
+                const type = e.target.value;
+                setSelectedType(type);
+                if (searchQuery.trim()) void handleSearch(undefined, type);
+              }}
+              className="bg-white border border-slate-300 hover:border-slate-400 rounded-xl px-3.5 py-3.5 text-sm text-[#1C3437] font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition cursor-pointer"
               aria-label="Filter document type"
             >
               {documentTypes.map((t) => (
@@ -116,7 +121,7 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
             <button
               type="submit"
               disabled={searching}
-              className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs sm:text-sm font-semibold transition shadow-md shadow-blue-600/30 disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
+              className="px-6 py-3.5 rounded-xl bg-brand-cyan hover:bg-cyan-600 active:scale-[.98] text-white text-sm font-semibold transition shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
             >
               {searching ? (
                 <>
@@ -146,11 +151,11 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
 
       {/* 3. SEARCH RESULTS (IF SEARCHING) */}
       {searchResults.length > 0 && (
-        <div className="bg-navy-850 border border-navy-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div className="editorial-card p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-navy-800">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Search className="w-4 h-4 text-cyan-400" />
-              Search Results ({searchResults.length} matching clauses)
+              {searchResults.length} matching passages
             </h2>
             <button
               onClick={() => {
@@ -196,10 +201,9 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
                   </p>
                 )}
 
-                <div
-                  className="p-3 bg-navy-950 rounded-lg border border-navy-800 text-slate-300 leading-relaxed font-sans"
-                  dangerouslySetInnerHTML={{ __html: item.excerpt }}
-                />
+                <div className="p-3 bg-navy-950 rounded-lg border border-navy-800 text-slate-300 text-sm leading-relaxed font-sans">
+                  <HighlightedExcerpt html={item.excerpt} />
+                </div>
 
                 {onAskAboutClause && (
                   <div className="pt-1 flex justify-end">
@@ -218,14 +222,14 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
       )}
 
       {/* 4. ACTIVE DOCUMENT CATALOGUE */}
-      <div className="bg-navy-850 border border-navy-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-5">
+      <div className="editorial-card p-5 sm:p-7 space-y-5">
         <div className="flex items-center justify-between pb-3 border-b border-navy-800">
           <div>
             <h2 className="text-base font-bold text-white">
               Indexed Documents Catalogue
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Source files extracted and verified in local SQLite database.
+              Browse the indexed source documents and their passage counts.
             </p>
           </div>
           <span className="text-xs font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-1 rounded-full">
@@ -262,14 +266,14 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onAskAboutClau
                   </div>
 
                   <p className="text-[11px] font-mono text-slate-400">
-                    {doc.version ? `Identifier: ${doc.version}` : 'Version: Standard'}
+                    {doc.version ? `Identifier: ${doc.version}` : 'Identifier not listed'}
                   </p>
                 </div>
 
                 <div className="pt-3 border-t border-navy-800 flex items-center justify-between text-[11px] text-slate-400">
                   <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    Verified & Indexed
+                    Indexed for search
                   </span>
                   <span>{doc.chunk_count} search passages</span>
                 </div>

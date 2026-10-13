@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { searchDocuments } from '../api/client';
 import { SearchResultItem } from '../types';
+import { HighlightedExcerpt } from './HighlightedExcerpt';
 
 interface ClaimsGuidanceProps {
   onAskClaimsQuestion?: (question: string) => void;
@@ -56,26 +57,26 @@ export const ClaimsGuidance: React.FC<ClaimsGuidanceProps> = ({ onAskClaimsQuest
   return (
     <div className="space-y-8 pb-12">
       {/* 1. INTRODUCTORY BANNER WITH CLAIMS DOCUMENTATION IMAGE */}
-      <section className="bg-navy-850 border border-navy-800 rounded-2xl overflow-hidden shadow-xl">
+      <section className="editorial-card overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-12 items-center">
           <div className="p-6 sm:p-8 md:col-span-8 space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-full inline-block">
-              Claims Procedure Guide
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-full inline-block">
+              CLAIMS GUIDE
             </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Health Insurance Claims Help
+            <h1 className="page-title text-3xl sm:text-4xl font-semibold text-white tracking-tight">
+              Make a claim
             </h1>
-            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Understand step-by-step procedures for Cashless Hospitalisation at network providers, Reimbursement submissions for non-network hospitals, and mandatory document checklists.
+            <p className="text-base text-slate-300 max-w-2xl leading-relaxed">
+              Find the next step for cashless care, reimbursement, required documents, or claim tracking.
             </p>
             {onAskClaimsQuestion && (
               <div className="pt-2">
                 <button
                   onClick={() => onAskClaimsQuestion('What documents are required for reimbursement claims?')}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30 transition"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-cyan hover:bg-cyan-600 text-white text-sm font-semibold shadow-sm transition"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span>Ask a Claim Question</span>
+                  <span>Ask about a claim</span>
                 </button>
               </div>
             )}
@@ -94,31 +95,33 @@ export const ClaimsGuidance: React.FC<ClaimsGuidanceProps> = ({ onAskClaimsQuest
       </section>
 
       {/* 2. MAIN CLAIMS GUIDANCE CONTAINER */}
-      <div className="bg-navy-850 border border-navy-800 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+      <div className="editorial-card p-5 sm:p-7 space-y-6">
         {/* Safety & Non-Guarantee Notice */}
-        <div className="p-4 rounded-xl bg-navy-950/80 border border-navy-800 text-xs text-slate-300 space-y-1 leading-relaxed">
+        <div className="p-4 sm:p-5 rounded-xl bg-navy-950/80 border border-navy-800 text-sm text-slate-300 space-y-1 leading-relaxed">
           <div className="flex items-center gap-2 text-cyan-300 font-semibold">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>Informational Guidance Notice — No Claim Decision Guarantee</span>
+            <span>Before you begin</span>
           </div>
           <p>
-            The guidance presented below is compiled strictly from official Star Health procedure documentation and IRDAI regulations. This portal does not submit live claims or guarantee pre-authorization or reimbursement. Final approvals remain subject to insurer assessment and policy conditions.
+            These steps are a guide. Coverage and claim approval depend on your policy and Star Health’s assessment.
           </p>
         </div>
 
         {/* Workflow Tabs: Two clearly separated primary options + checklist + tracking */}
-        <div className="flex items-center gap-2 pb-2 border-b border-navy-800 overflow-x-auto">
+        <div role="tablist" aria-label="Claim support topics" className="flex items-center gap-2 pb-2 border-b border-navy-800 overflow-x-auto">
           {[
-            { id: 'cashless', label: '1. Cashless Claims (Network)', icon: Building2 },
-            { id: 'reimbursement', label: '2. Reimbursement Claims (Paid)', icon: FileCheck },
-            { id: 'upload', label: '3. Required Documents Checklist', icon: UploadCloud },
-            { id: 'status', label: '4. Claim Status Tracking', icon: Clock },
+            { id: 'cashless', label: 'Cashless care', icon: Building2 },
+            { id: 'reimbursement', label: 'Reimbursement', icon: FileCheck },
+            { id: 'upload', label: 'Documents', icon: UploadCloud },
+            { id: 'status', label: 'Track a claim', icon: Clock },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkflow === tab.id;
             return (
               <button
                 key={tab.id}
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => setActiveWorkflow(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition whitespace-nowrap ${
                   isActive
@@ -411,7 +414,7 @@ export const ClaimsGuidance: React.FC<ClaimsGuidanceProps> = ({ onAskClaimsQuest
                           </span>
                         </div>
 
-                        {p.section_heading && (
+                        {p.section_heading && !p.section_heading.includes('\uFFFD') && (
                           <p className="text-[11px] text-slate-400">
                             Section: <span className="text-slate-200">{p.section_heading}</span>
                           </p>
@@ -426,10 +429,9 @@ export const ClaimsGuidance: React.FC<ClaimsGuidanceProps> = ({ onAskClaimsQuest
                         </button>
 
                         {isExp && (
-                          <div
-                            className="p-2.5 bg-navy-900 rounded border border-navy-800 text-[11px] text-slate-300 leading-relaxed font-sans"
-                            dangerouslySetInnerHTML={{ __html: p.excerpt }}
-                          />
+                          <div className="p-2.5 bg-navy-900 rounded border border-navy-800 text-xs text-slate-300 leading-relaxed font-sans">
+                            <HighlightedExcerpt html={p.excerpt} />
+                          </div>
                         )}
                       </div>
                     );

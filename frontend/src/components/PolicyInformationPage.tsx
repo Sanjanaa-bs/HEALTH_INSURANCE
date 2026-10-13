@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, Search } from 'lucide-react';
+import { BookOpen, MessageSquare } from 'lucide-react';
 import { PolicyQA } from './PolicyQA';
 import { PolicySearch } from './PolicySearch';
 
@@ -16,73 +16,77 @@ export const PolicyInformationPage: React.FC<PolicyInformationPageProps> = ({
   const [qaQuestion, setQaQuestion] = useState(initialQuestion);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
 
-  const handleRouteToSearch = (query: string) => {
+  const showSearch = (query: string) => {
     setSearchQuery(query);
     setActiveSubTab('search');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleRouteToQA = (question: string) => {
+  const showQuestion = (question: string) => {
     setQaQuestion(question);
     setActiveSubTab('qa');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* Page Header */}
-      <section className="bg-surface border border-border-light rounded-2xl shadow-card p-8 sm:p-10 space-y-4">
-        <div className="max-w-3xl space-y-3">
-          <span className="text-xs font-bold tracking-wider uppercase text-teal-muted bg-teal-light px-3 py-1 rounded-md border border-teal-border inline-block">
-            Policy Terms & Wording
-          </span>
-          <h1 className="text-3xl font-extrabold text-navy-primary tracking-tight">
-            Policy Information & Guidance
-          </h1>
-          <p className="text-sm text-ink-secondary leading-relaxed">
-            Search official policy wording and verify coverage clauses directly from indexed documents: the 48-page Star Comprehensive Insurance Policy wording (POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526), Customer Information Sheet (CIS), and IRDAI consumer guidelines.
-          </p>
+    <div className="space-y-7 pb-12">
+      <header className="space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold tracking-wide">
+          <BookOpen className="w-3.5 h-3.5 text-cyan-400" />
+          <span>POLICY DESK · STAR COMPREHENSIVE</span>
         </div>
+        <h1 className="page-title text-4xl sm:text-[2.75rem] font-semibold text-white tracking-tight">
+          Your policy, in plain language
+        </h1>
+        <p className="text-base text-slate-300 max-w-3xl leading-relaxed">
+          Ask about your cover or search the wording. Every passage links back to its source and page.
+        </p>
+      </header>
 
-        {/* Sub-Navigation Tabs */}
-        <div className="flex items-center gap-2 pt-4 border-t border-border-light">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div role="tablist" aria-label="Policy tools" className="inline-flex self-start p-1 rounded-xl bg-navy-900 border border-navy-800">
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'qa'}
             onClick={() => setActiveSubTab('qa')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition ${
               activeSubTab === 'qa'
-                ? 'bg-navy-primary text-white shadow-xs'
-                : 'bg-page text-ink-secondary border border-border-light hover:bg-subtle hover:text-navy-primary'
+                ? 'bg-white text-[#1C3437] shadow-sm border border-[#DCE5DF]'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Ask a Policy Question</span>
+            <MessageSquare className="w-4 h-4" />
+            Ask a question
           </button>
-
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeSubTab === 'search'}
             onClick={() => setActiveSubTab('search')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition ${
               activeSubTab === 'search'
-                ? 'bg-navy-primary text-white shadow-xs'
-                : 'bg-page text-ink-secondary border border-border-light hover:bg-subtle hover:text-navy-primary'
+                ? 'bg-white text-[#1C3437] shadow-sm border border-[#DCE5DF]'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Search className="w-3.5 h-3.5" />
-            <span>Search Policy Passages (BM25)</span>
+            <BookOpen className="w-4 h-4" />
+            Search policy wording
           </button>
         </div>
-      </section>
+        <p className="text-xs text-slate-400 sm:text-right">
+          Star Comprehensive · Policy wording and customer information sheet
+        </p>
+      </div>
 
-      {/* Main View Area */}
       {activeSubTab === 'qa' ? (
         <PolicyQA
           initialQuestion={qaQuestion}
-          onNavigateToSearch={handleRouteToSearch}
+          onNavigateToSearch={showSearch}
+          showPageHeading={false}
         />
       ) : (
-        <PolicySearch
-          initialQuery={searchQuery}
-          onAskQuestion={handleRouteToQA}
-        />
+        <PolicySearch initialQuery={searchQuery} onAskQuestion={showQuestion} />
       )}
     </div>
   );

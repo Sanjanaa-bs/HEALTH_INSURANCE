@@ -11,8 +11,6 @@ import {
   Check,
   FileText,
   HelpCircle,
-  Sparkles,
-  Layers,
 } from 'lucide-react';
 import { QuestionResponse } from '../types';
 import { askQuestion } from '../api/client';
@@ -21,11 +19,13 @@ import { MarkdownView } from './MarkdownView';
 interface PolicyQAProps {
   initialQuestion?: string;
   onNavigateToSearch?: (query: string) => void;
+  showPageHeading?: boolean;
 }
 
 export const PolicyQA: React.FC<PolicyQAProps> = ({
   initialQuestion = 'What is the waiting period for pre-existing diseases?',
   onNavigateToSearch,
+  showPageHeading = true,
 }) => {
   const [question, setQuestion] = useState(initialQuestion);
   const [documentTypeFilter, setDocumentTypeFilter] = useState<string>('');
@@ -99,29 +99,37 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
 
   const handleCopyAnswer = () => {
     if (!response?.answer) return;
-    navigator.clipboard.writeText(response.answer);
-    setCopiedAnswer(true);
-    setTimeout(() => setCopiedAnswer(false), 2000);
+    navigator.clipboard.writeText(answerText || response.answer).then(() => {
+      setCopiedAnswer(true);
+      window.setTimeout(() => setCopiedAnswer(false), 2000);
+    }).catch(() => setError('Your browser could not copy this answer. Select the text to copy it manually.'));
   };
 
+  const answerText = response?.answer
+    .replace(/\r\n?/g, '\n')
+    .split(/(?:^|\n)\s*(?:#{1,6}\s*)?(?:\*\*)?sources?:?(?:\*\*)?\s*(?:\n|$)/i)[0]
+    .replace(/^#{1,6}\s*Direct Policy Answer\s*\n/i, '')
+    .trim();
+
   return (
-    <div className="space-y-8 pb-12">
-      {/* 1. PAGE HEADER */}
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/30 text-cyan-300 text-xs font-semibold">
-          <FileText className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Evidence-Grounded Policy Verification</span>
+    <div className="space-y-8 pb-12 policy-page">
+      {showPageHeading && (
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold tracking-wide">
+            <FileText className="w-3.5 h-3.5 text-cyan-400" />
+            <span>POLICY DESK · STAR COMPREHENSIVE</span>
+          </div>
+          <h1 className="page-title text-4xl sm:text-[2.75rem] font-semibold text-white tracking-tight">
+            Your policy, in plain language
+          </h1>
+          <p className="text-base text-slate-300 max-w-3xl leading-relaxed">
+            Ask about your cover, search the wording, and open the source passages behind each answer.
+          </p>
         </div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">
-          Policy Information & Verification
-        </h1>
-        <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
-          Ask specific questions regarding coverage, waiting periods, room-rent categories, or exclusions. Answers are synthesized strictly from indexed Star Comprehensive policy wording (POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526) and Customer Information Sheets.
-        </p>
-      </div>
+      )}
 
       {/* 2. QUESTION INPUT FORM */}
-      <div className="bg-navy-850 border border-navy-800 rounded-2xl p-6 shadow-xl space-y-4">
+      <div className="editorial-card p-5 sm:p-7 space-y-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -129,7 +137,7 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
           }}
           className="space-y-3"
         >
-          <div className="flex flex-col sm:flex-row items-stretch gap-2.5">
+          <div className="flex flex-col lg:flex-row items-stretch gap-2.5">
             <div className="relative flex-1">
               <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
               <input
@@ -137,7 +145,7 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Ask about your policy, coverage, waiting periods, or exclusions..."
-                className="w-full bg-white border border-slate-300 hover:border-slate-400 rounded-xl pl-11 pr-4 py-3 text-sm text-[#0C162E] font-medium placeholder:text-[#64748B] caret-[#0C162E] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-sm transition"
+                className="w-full bg-white border border-slate-300 hover:border-slate-400 rounded-xl pl-11 pr-4 py-3.5 text-[15px] text-[#1C3437] font-medium placeholder:text-[#718383] caret-[#1C3437] focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition"
                 aria-label="Ask policy question"
               />
             </div>
@@ -145,7 +153,7 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
             <select
               value={documentTypeFilter}
               onChange={(e) => setDocumentTypeFilter(e.target.value)}
-              className="bg-white border border-slate-300 hover:border-slate-400 rounded-xl px-3.5 py-3 text-xs sm:text-sm text-[#0C162E] font-medium focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-sm transition cursor-pointer"
+              className="bg-white border border-slate-300 hover:border-slate-400 rounded-xl px-3.5 py-3 text-sm text-[#1C3437] font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition cursor-pointer"
               aria-label="Filter source document"
             >
               <option value="" className="text-[#0C162E] bg-white">All Source Documents</option>
@@ -158,7 +166,7 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
             <button
               type="submit"
               disabled={loading || !question.trim()}
-              className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs sm:text-sm font-semibold transition shadow-md shadow-blue-600/30 disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
+              className="px-6 py-3 rounded-xl bg-brand-cyan hover:bg-cyan-600 active:scale-[.98] text-white text-sm font-semibold transition shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap"
             >
               {loading ? (
                 <>
@@ -225,37 +233,16 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
                 {response.is_sufficient_evidence ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-500/40">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    Verified Evidence Grounded
+                    Policy sources found
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/60 text-amber-300 border border-amber-500/40">
                     <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                    Insufficient Policy Evidence
+                    Source detail is limited
                   </span>
                 )}
-
-                {/* Subtle Response-Mode Indicator */}
-                {response.generation_mode === 'RAG + LLM' && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-cyan-950/90 text-cyan-300 border border-cyan-500/40" title="Retrieved via semantic hybrid search and synthesized with LLM">
-                    <Sparkles className="w-3 h-3 text-cyan-400" />
-                    RAG + LLM
-                  </span>
-                )}
-                {response.generation_mode === 'Hybrid Retrieval' && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-950/90 text-blue-300 border border-blue-500/40" title="Retrieved via BM25 + dense vector hybrid search with grounded synthesis">
-                    <Layers className="w-3 h-3 text-blue-400" />
-                    Hybrid Retrieval
-                  </span>
-                )}
-                {response.generation_mode === 'Keyword Retrieval Fallback' && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-900/90 text-slate-300 border border-slate-700/60" title="Retrieved via BM25 keyword index">
-                    <Search className="w-3 h-3 text-slate-400" />
-                    Keyword Retrieval Fallback
-                  </span>
-                )}
-
                 <span className="text-xs text-slate-400">
-                  {response.citations?.length || 0} source citation{response.citations?.length === 1 ? '' : 's'}
+                  {response.citations?.length || 0} cited {response.citations?.length === 1 ? 'passage' : 'passages'}
                 </span>
               </div>
 
@@ -289,44 +276,47 @@ export const PolicyQA: React.FC<PolicyQAProps> = ({
             </div>
 
             {/* Answer Body (Correctly Formatted with MarkdownView!) */}
-            <div className="p-6 sm:p-8 space-y-4">
-              <div className="text-xs uppercase tracking-wider font-semibold text-cyan-400">
-                Question: &ldquo;{response.question}&rdquo;
+              <div className="p-5 sm:p-8 space-y-4">
+              <div className="text-xs uppercase tracking-[0.12em] font-semibold text-cyan-400">
+                Your question
               </div>
+              <p className="-mt-3 text-lg font-medium leading-relaxed text-slate-200">{response.question}</p>
 
-              {/* Formatted Markdown without literal asterisks */}
-              <div className="bg-navy-950/70 p-5 rounded-xl border border-navy-800/80">
-                <MarkdownView content={response.answer} />
+              <div className="bg-white p-5 sm:p-7 rounded-xl border border-navy-800 shadow-sm">
+                <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                  {response.generation_mode === 'RAG + LLM' ? 'Answer' : 'Relevant policy passages'}
+                </div>
+                <MarkdownView content={answerText || response.answer} />
               </div>
 
               {/* Insufficient Evidence Notice */}
               {!response.is_sufficient_evidence && (
                 <div className="p-4 bg-amber-950/30 border border-amber-500/30 rounded-xl text-xs text-amber-200/90 space-y-1">
-                  <p className="font-bold text-amber-200">Abstention Rule & Absence Principle:</p>
+                  <p className="font-bold text-amber-200">We couldn’t verify this from the available wording.</p>
                   <p>
-                    The absence of a search match in the indexed policy files does not prove that a condition or treatment is excluded or denied. Please verify with official Star Health policy documentation or contact customer support for binding coverage determinations.
+                    A missing passage does not mean a treatment is excluded. Check your policy documents or contact Star Health for a decision about your specific cover.
                   </p>
                 </div>
               )}
             </div>
 
             {/* Disclaimer Footer */}
-            <div className="px-6 py-3 border-t border-navy-800/80 bg-navy-900/40 text-xs text-slate-400 flex items-start gap-2">
+              <div className="px-5 sm:px-6 py-3.5 border-t border-navy-800/80 bg-navy-900/40 text-xs text-slate-400 flex items-start gap-2">
               <HelpCircle className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
-              <span>{response.disclaimer}</span>
+                <span>For general information only. Check your policy wording or contact Star Health for a decision about your cover.</span>
             </div>
           </div>
 
           {/* 6. EXPANDABLE SOURCE CITATIONS */}
           {response.citations && response.citations.length > 0 && (
-            <div className="bg-navy-850 border border-navy-800 rounded-2xl p-6 shadow-xl space-y-4">
+            <div className="editorial-card p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-cyan-400" />
-                  Verified Source Citations ({response.citations.length})
+                  Source passages ({response.citations.length})
                 </h2>
                 <span className="text-xs text-slate-400">
-                  Click to inspect exact supporting clauses
+                  Open a passage to check the wording and page
                 </span>
               </div>
 
