@@ -125,7 +125,7 @@ def test_qa_separation_of_full_policy_and_cis(client: TestClient, seed_qa_docume
     answer = res.json()["answer"]
 
     # Verify distinct document attribution headers in answer
-    assert "Star Comprehensive Insurance Policy Terms & Conditions Wording" in answer
+    assert "Star Comprehensive Insurance Policy - Terms & Conditions Wording" in answer
     assert "POL / COMP / V.24 / 2025" in answer
 
 

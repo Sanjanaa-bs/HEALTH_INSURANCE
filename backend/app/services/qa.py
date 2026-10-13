@@ -1,7 +1,7 @@
 import json
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -34,6 +34,12 @@ DISCLAIMER_TEXT = (
     "This does not substitute for professional medical advice or official insurer pre-authorization."
 )
 
+NETWORK_STATUS_CLARIFICATION = (
+    "**Important Clarification on Network Status**: The national hospital directory and the local insurer sample are separate datasets. "
+    "A directory entry or absence from this sample does not establish current Star Health network status, and a network listing "
+    "does not guarantee cashless approval. Confirm current participation and authorization with Star Health."
+)
+
 
 def extract_meaningful_keywords(text_str: str) -> List[str]:
     """Extract non-trivial query keywords for relevance verification."""
@@ -59,105 +65,29 @@ def build_evidence_grounded_answer(
             "Note that the absence of a search match does not prove that a condition is excluded or not covered—please verify with official Star Health policy wording or your insurance provider."
         )
 
-    # Group citations by document type
-    policy_cites = [c for c in citations if c.document_type == "policy"]
-    cis_cites = [c for c in citations if c.document_type == "cis"]
-    guidance_cites = [c for c in citations if c.document_type == "claim_guidance"]
-    faq_cites = [c for c in citations if c.document_type == "faq"]
+    # Keep the offline answer strictly extractive: topic-specific summaries can
+    # introduce conditions or limits that are not present in the retrieved clauses.
+    passages = []
+    for citation in citations:
+        passage = citation.supporting_text.strip()
+        if passage and passage not in passages:
+            passages.append(passage)
 
-    sections = []
-    q_lower = question.lower()
-
-    # Topic detection for direct, clear plain-language answers
-    if "cataract" in q_lower:
-        direct_summary = (
-            "### Direct Policy Answer\n"
-            "Under the **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)**, "
-            "treatment for Cataract is subject to a **24-month waiting period** from the inception of the policy. "
-            "After 24 months of continuous coverage, cataract treatment is payable up to the specific sub-limits per eye or sum insured cap specified in the policy schedule.\n\n"
-            "**Key Conditions & Limitations:**\n"
-            "- **Waiting Period**: 24 months continuous coverage required.\n"
-            "- **Sub-Limits**: Expenses per eye per policy period are restricted to policy sub-limits."
-        )
-        sections.append(direct_summary)
-
-    elif any(k in q_lower for k in ["pre-existing", "ped", "pre existing", "waiting period"]):
-        direct_summary = (
-            "### Direct Policy Answer\n"
-            "Under the **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)**, "
-            "pre-existing diseases (PED) are subject to a **24-month (2 years) continuous coverage waiting period** from the inception of the policy. "
-            "Coverage for pre-existing conditions becomes available after 24 months of continuous policy renewal without any break.\n\n"
-            "**Key Conditions & Limitations:**\n"
-            "- **Disclosure Requirement**: Pre-existing conditions must be fully disclosed at proposal time. Non-disclosure invalidates coverage.\n"
-            "- **Buy-Back Option**: If a Pre-Existing Disease Buy-Back rider was opted and accepted at policy inception, the waiting period may be reduced to 12 months.\n"
-            "- **Specific Illnesses**: If a specific condition also falls under a 24-month specified disease waiting period, the longer rule applies."
-        )
-        sections.append(direct_summary)
-
-    elif any(k in q_lower for k in ["room rent", "room", "icu", "rent"]):
-        direct_summary = (
-            "### Direct Policy Answer\n"
-            "According to the **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)**, "
-            "there is **no capping or limit on room rent** for Single Private A/C Room category (or actual covered hospitalization expenses). "
-            "ICU charges are covered at actuals up to the total sum insured.\n\n"
-            "**Key Conditions & Limitations:**\n"
-            "- **Room Category**: Covered up to Single Private A/C Room.\n"
-            "- **Proportionate Deduction**: If an insured person occupies a room category higher than eligible (such as a Suite), associated medical expenses will be subject to proportionate deduction as per policy terms."
-        )
-        sections.append(direct_summary)
-
-    elif any(k in q_lower for k in ["pre-hospitalisation", "pre hospitalisation", "pre-hospitalization", "pre hospitalization"]):
-        direct_summary = (
-            "### Direct Policy Answer\n"
-            "According to the **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)**, "
-            "medical expenses incurred up to **60 days prior to hospitalization** are covered under Pre-Hospitalisation medical expenses.\n\n"
-            "**Key Conditions & Limitations:**\n"
-            "- **Inpatient Admissibility**: Pre-hospitalization coverage applies provided the main inpatient hospitalization claim is admissible under the policy.\n"
-            "- **Documentation**: Claims must be supported by original diagnostic reports, doctor prescriptions, and itemized pharmacy bills."
-        )
-        sections.append(direct_summary)
-
-    elif any(k in q_lower for k in ["exclusion", "excluded", "exceptions"]):
-        direct_summary = (
-            "### Direct Policy Answer\n"
-            "The **Star Comprehensive Insurance Policy Terms & Conditions Wording (Version: POL / COMP / V.24 / 2025, UIN: SHAHLIP26044V092526)** "
-            "outlines specific standard exclusions that are not covered under the policy.\n\n"
-            "**Standard Exclusions & Limitations:**\n"
-            "- Cosmetic, plastic, or aesthetic surgery unless required due to an accident.\n"
-            "- Rest cure, rehabilitation, and respite care.\n"
-            "- Expenses related to hazardous, adventure, or professional sports.\n"
-            "- Treatment of alcoholism, drug or substance abuse.\n"
-            "- Unproven or experimental treatments."
-        )
-        sections.append(direct_summary)
-
-    else:
-        # General synthesis from supporting text
-        source_title = policy_cites[0].document_title if policy_cites else (citations[0].document_title if citations else "Policy Terms")
-        source_ver = policy_cites[0].version if policy_cites and policy_cites[0].version else "POL / COMP / V.24 / 2025"
-        
-        paragraphs = []
-        for c in citations[:3]:
-            clean_text = c.supporting_text.strip()
-            if clean_text and clean_text not in paragraphs:
-                paragraphs.append(f"- {clean_text}")
-        
-        direct_summary = (
-            f"### Direct Policy Answer\n"
-            f"Based on the **{source_title} (Version: {source_ver})**, the relevant policy provisions state:\n\n"
-            + "\n".join(paragraphs)
-        )
-        sections.append(direct_summary)
-
-    # Check for hospital network keywords in question or citations
-    if any(k in q_lower for k in ["hospital", "network", "cashless", "directory"]):
-        sections.append(
-            "**Important Clarification on Network Status**: Inclusion of a hospital in the government hospital directory "
-            "does not establish Star Health network membership. In addition, network hospital listing does not guarantee "
-            "cashless approval or claim settlement, which is governed by insurer pre-authorization and policy terms."
+    if not passages:
+        return (
+            f"I cannot verify an answer to your question ('{question}') from the retrieved evidence. "
+            "Please check the cited source document or contact the insurer."
         )
 
-    return "\n\n".join(sections)
+    answer = "### Direct Policy Answer\n\n" + "\n\n".join(f"- {passage}" for passage in passages)
+    answer += "\n\n**Sources:**\n" + "\n".join(
+        f"- {citation.document_title}"
+        + (f" (Version: {citation.version})" if citation.version else "")
+        for citation in citations
+    )
+    if any(keyword in question.lower() for keyword in ("hospital", "network", "cashless", "directory")):
+        answer += "\n\n" + NETWORK_STATUS_CLARIFICATION
+    return answer
 
 
 def answer_insurance_question(
@@ -260,7 +190,16 @@ def answer_insurance_question(
         )
 
         if llm_answer:
-            answer_text = llm_answer
+            # Keep source identity and the mandatory network-status warning visible
+            # regardless of which language model generated the answer.
+            source_lines = list(dict.fromkeys(
+                f"- {citation.document_title}"
+                + (f" (Version: {citation.version})" if citation.version else "")
+                for citation in valid_citations
+            ))
+            answer_text = llm_answer + "\n\n**Sources:**\n" + "\n".join(source_lines)
+            if any(keyword in clean_q.lower() for keyword in ("hospital", "network", "cashless", "directory")):
+                answer_text += "\n\n" + NETWORK_STATUS_CLARIFICATION
             generation_mode = "RAG + LLM"
             llm_provider_name = used_llm
         else:
@@ -305,5 +244,5 @@ def answer_insurance_question(
         citations=citations_output,
         disclaimer=DISCLAIMER_TEXT,
         conversation_id=conv_id,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )

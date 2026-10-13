@@ -191,7 +191,7 @@ health-insurance-ai/
    ```bash
    cp .env.example .env
    ```
-   *Note: No third-party API keys or external paid LLM credentials are required. The application runs entirely offline using local SQLite FTS5 and deterministic extractive synthesis.*
+   The project defaults to a local Ollama model for grounded answer generation. Install [Ollama](https://ollama.com/download), start the Ollama service, and download the configured model (`ollama pull llama3.2`). When Ollama is unavailable, Q&A falls back to displaying retrieved evidence excerpts.
 
 3. Install Python backend dependencies:
    ```bash
@@ -216,7 +216,7 @@ python scripts/ingest_all.py
 
 ### Verified Ingestion Metrics:
 - **Government Hospital Directory**: 29,974 valid records imported into `hospitals`.
-- **Star Health Cashless Network**: 10 records imported into `insurer_hospital_records` (8 linked via foreign keys to directory facilities).
+- **Star Health Cashless Network**: 10 records imported into `insurer_hospital_records` (6 confidently linked to directory facilities; ambiguous name matches are left unlinked).
 - **Customer Information Sheet (CIS)**: 20 pages extracted -> 60 retrievable chunks.
 - **Full Policy Terms Wording**: 48 pages extracted -> 179 retrievable chunks.
 - **Official Claims Guidance**: 4 MHTML guides -> 8 retrievable chunks.
@@ -237,7 +237,15 @@ python -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
 - Interactive Swagger UI: `http://127.0.0.1:8000/docs`
 - ReDoc Documentation: `http://127.0.0.1:8000/redoc`
 
-### 7.2 Start the React Frontend
+### 7.2 Start Ollama (for generated answers)
+Install Ollama, then download and start the configured model:
+```bash
+ollama pull llama3.2
+ollama serve
+```
+Set `LLM_PROVIDER=ollama`, `OLLAMA_BASE_URL=http://localhost:11434`, and `OLLAMA_MODEL_NAME=llama3.2` in `.env`. If Ollama is not running, the application returns a grounded excerpt-based answer instead.
+
+### 7.3 Start the React Frontend
 In a separate terminal window:
 ```bash
 cd frontend
@@ -257,7 +265,7 @@ All API routes are prefixed under `/api/v1` and return structured JSON responses
 | `GET` | `/api/v1/dashboard/summary` | None | Returns counts of hospitals, network records, documents, and chunks |
 | `GET` | `/api/v1/hospitals` | `page` (int), `page_size` (int), `search` (str), `state` (str) | Returns paginated national hospital directory with metadata |
 | `GET` | `/api/v1/hospitals/{id}` | Path: `id` (int) | Returns hospital details and any linked insurer network records |
-| `GET` | `/api/v1/hospitals/insurer-network` | `page` (int), `page_size` (int), `search` (str) | Returns paginated Star Health network hospitals |
+| `GET` | `/api/v1/hospitals/insurer-network` | `page` (int), `page_size` (int), `search` (str), `city` (str) | Returns paginated sample Star Health network hospitals; search covers name, address, city, state, and pincode |
 | `GET` | `/api/v1/documents` | None | Lists all indexed policy, CIS, and guidance documents |
 | `GET` | `/api/v1/documents/{id}/chunks` | Path: `id` (int), `page` (int), `page_size` (int) | Returns raw chunks for a specific document |
 | `GET` | `/api/v1/documents/search` | `q` (str, required), `document_type` (str), `limit` (int) | Performs SQLite FTS5 BM25 search across indexed chunks |
@@ -385,13 +393,13 @@ A critical distinction enforced throughout the user interface:
 ## 13. Known Limitations & Roadmap
 
 ### Current Limitations
-1. **Deterministic Retrieval Model**: The platform uses `provider: "retrieval_grounded_guidance"`. It formats and presents verbatim verified text rather than free-form paraphrasing, because no external paid LLM API key is configured.
-2. **Sample Network Dataset**: The Star Health network contains 10 extracted sample records from Bangalore. It is designed to demonstrate schema design and source separation, not to serve as a comprehensive nationwide network directory.
-3. **No Transactional Claims API**: The platform provides educational claims guidance based on official documentation; it does not execute live claim submissions or query real-time claim status.
-4. **Single Insurer Scope**: Grounded in Star Comprehensive Insurance Policy (UIN: `SHAHLIP26044V092526`).
+1. **Local Ollama Requirement**: Q&A uses Ollama when available. Without a running model, it returns retrieved evidence excerpts without generated paraphrasing.
+2. **Sample Network Dataset**: The Star Health network contains 10 extracted sample records from Bangalore. A missing sample match does not mean that a hospital is outside the insurer's current network; this is not a comprehensive nationwide or live lookup.
+3. **Bed Counts**: The included directory CSV has nonzero bed counts for 61 of 30,273 source rows. The UI displays counts when the source provides them and labels missing counts as unreported; network records may show a count only when safely linked to a directory record.
+4. **No Transactional Claims API**: The platform provides educational claims guidance based on official documentation; it does not execute live claim submissions or query real-time claim status.
+5. **Single Insurer Scope**: Grounded in Star Comprehensive Insurance Policy (UIN: `SHAHLIP26044V092526`).
 
 ### Future Roadmap
-- 🔌 **LLM Adapter Integration**: Plug in an enterprise LLM (e.g., Gemini 1.5 Pro) with strict JSON schema constraints and retrieval-augmented prompt engineering.
 - 🌐 **Nationwide Provider Ingestion**: Automate scraping and batch ETL for insurer-wide network hospital directories.
 - 📑 **OCR for Claim Invoices**: Add multi-modal OCR ingestion for hospital discharge summaries and medical bills.
 - 🏥 **ABDM / FHIR Integration**: Connect to Ayushman Bharat Digital Mission (ABDM) APIs for real-time health insurance policy verification and digital health records.

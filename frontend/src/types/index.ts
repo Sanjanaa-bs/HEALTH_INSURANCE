@@ -70,6 +70,7 @@ export interface InsurerHospitalRecord {
   pincode?: string;
   address?: string;
   network_type?: string;
+  total_beds?: number;
   source_type: string;
   matched_hospital_id?: number;
   created_at: string;

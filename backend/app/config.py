@@ -1,5 +1,6 @@
 import os
 from typing import List
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,14 +27,15 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL_NAME: str = "all-MiniLM-L6-v2"
     VECTOR_STORE_PATH: str = "./vector_index.json"
 
-    LLM_PROVIDER: str = "auto"  # "auto", "openai", "gemini", "ollama", "fallback"
+    LLM_PROVIDER: str = "ollama"  # "auto", "openai", "gemini", "ollama", "fallback"
     LLM_MODEL_NAME: str = "gpt-4o-mini"
+    OLLAMA_MODEL_NAME: str = "llama3.2"
     OPENAI_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
     OLLAMA_BASE_URL: str = "http://localhost:11434"
 
-    RAG_HYBRID_ALPHA: float = 0.5  # Weight for BM25 keyword vs Vector semantic scores
+    RAG_HYBRID_ALPHA: float = Field(default=0.5, ge=0.0, le=1.0)  # BM25 weight; vector weight is 1 - alpha
     RAG_MAX_CITATIONS: int = 5
 
     @property

@@ -60,10 +60,10 @@ def hybrid_search(
     combined: Dict[int, Dict[str, Any]] = {}
     rrf_k = 60.0
 
-    # Add BM25 RRF scores
+    # Add weighted BM25 RRF scores. Alpha=1 is keyword-only; alpha=0 is vector-only.
     for rank, item in enumerate(bm25_results):
         cid = item["chunk_id"]
-        rrf_score = 1.0 / (rrf_k + rank + 1)
+        rrf_score = alpha / (rrf_k + rank + 1)
         
         passage_data = dict(item)
         passage_data["supporting_text"] = item.get("excerpt", "").replace("<b>", "").replace("</b>", "").strip()
@@ -74,7 +74,7 @@ def hybrid_search(
     # Add Vector RRF scores
     for rank, item in enumerate(vector_results):
         cid = item["chunk_id"]
-        v_rrf_score = 1.0 / (rrf_k + rank + 1)
+        v_rrf_score = (1.0 - alpha) / (rrf_k + rank + 1)
 
         if cid in combined:
             combined[cid]["rrf_score"] += v_rrf_score

@@ -116,6 +116,9 @@ def get_insurer_network_hospitals(
             or_(
                 InsurerHospitalRecord.hospital_name.ilike(st),
                 InsurerHospitalRecord.address.ilike(st),
+                InsurerHospitalRecord.city.ilike(st),
+                InsurerHospitalRecord.state.ilike(st),
+                InsurerHospitalRecord.pincode.ilike(st),
             )
         )
     if city:
@@ -136,6 +139,7 @@ def get_insurer_network_hospitals(
             pincode=r.pincode,
             address=r.address,
             network_type=r.network_type,
+            total_beds=r.matched_hospital.total_beds if r.matched_hospital else None,
             source_type="Insurer Network (Star Health)",
             matched_hospital_id=r.matched_hospital_id,
             created_at=r.created_at,

@@ -12,7 +12,7 @@ from backend.app.api.v1.router import api_v1_router
 from backend.app.schemas.common import ErrorResponse, ErrorDetail
 
 
-from backend.app.rag.vector_store import vector_store_instance
+from backend.app.services.vector_store import vector_store_instance
 
 
 @asynccontextmanager

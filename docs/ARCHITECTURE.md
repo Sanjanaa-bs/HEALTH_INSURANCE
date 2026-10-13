@@ -157,7 +157,7 @@ All HTTP responses adhere to a consistent error envelope:
 - **`scripts/ingest_insurer_networks.py`**:
   - Parses Star Health cashless network listings from HTML and MHTML sources.
   - Extracts 10 records, deduplicating identical hospital names.
-  - Links 8 records to existing national directory entries via name/location matching.
+  - Links only unambiguous normalized-name matches in the same state, using pincode when available; uncertain records remain unlinked rather than being attached by a shared first word.
 - **`scripts/ingest_policies.py`**:
   - Extracts text from `data/policies/CIS_Star_Comprehensive_Insurance_Policy_V_2_69c15a9ee1.pdf` (20 physical pages, 60 chunks).
   - Extracts text from `data/policies/Policy_Star_Comprehensive_Insurance_Policy_clean.pdf` (48 physical pages, 179 chunks).

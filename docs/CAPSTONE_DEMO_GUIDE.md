@@ -148,7 +148,7 @@ Use these six benchmark questions during the demonstration to showcase accuracy,
    - Search for a specific hospital (e.g., `Apollo` or `General Hospital`).
 3. Switch to the **"Star Health Cashless Network"** tab:
    - Contains 10 verified network hospitals from Bangalore.
-   - Point out the link badge: 8 of the 10 records are linked directly to matching general directory facilities.
+   - Point out the link badge: only unambiguous matches are linked to general directory facilities; uncertain name matches remain separate.
 4. Draw attention to the top alert banner:
    > *"Important Distinction: Inclusion in the Government Hospital Directory does NOT establish Star Health network membership. Cashless treatment is only available at verified network hospitals."*
 
