@@ -131,6 +131,7 @@ def test_hospital_source_classification(client: TestClient, db_session: Session)
         state="Karnataka",
         district="Bengaluru",
         pincode="560002",
+        total_beds=250,
     )
     db_session.add(h_govt)
     db_session.commit()
@@ -160,6 +161,25 @@ def test_hospital_source_classification(client: TestClient, db_session: Session)
     ins_data = res_ins.json()
     assert len(ins_data["items"]) >= 1
     assert ins_data["items"][0]["source_type"] == "Insurer Network (Star Health)"
+    assert ins_data["items"][0]["total_beds"] == 250
+
+
+def test_insurer_search_includes_city_state_and_pincode(client: TestClient, db_session: Session):
+    db_session.add(
+        InsurerHospitalRecord(
+            insurer_name="Star Health",
+            hospital_name="Sample Medical Centre",
+            city="Bengaluru",
+            state="Karnataka",
+            pincode="560011",
+        )
+    )
+    db_session.commit()
+
+    for search_term in ("Bengaluru", "Karnataka", "560011"):
+        response = client.get("/api/v1/hospitals/insurer-network", params={"search": search_term})
+        assert response.status_code == 200
+        assert response.json()["pagination"]["total_items"] == 1
 
 
 def test_empty_and_malformed_files_handling(db_session: Session, tmp_path: Path):

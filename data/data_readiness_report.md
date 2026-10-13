@@ -30,7 +30,7 @@
 | Dataset / Entity | Source Read | Imported DB Records | Chunks Created | Skipped / Deduplicated | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`hospitals` Table** | 30,273 rows | **29,974 records** | N/A | 299 rows (empty/headers) | **Success** |
-| **`insurer_hospital_records` Table** | 2 files | **10 records** | N/A | 10 duplicates across HTML/MHTML | **Success** (8 linked to Directory) |
+| **`insurer_hospital_records` Table** | 2 files | **10 records** | N/A | 10 duplicates across HTML/MHTML | **Success** (6 confidently linked; ambiguous matches left unlinked) |
 | **`documents` (CIS PDF)** | 20 pages | **1 document** | **60 chunks** | 0 | **Success** (39,754 chars) |
 | **`documents` (Full Policy PDF)** | 48 pages | **1 document** | **179 chunks** | 0 | **Success** (134,147 chars) |
 | **`documents` (IRDAI FAQ MHTML)** | 1 file | **1 document** | **16 chunks** | 0 | **Success** (38,029 chars) |

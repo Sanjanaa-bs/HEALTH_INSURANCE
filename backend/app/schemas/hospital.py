@@ -16,6 +16,7 @@ class InsurerHospitalRecordRead(BaseModel):
     pincode: Optional[str] = None
     address: Optional[str] = None
     network_type: Optional[str] = None
+    total_beds: Optional[int] = None
     source_type: str = "Insurer Network (Star Health)"
     matched_hospital_id: Optional[int] = None
     created_at: datetime

@@ -3,6 +3,8 @@ import json
 import logging
 import re
 import sys
+import unicodedata
+from difflib import SequenceMatcher
 from email import policy
 from pathlib import Path
 
@@ -17,6 +19,61 @@ from backend.app.models.hospital import Hospital, InsurerHospitalRecord
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("ingest_insurer_networks")
+
+
+def normalize_hospital_name(value: str) -> str:
+    """Normalize punctuation and common legal suffixes for conservative matching."""
+    normalized = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    tokens = re.findall(r"[a-z0-9]+", normalized.lower())
+    tokens = ["hospital" if token == "hospitals" else token for token in tokens]
+    while tokens and tokens[-1] in {"pvt", "private", "ltd", "limited", "llp", "inc"}:
+        tokens.pop()
+    return " ".join(tokens)
+
+
+def match_directory_hospital(db: Session, card: Dict[str, Any]) -> Optional[Hospital]:
+    """Link only a unique, high-confidence name match in the same state.
+
+    The old first-token substring query could associate a network entry with an
+    unrelated directory facility (for example, every hospital starting with
+    "Apollo"). Ambiguous matches are left unlinked rather than guessed.
+    """
+    normalized_name = normalize_hospital_name(card["hospital_name"])
+    if not normalized_name:
+        return None
+
+    candidates = db.query(Hospital).filter(Hospital.state.ilike(card["state"])).all()
+    exact_matches = [
+        hospital for hospital in candidates
+        if normalize_hospital_name(hospital.hospital_name) == normalized_name
+    ]
+
+    pincode = card.get("pincode")
+    if pincode:
+        pincode_matches = [hospital for hospital in exact_matches if hospital.pincode == pincode]
+        if pincode_matches:
+            exact_matches = pincode_matches
+
+    if len(exact_matches) == 1:
+        return exact_matches[0]
+
+    # Permit a minor spelling variation only when locality agrees and the best
+    # candidate is clearly unique; otherwise leave the FK unset.
+    locality = normalize_hospital_name(card.get("city") or "")
+    scored = []
+    for hospital in candidates:
+        candidate_name = normalize_hospital_name(hospital.hospital_name)
+        similarity = SequenceMatcher(None, normalized_name, candidate_name).ratio()
+        location_text = normalize_hospital_name(
+            f"{hospital.district or ''} {hospital.address or ''}"
+        )
+        locality_match = bool(locality and locality in location_text)
+        if similarity >= 0.94 and locality_match:
+            scored.append((similarity, hospital))
+    scored.sort(key=lambda item: item[0], reverse=True)
+    if scored and (len(scored) == 1 or scored[0][0] - scored[1][0] >= 0.05):
+        return scored[0][1]
+    return None
 
 
 def extract_cards_from_html(html_content: str, source_file: str, source_url: str) -> List[Dict[str, Any]]:
@@ -73,7 +130,7 @@ def extract_cards_from_html(html_content: str, source_file: str, source_url: str
             "hospital_name": hospital_name,
             "city": "Bengaluru",
             "state": "Karnataka",
-            "pincode": pincode or "560001",
+            "pincode": pincode,
             "address": address or ", ".join([s for s in raw_strings[1:5] if s not in ["Directions", "Network Hospital", ","]]),
             "network_type": network_type,
             "source_file": source_file,
@@ -111,11 +168,15 @@ def ingest_insurer_networks(
     }
 
     # Track imported keys to prevent duplicates across files: (hospital_name.lower(), pincode)
-    existing_in_db = db.query(InsurerHospitalRecord.hospital_name, InsurerHospitalRecord.pincode).all()
+    existing_in_db = db.query(InsurerHospitalRecord).all()
     seen_keys = {
-        (rec.hospital_name.strip().lower(), (rec.pincode or "").strip())
+        (normalize_hospital_name(rec.hospital_name), (rec.pincode or "").strip())
         for rec in existing_in_db
     }
+    existing_by_name = {
+        normalize_hospital_name(rec.hospital_name): rec for rec in existing_in_db
+    }
+    linked_network_names = set()
 
     # Discover files
     files = list(network_dir.glob("*.htm")) + list(network_dir.glob("*.html")) + list(network_dir.glob("*.mhtml"))
@@ -145,23 +206,27 @@ def ingest_insurer_networks(
         metrics["extracted_cards"] += len(cards)
 
         for card in cards:
-            dedup_key = (card["hospital_name"].strip().lower(), card["pincode"].strip())
-            if dedup_key in seen_keys:
+            normalized_name = normalize_hospital_name(card["hospital_name"])
+            dedup_key = (normalized_name, (card.get("pincode") or "").strip())
+            existing_record = existing_by_name.get(normalized_name)
+            if dedup_key in seen_keys or existing_record:
                 metrics["skipped_duplicates"] += 1
+                # Refresh fields that were previously guessed/defaulted by the
+                # importer and repair stale directory links when possible.
+                if existing_record:
+                    existing_record.pincode = card.get("pincode")
+                    existing_record.address = card.get("address")
+                    existing_record.network_type = card["network_type"]
+                    match = match_directory_hospital(db, card)
+                    existing_record.matched_hospital_id = match.id if match else None
+                    if match:
+                        linked_network_names.add(normalized_name)
                 continue
 
-            # Attempt match in general directory
-            matched_hospital = (
-                db.query(Hospital)
-                .filter(
-                    Hospital.state.ilike("%Karnataka%"),
-                    Hospital.hospital_name.ilike(f"%{card['hospital_name'].split()[0]}%"),
-                )
-                .first()
-            )
+            matched_hospital = match_directory_hospital(db, card)
             matched_id = matched_hospital.id if matched_hospital else None
             if matched_id:
-                metrics["matched_directory_hospitals"] += 1
+                linked_network_names.add(normalized_name)
 
             record = InsurerHospitalRecord(
                 insurer_name=card["insurer_name"],
@@ -177,8 +242,10 @@ def ingest_insurer_networks(
 
             db.add(record)
             seen_keys.add(dedup_key)
+            existing_by_name[normalized_name] = record
             metrics["imported_records"] += 1
 
+    metrics["matched_directory_hospitals"] = len(linked_network_names)
     db.commit()
     if should_close_db:
         db.close()

@@ -14,6 +14,7 @@ from scripts.ingest_hospitals import ingest_hospital_csv
 from scripts.ingest_insurer_networks import ingest_insurer_networks
 from scripts.ingest_policies import ingest_policy_pdfs
 from scripts.ingest_claim_guidance import ingest_claim_guidance_mhtml
+from scripts.index_embeddings import index_all_chunks
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("ingest_pipeline")
@@ -63,6 +64,12 @@ def run_full_pipeline() -> dict:
         indexed_chunks = sync_fts5_index(db=db)
         results["fts5_search_index"] = {"indexed_chunks": indexed_chunks}
 
+        # Keep dense retrieval synchronized with the content just imported.
+        logger.info("--- Step 6: Rebuilding Local Vector Search Index ---")
+        results["vector_search_index"] = {
+            "indexed_chunks": index_all_chunks(db=db, force_rebuild=True)
+        }
+
     finally:
         db.close()
 
@@ -77,6 +84,7 @@ def run_full_pipeline() -> dict:
     print(f"Policy PDFs: {results['policies']['total_chunks_indexed']} chunks indexed from {results['policies']['files_scanned']} files")
     print(f"Claim Guidance MHTML: {results['claim_guidance']['total_chunks_indexed']} chunks indexed from {results['claim_guidance']['files_scanned']} files")
     print(f"FTS5 Search Index: {results['fts5_search_index']['indexed_chunks']} retrievable passages indexed")
+    print(f"Vector Search Index: {results['vector_search_index']['indexed_chunks']} embeddings indexed")
     print(f"Total Pipeline Runtime: {elapsed:.2f} seconds")
     print("=" * 60 + "\n")
 

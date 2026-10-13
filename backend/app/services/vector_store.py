@@ -1,7 +1,10 @@
 import os
 import json
+import tempfile
 from typing import List, Dict, Any, Optional
 import numpy as np
+
+from backend.app.config import settings
 
 
 class LocalVectorStore:
@@ -10,8 +13,8 @@ class LocalVectorStore:
     Saves and loads index data atomically to/from a JSON vector index file.
     """
 
-    def __init__(self, filepath: str = "./vector_index.json"):
-        self.filepath = filepath
+    def __init__(self, filepath: Optional[str] = None):
+        self.filepath = filepath or settings.VECTOR_STORE_PATH
         self.vectors: List[List[float]] = []
         self.metadata: List[Dict[str, Any]] = []
 
@@ -100,8 +103,21 @@ class LocalVectorStore:
             "vectors": self.vectors,
             "metadata": self.metadata,
         }
-        with open(target_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False)
+        parent = os.path.dirname(os.path.abspath(target_path))
+        os.makedirs(parent, exist_ok=True)
+        temp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", encoding="utf-8", dir=parent, delete=False
+            ) as f:
+                temp_path = f.name
+                json.dump(data, f, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_path, target_path)
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.unlink(temp_path)
 
     def load(self, filepath: Optional[str] = None) -> bool:
         """Load vector index from JSON file."""
@@ -113,12 +129,20 @@ class LocalVectorStore:
             with open(target_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            self.vectors = data.get("vectors", [])
-            self.metadata = data.get("metadata", [])
+            vectors = data.get("vectors", [])
+            metadata = data.get("metadata", [])
+            if not isinstance(vectors, list) or not isinstance(metadata, list):
+                return False
+            if len(vectors) != len(metadata):
+                return False
+            if any(not isinstance(vector, list) for vector in vectors):
+                return False
+            self.vectors = vectors
+            self.metadata = metadata
             return True
         except Exception:
             return False
 
 
-# Global singleton instance
+# Global singleton instance shared by startup, retrieval, and indexing.
 vector_store_instance = LocalVectorStore()

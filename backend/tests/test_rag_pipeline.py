@@ -7,8 +7,15 @@ from backend.app.models.document import Document, DocumentChunk
 from backend.app.services.embeddings import LocalDenseEmbeddingProvider, get_embedding_provider
 from backend.app.services.vector_store import LocalVectorStore, vector_store_instance
 from backend.app.services.retrieval import hybrid_search
-from backend.app.services.llm_provider import OpenAILLMProvider, GeminiLLMProvider, get_llm_provider
-from backend.app.schemas.qa import QuestionRequest, QuestionResponse
+from backend.app.services.llm_provider import (
+    OllamaLLMProvider,
+    OpenAILLMProvider,
+    GeminiLLMProvider,
+    get_llm_provider,
+)
+from backend.app.schemas.qa import CitationItem, QuestionRequest, QuestionResponse
+from backend.app.services.qa import build_evidence_grounded_answer
+from backend.app.config import settings
 
 
 @pytest.fixture
@@ -96,6 +103,90 @@ def test_embedding_generation():
     assert len(vec) == 128
     norm = sum(x * x for x in vec) ** 0.5
     assert abs(norm - 1.0) < 1e-4
+
+
+def test_rag_compatibility_exports_share_live_vector_store():
+    """Startup, indexing, and retrieval must operate on one vector store singleton."""
+    from backend.app.rag.vector_store import vector_store_instance as compatibility_store
+
+    assert compatibility_store is vector_store_instance
+
+
+def test_vector_store_uses_configured_path(monkeypatch, tmp_path):
+    configured_path = tmp_path / "custom-index.json"
+    monkeypatch.setattr(settings, "VECTOR_STORE_PATH", str(configured_path))
+
+    store = LocalVectorStore()
+
+    assert store.filepath == str(configured_path)
+
+
+def test_ollama_is_the_default_local_llm_provider(monkeypatch):
+    monkeypatch.setattr(settings, "LLM_PROVIDER", "ollama")
+
+    provider = get_llm_provider()
+
+    assert isinstance(provider, OllamaLLMProvider)
+    assert provider.model_name == settings.OLLAMA_MODEL_NAME
+
+
+def test_ollama_provider_parses_grounded_response(monkeypatch):
+    from backend.app.services import llm_provider
+
+    response = MagicMock()
+    response.json.return_value = {"message": {"content": "### Direct Policy Answer\nSupported answer."}}
+    monkeypatch.setattr(llm_provider.httpx, "post", MagicMock(return_value=response))
+    provider = OllamaLLMProvider("http://localhost:11434/", "llama3.2")
+
+    answer, provider_name = provider.generate_answer("Question", [{"supporting_text": "Evidence."}])
+
+    assert answer == "### Direct Policy Answer\nSupported answer."
+    assert provider_name == "ollama"
+    response.raise_for_status.assert_called_once()
+
+
+def test_fallback_answer_does_not_invent_topic_facts():
+    citation = CitationItem(
+        chunk_id=1,
+        document_id=1,
+        document_title="Policy excerpt",
+        document_type="policy",
+        supporting_text="This excerpt does not state a cataract waiting period.",
+        content_hash="hash",
+    )
+
+    answer = build_evidence_grounded_answer("What is the cataract waiting period?", [citation])
+
+    assert citation.supporting_text in answer
+    assert "24-month" not in answer
+
+
+def test_hybrid_retrieval_applies_alpha_weight(monkeypatch, db_session):
+    from backend.app.services import retrieval
+
+    monkeypatch.setattr(
+        retrieval,
+        "search_document_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "excerpt": "keyword result"}],
+    )
+    monkeypatch.setattr(
+        retrieval,
+        "get_embedding_provider",
+        lambda: MagicMock(embed_text=lambda query: [1.0]),
+    )
+    monkeypatch.setattr(
+        retrieval.vector_store_instance,
+        "search",
+        lambda **kwargs: [{"chunk_id": 2, "supporting_text": "vector result"}],
+    )
+
+    keyword_only, _ = hybrid_search(db_session, "query", top_k=2, alpha=1.0)
+    vector_only, _ = hybrid_search(db_session, "query", top_k=2, alpha=0.0)
+
+    assert keyword_only[0]["chunk_id"] == 1
+    assert keyword_only[0]["rrf_score"] > keyword_only[1]["rrf_score"]
+    assert vector_only[0]["chunk_id"] == 2
+    assert vector_only[0]["rrf_score"] > vector_only[1]["rrf_score"]
 
 
 def test_vector_store_search(rag_seed_docs):

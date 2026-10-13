@@ -28,7 +28,7 @@ export const HospitalExplorer: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadData = async (page = 1) => {
+  const loadData = async (page = 1, searchTerm = search, stateTerm = stateFilter) => {
     setLoading(true);
     setError(null);
     try {
@@ -36,8 +36,8 @@ export const HospitalExplorer: React.FC = () => {
         const data = await fetchHospitals({
           page,
           pageSize: 10,
-          search: search.trim() || undefined,
-          state: stateFilter.trim() || undefined,
+          search: searchTerm.trim() || undefined,
+          state: stateTerm.trim() || undefined,
         });
         setHospitals(data.items);
         setPagination(data.pagination);
@@ -45,7 +45,7 @@ export const HospitalExplorer: React.FC = () => {
         const data = await fetchInsurerHospitals({
           page,
           pageSize: 10,
-          search: search.trim() || undefined,
+          search: searchTerm.trim() || undefined,
         });
         setInsurerRecords(data.items);
         setPagination(data.pagination);
@@ -69,9 +69,7 @@ export const HospitalExplorer: React.FC = () => {
   const handleClearFilters = () => {
     setSearch('');
     setStateFilter('');
-    setTimeout(() => {
-      loadData(1);
-    }, 0);
+    loadData(1, '', '');
   };
 
   return (
@@ -160,7 +158,7 @@ export const HospitalExplorer: React.FC = () => {
             • <strong className="text-white">National Directory:</strong> Lists government-registered healthcare providers (29,974 facilities). Inclusion does <strong className="text-white">not</strong> establish Star Health network membership.
           </p>
           <p>
-            • <strong className="text-white">Star Health Network:</strong> Displays verified insurer network records. A network listing does <strong className="text-white">not</strong> guarantee claim approval, which remains subject to policy terms and pre-authorization.
+            • <strong className="text-white">Star Health Network:</strong> The offline sample contains Bangalore records only. A search with no match means no record was found in this sample; it does not establish that a hospital is outside Star Health's current network. A listing does <strong className="text-white">not</strong> guarantee claim approval, which remains subject to policy terms and pre-authorization.
           </p>
         </div>
 
@@ -303,7 +301,7 @@ export const HospitalExplorer: React.FC = () => {
                             {h.total_beds} beds
                           </span>
                         ) : (
-                          <span className="text-slate-400 font-mono text-[11px]">Not available</span>
+                          <span className="text-slate-400 font-mono text-[11px]">Not reported in directory</span>
                         )}
                       </td>
                     </tr>
@@ -313,8 +311,8 @@ export const HospitalExplorer: React.FC = () => {
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-slate-400">
                     <ShieldCheck className="w-8 h-8 mx-auto text-slate-600 mb-2" />
-                    <p className="font-semibold text-white">No matching hospitals found in the currently available Star Health network records.</p>
-                    <p className="text-xs text-slate-400 mt-1">Search is restricted to the ingested sample of 10 verified Star Health network records. Try clearing search terms or switching to the National Directory tab.</p>
+                    <p className="font-semibold text-white">No match in the local Star Health network sample.</p>
+                    <p className="text-xs text-slate-400 mt-1">The imported sample covers Bangalore only; it is not a live nationwide network lookup. Try a hospital name or city from the sample, clear the search, or verify network status with Star Health.</p>
                   </td>
                 </tr>
               ) : (
@@ -345,9 +343,11 @@ export const HospitalExplorer: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <span className="text-[11px] font-semibold text-cyan-300 bg-cyan-950 border border-cyan-500/30 px-2.5 py-0.5 rounded">
-                        {r.network_type || 'Cashless Eligible'}
+                        {r.network_type || 'Cashless Network'}
                       </span>
-                      <span className="block text-[10px] text-slate-400 mt-0.5 font-normal">Capacity: Not available</span>
+                      <span className="block text-[10px] text-slate-400 mt-0.5 font-normal">
+                        {r.total_beds ? `${r.total_beds} beds in directory` : 'Bed count not reported'}
+                      </span>
                     </td>
                   </tr>
                 ))
