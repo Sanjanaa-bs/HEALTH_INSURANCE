@@ -75,17 +75,17 @@ export const HospitalExplorer: React.FC = () => {
   return (
     <div className="space-y-8 pb-12">
       {/* 1. COMPACT INTRODUCTORY BANNER (Does not push search below the fold) */}
-      <section className="bg-navy-850 border border-navy-800 rounded-2xl overflow-hidden shadow-xl">
+      <section className="editorial-card overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-12 items-center">
           <div className="p-6 sm:p-8 md:col-span-8 space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-full inline-block">
-              Provider Directory & Network Search
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-full inline-block">
+              HOSPITAL DIRECTORY
             </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="page-title text-3xl sm:text-4xl font-semibold text-white tracking-tight">
               Find a Hospital
             </h1>
-            <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Search 29,974 registered government hospital facilities across Indian states or explore verified Star Health network hospitals eligible for cashless hospitalization pre-authorization.
+            <p className="text-base text-slate-300 max-w-2xl leading-relaxed">
+              Search the national facility directory or check the Star Health network sample by hospital, city, or state.
             </p>
           </div>
 
@@ -102,7 +102,7 @@ export const HospitalExplorer: React.FC = () => {
       </section>
 
       {/* 2. MAIN SEARCH & RESULTS CONTAINER */}
-      <div className="bg-navy-850 border border-navy-800 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+      <div className="editorial-card p-5 sm:p-7 space-y-6">
         {/* Source Selector Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-navy-800">
           <div>
@@ -110,12 +110,14 @@ export const HospitalExplorer: React.FC = () => {
               Select Provider Directory
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Switch between national public facilities and verified insurer cashless network records.
+              Choose a directory to search. The two sources are listed separately.
             </p>
           </div>
 
-          <div className="inline-flex p-1 rounded-xl bg-navy-950 border border-navy-800 self-start sm:self-auto">
+          <div role="tablist" aria-label="Hospital data source" className="inline-flex p-1 rounded-xl bg-navy-950 border border-navy-800 self-start sm:self-auto">
             <button
+              role="tab"
+              aria-selected={sourceTab === 'govt'}
               onClick={() => {
                 setSourceTab('govt');
                 setSearch('');
@@ -128,9 +130,11 @@ export const HospitalExplorer: React.FC = () => {
               }`}
             >
               <Building className="w-3.5 h-3.5 text-cyan-400" />
-              <span>National Directory (29,974)</span>
+                <span>National directory</span>
             </button>
             <button
+              role="tab"
+              aria-selected={sourceTab === 'insurer'}
               onClick={() => {
                 setSourceTab('insurer');
                 setSearch('');
@@ -143,16 +147,16 @@ export const HospitalExplorer: React.FC = () => {
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Star Health Network (Sample: 10 Records)</span>
+                <span>Star Health sample · 10</span>
             </button>
           </div>
         </div>
 
         {/* Safety & Honest Limitations Notice */}
-        <div className="p-4 rounded-xl bg-navy-950/80 border border-navy-800 text-xs text-slate-300 space-y-1 leading-relaxed">
+        <div className="p-4 sm:p-5 rounded-xl bg-navy-950/80 border border-navy-800 text-sm text-slate-300 space-y-1 leading-relaxed">
           <div className="flex items-center gap-2 text-cyan-300 font-semibold">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>Important Distinction on Network Affiliation & Cashless Approval</span>
+            <span>About these listings</span>
           </div>
           <p>
             • <strong className="text-white">National Directory:</strong> Lists government-registered healthcare providers (29,974 facilities). Inclusion does <strong className="text-white">not</strong> establish Star Health network membership.
@@ -164,7 +168,7 @@ export const HospitalExplorer: React.FC = () => {
 
         {/* Search & Filter Controls */}
         <form onSubmit={handleSearchSubmit} className="space-y-3">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
             <div className="relative flex-1">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
               <input
@@ -176,7 +180,7 @@ export const HospitalExplorer: React.FC = () => {
                 }
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-white border border-slate-300 hover:border-slate-400 text-xs sm:text-sm text-[#0C162E] font-medium placeholder:text-[#64748B] caret-[#0C162E] rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-sm transition"
+                className="w-full bg-white border border-slate-300 hover:border-slate-400 text-sm text-[#1C3437] font-medium placeholder:text-[#718383] caret-[#1C3437] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition"
                 aria-label="Search hospital by name"
               />
             </div>
@@ -188,7 +192,7 @@ export const HospitalExplorer: React.FC = () => {
                   placeholder="State (e.g. Karnataka)"
                   value={stateFilter}
                   onChange={(e) => setStateFilter(e.target.value)}
-                  className="w-full bg-white border border-slate-300 hover:border-slate-400 text-xs sm:text-sm text-[#0C162E] font-medium placeholder:text-[#64748B] caret-[#0C162E] rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-sm transition"
+                  className="w-full bg-white border border-slate-300 hover:border-slate-400 text-sm text-[#1C3437] font-medium placeholder:text-[#718383] caret-[#1C3437] rounded-xl px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition"
                   aria-label="Filter by state"
                 />
               </div>

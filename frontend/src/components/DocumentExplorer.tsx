@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Document, PaginationMeta, SearchResultItem, QuestionResponse } from '../types';
 import { fetchDocuments, searchDocuments, askQuestion } from '../api/client';
+import { HighlightedExcerpt } from './HighlightedExcerpt';
 
 export const DocumentExplorer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'qa' | 'search' | 'catalogue'>('qa');
@@ -419,10 +420,9 @@ export const DocumentExplorer: React.FC = () => {
                     </p>
                   )}
 
-                  <p
-                    className="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-3 rounded-lg border border-slate-800/60 font-sans"
-                    dangerouslySetInnerHTML={{ __html: res.excerpt }}
-                  />
+                  <p className="text-sm text-slate-300 leading-relaxed bg-slate-900/60 p-3 rounded-lg border border-slate-800/60 font-sans">
+                    <HighlightedExcerpt html={res.excerpt} />
+                  </p>
                 </div>
               ))
             )}

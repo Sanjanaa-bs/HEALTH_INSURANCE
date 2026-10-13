@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { SearchResultItem, Document } from '../types';
 import { searchDocuments, fetchDocuments } from '../api/client';
+import { HighlightedExcerpt } from './HighlightedExcerpt';
 
 interface PolicySearchProps {
   initialQuery?: string;
@@ -34,14 +35,18 @@ export const PolicySearch: React.FC<PolicySearchProps> = ({
     { id: 'faq', label: 'IRDAI Regulations' },
   ];
 
-  const handleSearch = async (searchQuery = query) => {
+  const handleSearch = async (searchQuery = query, documentType = selectedType) => {
     const q = searchQuery.trim();
-    if (!q) return;
+    if (!q) {
+      setResults([]);
+      setTotalResults(0);
+      return;
+    }
 
     setLoading(true);
     setError(null);
     try {
-      const data = await searchDocuments(q, selectedType || undefined);
+      const data = await searchDocuments(q, documentType || undefined);
       setResults(data.results || []);
       setTotalResults(data.total_results ?? data.results?.length ?? 0);
     } catch (err: any) {
@@ -62,8 +67,8 @@ export const PolicySearch: React.FC<PolicySearchProps> = ({
 
   useEffect(() => {
     loadDocumentCatalog();
-    handleSearch(initialQuery);
-  }, [selectedType]);
+    void handleSearch(initialQuery, '');
+  }, []);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +76,7 @@ export const PolicySearch: React.FC<PolicySearchProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 policy-search">
       {/* Search Header Card */}
       <div className="bg-surface border border-border-light rounded-xl p-6 shadow-card space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border-light">
@@ -90,7 +95,7 @@ export const PolicySearch: React.FC<PolicySearchProps> = ({
 
         {/* Search Input Form */}
         <form onSubmit={handleFormSubmit} className="space-y-3">
-          <div className="flex flex-col sm:flex-row gap-2.5">
+          <div className="flex flex-col lg:flex-row gap-2.5">
             <div className="relative flex-1">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-secondary" />
               <input
@@ -130,7 +135,11 @@ export const PolicySearch: React.FC<PolicySearchProps> = ({
               <button
                 key={type.id}
                 type="button"
-                onClick={() => setSelectedType(type.id)}
+                onClick={() => {
+                  setSelectedType(type.id);
+                  void handleSearch(query, type.id);
+                }}
+                aria-pressed={selectedType === type.id}
                 className={`text-[11px] font-medium px-2.5 py-1 rounded-md transition border ${
                   selectedType === type.id
                     ? 'bg-navy-primary text-white border-navy-primary'
@@ -231,9 +240,10 @@ export const PolicySearch: React.FC<PolicySearchProps> = ({
 
                 {/* Highlighted Passage Snippet */}
                 <div
-                  className="p-3.5 bg-page rounded-lg border border-border-light text-ink-main text-xs leading-relaxed font-sans [&>b]:bg-teal-light [&>b]:text-teal-muted [&>b]:font-bold [&>b]:px-1 [&>b]:rounded"
-                  dangerouslySetInnerHTML={{ __html: item.excerpt }}
-                />
+                  className="p-3.5 bg-page rounded-lg border border-border-light text-ink-main text-sm leading-relaxed font-sans"
+                >
+                  <HighlightedExcerpt html={item.excerpt} />
+                </div>
 
                 {/* Action Link to Q&A */}
                 {onAskQuestion && (

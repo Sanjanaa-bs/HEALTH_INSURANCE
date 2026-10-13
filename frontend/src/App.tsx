@@ -9,7 +9,7 @@ import { fetchHealth, fetchDashboardSummary } from './api/client';
 import { Header, MainNavTab } from './components/Header';
 import { HomePage } from './components/HomePage';
 import { HospitalExplorer } from './components/HospitalExplorer';
-import { PolicyQA } from './components/PolicyQA';
+import { PolicyInformationPage } from './components/PolicyInformationPage';
 import { ClaimsGuidance } from './components/ClaimsGuidance';
 import { DocumentLibrary } from './components/DocumentLibrary';
 
@@ -63,7 +63,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-navy-900 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="app-shell min-h-screen flex flex-col font-sans">
       {/* 1. SINGLE, CLEAN PRIMARY NAVIGATION BAR */}
       <Header
         activeTab={activeTab}
@@ -74,7 +74,7 @@ export const App: React.FC = () => {
       />
 
       {/* 2. MAIN CONTENT AREA */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main key={activeTab} className="app-main page-enter flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {/* Backend Connectivity Alert (if connection fails) */}
         {error && (
           <div className="mb-8 bg-amber-950/40 border border-amber-500/40 rounded-xl p-4 flex items-start justify-between gap-3 text-amber-200">
@@ -110,10 +110,7 @@ export const App: React.FC = () => {
 
         {/* VIEW 3: POLICY INFORMATION */}
         {activeTab === 'policy' && (
-          <PolicyQA
-            initialQuestion={selectedQaQuestion}
-            onNavigateToSearch={() => setActiveTab('documents')}
-          />
+          <PolicyInformationPage initialQuestion={selectedQaQuestion} />
         )}
 
         {/* VIEW 4: CLAIMS HELP */}
@@ -130,15 +127,15 @@ export const App: React.FC = () => {
       {/* 3. OPTIONAL DEVELOPER / ADMIN DIAGNOSTICS MODAL */}
       {showAdminDiagnostics && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-navy-850 border border-navy-700 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-navy-800">
+          <div className="bg-[#fffefa] border border-[#dce4dc] rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl text-[#263e40]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#dce4dc]">
               <div className="flex items-center gap-2">
-                <Cpu className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-base font-bold text-white">System Diagnostics & Data Readiness</h3>
+                <Cpu className="w-5 h-5 text-[#28675e]" />
+                <h3 className="text-base font-bold">About this guide & its data</h3>
               </div>
               <button
                 onClick={() => setShowAdminDiagnostics(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-navy-800 transition"
+                className="p-1 rounded-lg text-[#617475] hover:text-[#173e3a] hover:bg-[#edf2ed] transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -147,27 +144,27 @@ export const App: React.FC = () => {
             {/* Quick Metrics */}
             {summary && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="bg-navy-900 p-3 rounded-xl border border-navy-800">
-                  <span className="text-slate-400 block text-[11px]">Hospitals Directory</span>
-                  <span className="text-base font-bold text-white mt-1 block">
+                <div className="bg-[#f3f5f1] p-3 rounded-xl border border-[#dce4dc]">
+                  <span className="text-[#617475] block text-[11px]">Hospitals Directory</span>
+                  <span className="text-base font-bold mt-1 block">
                     {summary.total_hospitals.toLocaleString()}
                   </span>
                 </div>
-                <div className="bg-navy-900 p-3 rounded-xl border border-navy-800">
-                  <span className="text-slate-400 block text-[11px]">Network Records</span>
-                  <span className="text-base font-bold text-cyan-300 mt-1 block">
+                <div className="bg-[#f3f5f1] p-3 rounded-xl border border-[#dce4dc]">
+                  <span className="text-[#617475] block text-[11px]">Network Records</span>
+                  <span className="text-base font-bold text-[#28675e] mt-1 block">
                     {summary.total_insurer_records.toLocaleString()}
                   </span>
                 </div>
-                <div className="bg-navy-900 p-3 rounded-xl border border-navy-800">
-                  <span className="text-slate-400 block text-[11px]">Indexed Documents</span>
-                  <span className="text-base font-bold text-white mt-1 block">
+                <div className="bg-[#f3f5f1] p-3 rounded-xl border border-[#dce4dc]">
+                  <span className="text-[#617475] block text-[11px]">Indexed Documents</span>
+                  <span className="text-base font-bold mt-1 block">
                     {summary.total_documents.toLocaleString()}
                   </span>
                 </div>
-                <div className="bg-navy-900 p-3 rounded-xl border border-navy-800">
-                  <span className="text-slate-400 block text-[11px]">Search Chunks</span>
-                  <span className="text-base font-bold text-white mt-1 block">
+                <div className="bg-[#f3f5f1] p-3 rounded-xl border border-[#dce4dc]">
+                  <span className="text-[#617475] block text-[11px]">Search Chunks</span>
+                  <span className="text-base font-bold mt-1 block">
                     {summary.total_document_chunks.toLocaleString()}
                   </span>
                 </div>
@@ -175,22 +172,21 @@ export const App: React.FC = () => {
             )}
 
             {/* Tech Stack Specs */}
-            <div className="bg-navy-900 p-4 rounded-xl border border-navy-800 text-xs space-y-2">
-              <h4 className="font-bold text-white uppercase text-[11px] tracking-wider text-cyan-400">
-                Verified System Foundation
+            <div className="bg-[#f3f5f1] p-4 rounded-xl border border-[#dce4dc] text-xs space-y-2">
+              <h4 className="font-bold uppercase text-[11px] tracking-wider text-[#28675e]">
+                Data notes
               </h4>
-              <ul className="text-slate-300 space-y-1.5 list-disc list-inside">
-                <li>FastAPI 0.110+ backend with SQLAlchemy 2.0 ORM engine</li>
-                <li>SQLite 3.38+ with FTS5 BM25 full-text indexing (porter unicode61)</li>
-                <li>Star Comprehensive Policy (UIN: SHAHLIP26044V092526, POL / COMP / V.24 / 2025)</li>
-                <li>27/27 automated backend tests passing</li>
+              <ul className="text-[#485f60] space-y-1.5 list-disc list-inside">
+                <li>The national directory lists registered facilities; it does not confirm Star Health network status.</li>
+                <li>The local Star Health hospital sample covers Bangalore and may not reflect the current network.</li>
+                <li>Policy and guidance passages are indexed for search. Check your policy wording for coverage details.</li>
               </ul>
             </div>
 
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setShowAdminDiagnostics(false)}
-                className="px-4 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-white text-xs font-semibold transition"
+                className="px-4 py-2 rounded-xl bg-[#28675e] hover:bg-[#184d48] text-white text-xs font-semibold transition"
               >
                 Close Diagnostics
               </button>
@@ -200,43 +196,43 @@ export const App: React.FC = () => {
       )}
 
       {/* 4. FOOTER */}
-      <footer className="border-t border-navy-800/80 bg-navy-950 py-8 text-xs text-slate-400">
+      <footer className="app-footer border-t border-[#dce4dc] bg-[#f8f9f5] py-7 text-xs text-[#617475]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
-            <p className="font-semibold text-slate-300">
-              Star Health Comprehensive Insurance Information Platform
+            <p className="font-semibold text-[#263e40]">
+              Star Health · Coverage & claims guide
             </p>
-            <p className="text-[11px] text-slate-500">
-              Grounding Source: POL / COMP / V.24 / 2025 (UIN: SHAHLIP26044V092526) · CIS (Version: V.2 / 2025)
+            <p className="text-[11px] text-[#718383]">
+              For information only. Your policy documents and Star Health’s formal assessment determine coverage.
             </p>
           </div>
 
           <div className="flex items-center gap-4 text-xs">
             <button
               onClick={() => setActiveTab('hospitals')}
-              className="hover:text-white transition"
+              className="hover:text-[#28675e] transition"
             >
               Hospitals
             </button>
             <button
               onClick={() => setActiveTab('policy')}
-              className="hover:text-white transition"
+              className="hover:text-[#28675e] transition"
             >
               Policy Terms
             </button>
             <button
               onClick={() => setActiveTab('claims')}
-              className="hover:text-white transition"
+              className="hover:text-[#28675e] transition"
             >
               Claims
             </button>
-            <span className="text-navy-800">•</span>
+            <span className="text-[#cad5cd]">•</span>
             <button
               onClick={() => setShowAdminDiagnostics(true)}
-              className="text-cyan-400/80 hover:text-cyan-300 transition"
+              className="text-[#28675e] hover:text-[#184d48] transition"
               title="View platform statistics & specs"
             >
-              System Specs
+              Data notes
             </button>
           </div>
         </div>

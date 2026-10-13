@@ -32,21 +32,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
   return (
     <div className="space-y-16 pb-16">
       {/* 1. POLISHED TWO-COLUMN HERO */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy-900 via-navy-850 to-navy-950 border border-navy-800 shadow-xl">
+      <section className="relative overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-navy-900 via-navy-850 to-navy-950 border border-navy-800 shadow-card">
         <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
           {/* Left Column: Heading, Text & Main Input */}
           <div className="p-8 sm:p-12 lg:p-14 lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/30 text-cyan-300 text-xs font-semibold">
               <Shield className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Official Star Health Policy & Provider Intelligence</span>
+              <span>Policy & provider guide</span>
             </div>
 
             <div className="space-y-3">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                Understand Your Health Insurance with Confidence
+              <h1 className="page-title text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold text-white tracking-tight leading-[1.08]">
+                Health cover, made easier to understand.
               </h1>
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
-                Explore your policy documents, find network hospitals, and understand the steps involved in your health insurance claims—all in one place.
+                Find a hospital, make sense of your policy, or see what to do next with a claim.
               </p>
             </div>
 
@@ -59,30 +59,30 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
                     type="text"
                     value={heroQuery}
                     onChange={(e) => setHeroQuery(e.target.value)}
-                    placeholder="Ask about your policy, coverage, or waiting periods..."
-                    className="w-full bg-white border border-slate-300 hover:border-slate-400 rounded-xl pl-12 pr-4 py-3.5 text-sm text-[#0C162E] font-medium placeholder:text-[#64748B] caret-[#0C162E] focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 shadow-sm transition"
+                    placeholder="Ask a question about your cover…"
+                    className="w-full bg-white border border-slate-300 hover:border-slate-400 rounded-xl pl-12 pr-4 py-3.5 text-sm text-[#1C3437] font-medium placeholder:text-[#718383] caret-[#1C3437] focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition"
                     aria-label="Ask about health insurance policy"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-sm font-semibold transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 whitespace-nowrap"
+                  className="px-6 py-3.5 rounded-xl bg-brand-cyan hover:bg-cyan-600 active:scale-[.98] text-white text-sm font-semibold transition shadow-sm flex items-center justify-center gap-2 whitespace-nowrap"
                 >
-                  <span>Ask a Question</span>
+                  <span>Ask about my cover</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Secondary Action */}
               <div className="flex items-center gap-4 pt-1">
-                <span className="text-xs text-slate-400">Or explore directories:</span>
+                <span className="text-xs text-slate-400">Looking for care?</span>
                 <button
                   type="button"
                   onClick={() => onNavigate('hospitals')}
                   className="text-xs font-semibold text-cyan-300 hover:text-cyan-200 underline underline-offset-4 flex items-center gap-1"
                 >
                   <Building2 className="w-3.5 h-3.5" />
-                  Find a Hospital &rarr;
+                  Find a hospital
                 </button>
               </div>
             </form>
@@ -90,7 +90,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
             {/* Trust-oriented tagline */}
             <div className="pt-4 border-t border-navy-800/80 flex items-center gap-2 text-xs text-slate-400">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span>Guidance grounded in available policy documents and source material.</span>
+              <span>Answers link back to the policy wording they use.</span>
             </div>
           </div>
 
@@ -110,11 +110,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
       {/* 2. THREE ATTRACTIVE FEATURE CARDS */}
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            How can we help you today?
+          <h2 className="page-title text-2xl sm:text-3xl font-semibold text-white tracking-tight">
+            Start with what you need
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            Access verified hospital directories, legal policy terms, and step-by-step claims procedures.
+            Go directly to hospitals, policy wording, or practical claims guidance.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
                   Find a Hospital
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
-                  Search across national hospital directory facilities and explore verified Star Health cashless network hospitals in your location.
+                  Search the national facility directory or explore the available Star Health network sample.
                 </p>
               </div>
 
@@ -151,7 +151,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
                   onClick={() => onNavigate('hospitals')}
                   className="w-full py-2.5 px-4 rounded-xl bg-navy-800 hover:bg-blue-600 hover:text-white text-slate-200 text-sm font-semibold border border-navy-700 transition flex items-center justify-center gap-2"
                 >
-                  <span>Explore Hospitals</span>
+                  <span>Search hospitals</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -181,7 +181,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
                   Understand My Policy
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
-                  Ask evidence-grounded questions about pre-existing disease waiting periods, room-rent limits, cataract terms, and exclusions.
+                  Ask about waiting periods, room limits, exclusions, and more—with source passages to check.
                 </p>
               </div>
 
@@ -190,7 +190,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
                   onClick={() => onNavigate('policy')}
                   className="w-full py-2.5 px-4 rounded-xl bg-navy-800 hover:bg-blue-600 hover:text-white text-slate-200 text-sm font-semibold border border-navy-700 transition flex items-center justify-center gap-2"
                 >
-                  <span>Explore Policy</span>
+                  <span>Ask about my policy</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -220,7 +220,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
                   Get Claims Help
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed">
-                  Learn about cashless hospitalization intimation, reimbursement timelines, required medical documents, and official tracking.
+                  See the steps, time limits, and documents commonly needed for a claim.
                 </p>
               </div>
 
@@ -229,7 +229,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
                   onClick={() => onNavigate('claims')}
                   className="w-full py-2.5 px-4 rounded-xl bg-navy-800 hover:bg-blue-600 hover:text-white text-slate-200 text-sm font-semibold border border-navy-700 transition flex items-center justify-center gap-2"
                 >
-                  <span>View Claims Guide</span>
+                  <span>View claims steps</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -242,13 +242,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onAskQuestion })
       <section className="bg-navy-900/60 border border-navy-800 rounded-xl p-5 text-xs text-slate-400 space-y-1.5 leading-relaxed">
         <div className="flex items-center gap-2 text-cyan-300 font-semibold text-xs">
           <HelpCircle className="w-4 h-4 flex-shrink-0" />
-          <span>Policyholder Notice & Informational Scope</span>
+          <span>About this guide</span>
         </div>
         <p>
-          Guidance and policy answers on this platform are grounded strictly in indexed source documents from Star Health and Allied Insurance Company Limited (UIN: SHAHLIP26044V092526) and IRDAI regulations.
+          Policy answers are drawn from the Star Comprehensive policy wording, Customer Information Sheet, and indexed guidance shown in the portal.
         </p>
         <p>
-          This portal provides educational assistance and does not substitute for binding policy contracts or insurer pre-authorization. Final claim decisions and coverage applicability depend upon formal assessment by Star Health.
+          This guide is for information only. Your policy documents and Star Health’s formal decision determine the cover and claim outcome for your situation.
         </p>
       </section>
     </div>
