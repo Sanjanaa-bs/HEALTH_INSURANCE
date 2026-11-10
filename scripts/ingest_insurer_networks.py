@@ -21,9 +21,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("ingest_insurer_networks")
 
 
-def normalize_hospital_name(value: str) -> str:
-    """Normalize punctuation and common legal suffixes for conservative matching."""
-    normalized = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+def normalize_hospital_name(value: Optional[str]) -> str:
+    """Normalize punctuation, case, whitespace, and common legal suffixes for conservative matching."""
+    if not value or not isinstance(value, str):
+        return ""
+    val = value.replace("&", " and ").replace("'", "").replace("’", "")
+    normalized = unicodedata.normalize("NFKD", val).encode("ascii", "ignore").decode("ascii")
     tokens = re.findall(r"[a-z0-9]+", normalized.lower())
     tokens = ["hospital" if token == "hospitals" else token for token in tokens]
     while tokens and tokens[-1] in {"pvt", "private", "ltd", "limited", "llp", "inc"}:

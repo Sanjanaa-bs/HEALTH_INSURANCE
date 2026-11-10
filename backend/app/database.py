@@ -41,3 +41,43 @@ def init_db() -> None:
     # Ensure all models are imported before creating tables
     import backend.app.models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+
+
+def ensure_hospital_data_loaded() -> None:
+    """Check if hospital directory records exist; if database is empty, load from configured dataset paths."""
+    import sys
+    import os
+    from pathlib import Path
+    import logging
+
+    logger = logging.getLogger("hospital_loader")
+
+    # Do not auto-ingest during unit testing or when running under pytest
+    if "pytest" in sys.modules or os.environ.get("PYTEST_CURRENT_TEST") or settings.APP_ENV == "testing":
+        return
+
+    from backend.app.models.hospital import Hospital, InsurerHospitalRecord
+    db = SessionLocal()
+    try:
+        hospital_count = db.query(Hospital).count()
+        if hospital_count == 0:
+            csv_path = Path(settings.HOSPITALS_CSV_PATH)
+            if csv_path.exists():
+                logger.info(f"Hospital directory table is empty. Ingesting from {csv_path}...")
+                from scripts.ingest_hospitals import ingest_hospital_csv
+                ingest_hospital_csv(csv_path=str(csv_path), db=db)
+            else:
+                logger.warning(f"Hospital directory CSV not found at {csv_path}")
+
+        insurer_count = db.query(InsurerHospitalRecord).count()
+        if insurer_count == 0:
+            networks_dir = Path(settings.INSURER_NETWORKS_DIR)
+            if networks_dir.exists():
+                logger.info(f"Insurer network table is empty. Ingesting from {networks_dir}...")
+                from scripts.ingest_insurer_networks import ingest_insurer_networks
+                ingest_insurer_networks(dir_path=str(networks_dir), db=db)
+    except Exception as e:
+        logger.error(f"Error ensuring hospital data is loaded: {e}")
+    finally:
+        db.close()
+

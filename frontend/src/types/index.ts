@@ -57,6 +57,9 @@ export interface Hospital {
   longitude?: number;
   source_type: string;
   network_status?: string;
+  network_status_code?: string;
+  network_status_explanation?: string;
+  dataset_scope?: string;
   created_at: string;
   updated_at: string;
 }
@@ -72,6 +75,10 @@ export interface InsurerHospitalRecord {
   network_type?: string;
   total_beds?: number;
   source_type: string;
+  network_status?: string;
+  network_status_code?: string;
+  network_status_explanation?: string;
+  dataset_scope?: string;
   matched_hospital_id?: number;
   created_at: string;
 }

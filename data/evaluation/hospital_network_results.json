@@ -1,0 +1,45 @@
+{
+  "dataset_overview": {
+    "total_insurer_records_evaluated": 125,
+    "cities_covered": 9,
+    "city_list": [
+      "Hyderabad",
+      "Bengaluru",
+      "Chennai",
+      "Kolkata",
+      "Lucknow",
+      "Pune",
+      "Jaipur",
+      "Ahmedabad",
+      "Mumbai"
+    ],
+    "national_directory_size": 29974
+  },
+  "cohort_performance": {
+    "in_sample_matched": {
+      "total": 125,
+      "LISTED": 125,
+      "NOT_FOUND": 0,
+      "UNVERIFIED": 0
+    },
+    "in_scope_unlisted": {
+      "total": 50,
+      "LISTED": 0,
+      "NOT_FOUND": 50,
+      "UNVERIFIED": 0
+    },
+    "out_of_scope_facilities": {
+      "total": 50,
+      "LISTED": 0,
+      "NOT_FOUND": 0,
+      "UNVERIFIED": 50
+    }
+  },
+  "metrics": {
+    "matched_accuracy_pct": 100.0,
+    "in_scope_not_found_rate_pct": 100.0,
+    "out_of_scope_unverified_rate_pct": 100.0,
+    "network_separation_precision_pct": 100.0,
+    "false_positive_network_rate_pct": 0.0
+  }
+}

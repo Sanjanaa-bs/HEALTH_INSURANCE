@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./health_insurance.db"
     CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
 
+    # Datasets
+    HOSPITALS_CSV_PATH: str = "data/hospitals/hospital_directory.csv"
+    INSURER_NETWORKS_DIR: str = "data/insurer_networks"
+
     # RAG Pipeline Configuration
     EMBEDDING_PROVIDER: str = "local"  # "local", "sentence-transformers", "openai"
     EMBEDDING_MODEL_NAME: str = "all-MiniLM-L6-v2"

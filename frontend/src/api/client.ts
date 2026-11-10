@@ -27,20 +27,31 @@ export async function fetchHospitals(params: {
   page?: number;
   pageSize?: number;
   search?: string;
+  location?: string;
+  city?: string;
   state?: string;
   district?: string;
   pincode?: string;
+  source?: string;
+  nationwide?: boolean;
 } = {}): Promise<HospitalListResponse> {
   const url = new URL(`${window.location.origin}${API_BASE}/hospitals`);
   if (params.page) url.searchParams.set('page', params.page.toString());
   if (params.pageSize) url.searchParams.set('page_size', params.pageSize.toString());
   if (params.search) url.searchParams.set('search', params.search);
+  if (params.location) url.searchParams.set('location', params.location);
+  if (params.city) url.searchParams.set('city', params.city);
   if (params.state) url.searchParams.set('state', params.state);
   if (params.district) url.searchParams.set('district', params.district);
   if (params.pincode) url.searchParams.set('pincode', params.pincode);
+  if (params.source) url.searchParams.set('source', params.source);
+  if (params.nationwide) url.searchParams.set('nationwide', 'true');
 
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Failed to fetch hospitals: ${res.statusText}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData?.error?.message || `Failed to fetch hospitals: ${res.statusText}`);
+  }
   return res.json();
 }
 
@@ -48,16 +59,27 @@ export async function fetchInsurerHospitals(params: {
   page?: number;
   pageSize?: number;
   search?: string;
+  location?: string;
   city?: string;
+  state?: string;
+  pincode?: string;
+  source?: string;
 } = {}): Promise<InsurerHospitalListResponse> {
   const url = new URL(`${window.location.origin}${API_BASE}/hospitals/insurer-network`);
   if (params.page) url.searchParams.set('page', params.page.toString());
   if (params.pageSize) url.searchParams.set('page_size', params.pageSize.toString());
   if (params.search) url.searchParams.set('search', params.search);
+  if (params.location) url.searchParams.set('location', params.location);
   if (params.city) url.searchParams.set('city', params.city);
+  if (params.state) url.searchParams.set('state', params.state);
+  if (params.pincode) url.searchParams.set('pincode', params.pincode);
+  if (params.source) url.searchParams.set('source', params.source);
 
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Failed to fetch insurer network hospitals: ${res.statusText}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData?.error?.message || `Failed to fetch insurer network hospitals: ${res.statusText}`);
+  }
   return res.json();
 }
 

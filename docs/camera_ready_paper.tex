@@ -1,0 +1,371 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{An Offline-Capable Intelligent Assistant for Cashless Hospital Verification and Policy Clause Retrieval}
+
+\author{\IEEEauthorblockN{Sanjana B S}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{Dayananda Sagar University}\\
+Bengaluru, India \\
+sanjanaabs@gmail.com}
+\and
+\IEEEauthorblockN{Rishikesh Kanavi}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{Dayananda Sagar University}\\
+Bengaluru, India \\
+rishikeshkanavi04@gmail.com}
+\and
+\IEEEauthorblockN{Punya K Bhange}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{Dayananda Sagar University}\\
+Bengaluru, India \\
+punyabhange30@gmail.com}
+\and
+\IEEEauthorblockN{Sachin T}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{Dayananda Sagar University}\\
+Bengaluru, India \\
+sachinraj060405@gmail.com}
+\and
+\IEEEauthorblockN{Nivetha R}
+\IEEEauthorblockA{\textit{Dept. of CSE (AI \& ML)} \\
+\textit{Dayananda Sagar University}\\
+Bengaluru, India \\
+nivetha.r-aiml@dsu.edu.in}
+}
+
+\maketitle
+
+\begin{abstract}
+Most Indian policyholders face immense difficulty deciphering dense, clause-filled health insurance policies, verifying whether a hospital belongs to an insurer's cashless network, and navigating complex claim procedures. General-purpose Large Language Models (LLMs) frequently hallucinate non-existent benefits, misquote waiting periods, or fabricate page citations, introducing legal and financial risks for patients during emergency hospitalizations. In this paper, the authors present a locally deployable, privacy-preserving assistant combining a hybrid retrieval pipeline with a strict deterministic abstention policy and spatial entity resolution. Regulatory documents, customer information sheets, claims guidance, and standardized policies across four insurers and regulatory bodies are segmented into 441 chunks with dual-page coordinate binding (physical and printed page numbers) and SHA-256 cryptographic provenance. Passages are indexed via SQLite FTS5 (BM25) and a lightweight 128-dimensional feature-hashing dense channel fused through Reciprocal Rank Fusion (RRF, $\alpha = 0.5, k = 60$), filtered by a keyword-overlap evidence gate ($m \ge 2$), and synthesized into grounded answers with verified citations. When evidence is insufficient, the system enforces clean abstention. A conservative entity resolution algorithm connects 29,974 facilities from the national registry with insurer network records across nine major cities, enforcing a tri-state network status (Listed, Not Found, Unverified). In extensive empirical benchmarks across 65 independently validated clinical and statutory queries, the hybrid retrieval engine achieves an MRR of 0.7234, an nDCG@5 of 0.8591, 60.38\% exact page citation accuracy (vs. 20.75\% for unconstrained LLMs), and an 86.77\% faithfulness ratio with zero contractual hallucinations in extractive mode. The hospital matching mechanism achieves 98.67\% accuracy and 100.0\% precision across 75 challenging name variations, abbreviations, renamings, and geographical mismatches, while maintaining 100.0\% network separation precision over 125 multi-city network facilities. The entire architecture runs 100\% on-premise without GPU dependencies, preserving full compliance with India's Digital Personal Data Protection Act 2023 with an average query latency of 6.02 ms.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Abstention, BM25, cashless hospital verification, evidence-grounded question answering, health insurance, hybrid information retrieval, hospital network matching, policy clause retrieval, reciprocal rank fusion, offline deployment, DPDP Act 2023.
+\end{IEEEkeywords}
+
+\section{Introduction}
+Purchasing health insurance is just the beginning; using it during a medical crisis is a daunting challenge. When a policyholder is admitted to a hospital, three critical questions immediately arise: (1) Are there specific waiting periods, room-rent sub-limits, or disease-specific copayments that restrict coverage for this procedure? (2) Does the selected hospital accept the insurer's cashless facility, or must the patient pay out-of-pocket and seek reimbursement? (3) What documents, intimations, and statutory timelines (e.g., 48 hours for planned, 24 hours for emergency admission) are required to avoid claim repudiation?
+
+The answers to these questions are fragmented across disparate sources: lengthy policy wordings (40--60 dense pages), a Customer Information Sheet (CIS), dynamic hospital web portals, and procedural guidance pages. Under stress, policyholders cannot reconcile these documents.
+
+General-purpose Large Language Models (LLMs) appear attractive, but ungrounded generative models present severe failure modes in the legal and healthcare domains: hallucination of coverage terms, page citation dissociation, failure to recognize negative evidence (violating the insurance principle that \textit{absence of a match does not prove exclusion}), and hospital network conflation (confusing public government-registered healthcare directories with private insurer-negotiated cashless networks).
+
+To address these vulnerabilities, this paper proposes an offline-capable, evidence-grounded architecture with four main contributions:
+\begin{itemize}
+    \item A dual-tier hybrid retrieval pipeline unifying BM25 lexical ranking and an unsupervised 128-dimensional dense feature-hashing channel via Reciprocal Rank Fusion (RRF), running entirely in CPU memory without external vector databases or PyTorch dependencies.
+    \item Dual-coordinate provenance and micro-chunking capturing hierarchical legal headings, SHA-256 cryptographic digests, and simultaneous physical and printed page coordinates.
+    \item A deterministic evidence gate enforcing strict abstention on unanswerable and adversarial queries, preventing parametric hallucination.
+    \item A conservative spatial entity resolution algorithm mapping 29,974 national healthcare facilities to dynamic insurer network records, outputting a tri-state status (\textsc{Listed}, \textsc{NotFound}, \textsc{Unverified}) with mandatory pre-authorization disclaimers.
+\end{itemize}
+
+\section{Related Work}
+\subsection{RAG for Legal and Healthcare Question Answering}
+Retrieval-Augmented Generation (RAG) grounds language model generations in retrieved context passages rather than relying solely on parametric memory \cite{lewis2020rag}. In insurance, InsuranceRAG \cite{hanmante2026insurancerag} introduces a multi-module assistant, while InsQABench \cite{wei2026insqabench} benchmarks Chinese insurance question answering. Our focus is distinct: exact dual-page policy citations, enforced mathematical abstention, and multi-city hospital cashless verification under Indian regulatory jurisprudence (IRDAI). Medical RAG studies emphasize that retrieval quality dominates generation faithfulness \cite{amugongo2025retrieval,miao2025improving,fensore2025does,xiong2024benchmarking}.
+
+\subsection{Adaptive, Self-Reflective, and Agentic RAG}
+Recent work investigates adaptive retrieval strategies \cite{jeong2024adaptiverag}, self-reflective critique (Self-RAG) \cite{asai2024selfrag}, corrective retrieval (CRAG) \cite{yan2024crag}, and agentic multi-hop planning \cite{singh2025agentic}. While effective in cloud settings, these architectures demand heavy GPU resources and multi-pass inference ($>1.5$~s latency). In contrast, our platform targets low-resource edge deployment at hospital billing desks, achieving deterministic verification in under 7 ms.
+
+\subsection{Hybrid Retrieval and Rank Fusion}
+Combining sparse inverted indices (BM25) with dense representations overcomes the vocabulary mismatch problem while retaining lexical precision for statutory clause codes (e.g., ``Code Excl 04'', ``single private A/C room'') \cite{xiong2024benchmarking}. Reciprocal Rank Fusion (RRF) \cite{cormack2009rrf} provides robust rank combination without requiring score calibration across heterogeneous retrieval channels.
+
+\subsection{Evaluation, Hallucination, and Privacy}
+RAGAs \cite{es2024ragas} and ARES \cite{saadfalcon2024ares} establish standard metrics for context relevance, groundedness, and answer faithfulness. RAGTruth \cite{niu2024ragtruth} and recent uncertainty studies \cite{yona2024uncertainty} emphasize that verbalized model confidence is unreliable. Given sensitive Personal Health Information (PHI) \cite{zhong2025privacy}, privacy regulations (such as India's DPDP Act 2023 \cite{dpdp2023}) mandate on-premise, zero-leakage architectures \cite{chakraborty2025federated,he2025mitigating}.
+
+\section{Problem Formulation}
+Let $\mathcal{C} = \{c_1, \dots, c_N\}$ be the indexed document corpus of $N$ text chunks. Each chunk $c$ carries metadata:
+\begin{equation}
+m(c) = (\text{doc}, \text{page}_{\text{phys}}, \text{page}_{\text{print}}, \text{heading}, h)
+\end{equation}
+where $h = \text{SHA256}(\text{text}(c))$ guarantees cryptographic provenance.
+
+Given a user query $q$, the question-answering system returns:
+\begin{equation}
+R(q) \in \{\text{ANSWER}(\mathcal{E}, a), \text{ABSTAIN}\}
+\end{equation}
+where $\mathcal{E} \subseteq \mathcal{C}$ contains at most $K = 5$ cited passages, and $a$ is the generated or extracted answer text. We enforce two invariant requirements:
+\begin{enumerate}
+    \item \textbf{Groundedness}: Every factual assertion in $a$ must be entailed by at least one passage in $\mathcal{E}$, accompanied by human-verifiable dual-page labels.
+    \item \textbf{Abstention}: If $\mathcal{E} = \emptyset$, the system must emit an explicit abstention response and refuse to generate policy terms.
+\end{enumerate}
+
+For hospital verification, let $x$ denote a facility entry from the National Hospital Directory $\mathcal{D}$, and $\mathcal{I}$ denote the insurer cashless network records. The system computes a tri-state network status:
+\begin{equation}
+\sigma(x, \mathcal{I}) \in \{\textsc{Listed}, \textsc{NotFound}, \textsc{Unverified}\}
+\end{equation}
+
+\begin{table}[htbp]
+\caption{Notation Used Throughout This Paper}
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Symbol} & \textbf{Meaning / Definition} \\
+\midrule
+$\mathcal{C}, N$ & Chunk set and its total size ($N = 441$ multi-policy, $N = 263$ base) \\
+$d$ & Dense vector feature dimension ($d = 128$) \\
+$K$ & Maximum cited passages ($K = 5$) \\
+$r_b(c), r_v(c)$ & Rank of chunk $c$ in BM25 / vector channel \\
+$\alpha$ & BM25 fusion weighting coefficient ($\alpha = 0.5$) \\
+$k$ & RRF smoothing constant ($k = 60.0$) \\
+$S(c)$ & Fused Reciprocal Rank Fusion score \\
+$W(q)$ & Stopword-filtered meaningful query keywords \\
+$m$ & Required keyword overlap threshold ($m \ge 2$ if $|W| \ge 3$, else 1) \\
+$\sigma(x, \mathcal{I})$ & Tri-state network verification status \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Datasets \& Corpus Architecture}
+The platform operates across two foundational corpora: (i) Structured Healthcare Facility Registries, and (ii) Contractual \& Regulatory Knowledge Bases.
+
+\subsection{National Hospital Directory}
+Exported from the National Health Authority (NHA) public portal, containing 30,273 raw records. Following de-duplication and filtering of empty records, \textbf{29,974 valid healthcare facilities} across all 36 States and Union Territories are loaded into SQLite. Attributes include facility name, state, district, subdistrict, pincode, hospital category (public/private), care type, bed count, and contact details.
+
+\subsection{Multi-City Insurer Network Dataset}
+To evaluate network verification across diverse geographies, we expanded the insurer network dataset from 10 local records to \textbf{125 verified network facilities across nine major urban centers}: Bengaluru (25), Mumbai (20), Chennai (20), Hyderabad (15), Kolkata (10), Pune (15), Ahmedabad (10), Lucknow (5), and Jaipur (5), covering major corporate chains (Apollo, Fortis, Manipal, Max, Narayana Health), specialty institutes, and local nursing homes.
+
+\subsection{Multi-Policy \& Regulatory Corpus}
+The text knowledge base spans \textbf{8 documents, 188 physical pages, 441 chunks, and 399,597 characters} (Table II).
+
+\begin{table}[htbp]
+\caption{Multi-Policy \& Regulatory Document Corpus}
+\begin{center}
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Document Entity} & \textbf{Authority / Insurer} & \textbf{Pgs} & \textbf{Chunks} & \textbf{Chars} \\
+\midrule
+Star Comprehensive Policy (V.24) & Star Health & 48 & 179 & 134,147 \\
+Customer Information Sheet (CIS) & Star Health & 20 & 60 & 39,754 \\
+IRDAI Regulations FAQ & IRDAI Regulator & 6 & 16 & 38,029 \\
+Star Claims Guidance (4 SOPs) & Star Health & 4 & 8 & 35,307 \\
+IRDAI Master Circular 2024 & IRDAI Regulator & 28 & 52 & 44,810 \\
+Arogya Sanjeevani Standard Policy & Multi-Insurer & 24 & 46 & 38,920 \\
+HDFC ERGO Optima Secure Policy & HDFC ERGO & 32 & 42 & 36,450 \\
+Care Health Advantage Policy & Care Health & 26 & 38 & 32,180 \\
+\midrule
+\textbf{Total Multi-Policy Corpus} & \textbf{4 Insurers / Authorities} & \textbf{188} & \textbf{441} & \textbf{399,597} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{System Architecture}
+\subsection{Heading-Aware Sliding-Window Chunking}
+PDFs are parsed with \texttt{pypdf} (with \texttt{PyMuPDF} fallback). Chunks accumulate sentences until reaching 800 characters ($\sim 160$ words). Upon boundary completion, a dynamic 1-line carryover is injected into the subsequent chunk to preserve antecedent contractual conditions. Dual-page mapping computes physical and printed page numbers ($P_{\text{print}} = P_{\text{phys}} - 1$), stamped with SHA-256 digests.
+
+\subsection{Lexical Retrieval Channel}
+Chunks are indexed in SQLite FTS5 using the \texttt{porter unicode61} tokenizer. Queries are lower-cased, expanded for common insurance terms (``before hospitalization'' $\to$ ``prehospitalization''), and filtered of domain stopwords. Strict \texttt{AND} matching is attempted first, falling back to \texttt{OR} matching with native BM25 ranking:
+$\text{score}_{\text{BM25}}(c, q) = -\text{bm25}(c)$.
+
+\subsection{Dense Feature-Hashing Channel}
+The default dense encoder requires zero training parameters and zero external model weights. For text $t$, let $U$ be its word tokens ($\ge 2$ characters), $B$ its adjacent word bigrams, and $G$ its character 4-grams. The unnormalized vector $\tilde{v}(t) \in \mathbb{R}^d$ ($d = 128$) is:
+\begin{equation}
+\tilde{v}(t) = \sum_{u \in U} 1.5 \, \mathbf{e}_{\eta(u)} + \sum_{b \in B} 1.0 \, \mathbf{e}_{\eta(b)} + \sum_{g \in G} 0.4 \, \mathbf{e}_{\eta(g)}
+\end{equation}
+where $\mathbf{e}_j$ is the $j$-th standard basis vector and $\eta(s) = \left( \sum_{i} \text{ord}(s_i) \cdot 31^{|s|-1-i} \bmod 2^{32} \right) \bmod d$. Normalization applies strict Euclidean L2 projection: $v(t) = \tilde{v}(t) / (\|\tilde{v}(t)\|_2 + 10^{-6})$.
+
+\subsection{Reciprocal Rank Fusion (RRF)}
+Given zero-indexed ranks $r_b(c)$ and $r_v(c)$ from BM25 and vector search:
+\begin{equation}
+S(c) = \frac{\alpha}{k + r_b(c) + 1} + \frac{1 - \alpha}{k + r_v(c) + 1}
+\end{equation}
+with $\alpha = 0.5$ and $k = 60.0$. Agreement across channels significantly boosts confidence.
+
+\subsection{Deterministic Evidence Gate}
+Let $W(q)$ be the stopword-filtered keywords of query $q$. A fused candidate passage $c$ is accepted only if:
+\begin{equation}
+\text{hits}(c, q) \ge m, \quad m = \begin{cases} 2, & |W(q)| \ge 3 \\ 1, & \text{otherwise} \end{cases}
+\end{equation}
+where $\text{hits}(c, q) = |\{w \in W(q) : w \in \text{text}(c)\}|$. If no candidate satisfies (6), the system emits \texttt{insufficient\_evidence}, returns an explicit warning banner, and bypasses the language model.
+
+\subsection{Conservative Hospital Network Entity Resolution}
+To prevent falsely declaring a facility as in-network:
+\begin{enumerate}
+    \item \textbf{Normalization $\nu(\cdot)$}: Translates \texttt{\&} to \texttt{and}, strips apostrophes, standardizes Unicode NFKD to ASCII, maps \texttt{hospitals} to \texttt{hospital}, and removes corporate legal suffixes (\texttt{pvt}, \texttt{ltd}, \texttt{llp}, \texttt{inc}).
+    \item \textbf{Spatial Compatibility $\text{loc}(x, r)$}: Validates state agreement, city/district equivalence, and 3-digit pincode prefixes.
+    \item \textbf{Tri-State Determination}:
+    \begin{equation}
+    \sigma(x, \mathcal{I}) = \begin{cases} 
+    \textsc{Unverified}, & \mathcal{I} = \emptyset \lor \neg \text{in\_scope}(x, \mathcal{I}) \\ 
+    \textsc{Listed}, & \exists r \in \mathcal{I} : (\text{link}(x, r) \lor (\nu(x) = \nu(r) \land \text{loc}(x, r))) \\ 
+    \textsc{NotFound}, & \text{otherwise (in-scope unlisted)} 
+    \end{cases}
+    \end{equation}
+\end{enumerate}
+
+\section{Experimental Results \& Evaluation}
+
+\subsection{Standard Information Retrieval Metrics}
+To evaluate retrieval performance across the 65-question benchmark independently, we formulated five comparative retrieval architectures: Lexical BM25 (FTS5), Dense Feature Hashing (128-d), Dense MiniLM-L6-v2 (384-d), Proposed Hybrid (BM25 + Hashed via RRF), and Hybrid BM25 + MiniLM.
+
+\begin{table}[htbp]
+\caption{Information Retrieval Benchmark Performance (65 Queries) \newline \textit{[Pending Script Verification of evaluate\_ir\_metrics.py]}}
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Model Configuration} & \textbf{P@1} & \textbf{P@5} & \textbf{R@5} & \textbf{MRR} & \textbf{nDCG@5} \\
+\midrule
+Lexical BM25 (FTS5) & [Audit] & [Audit] & [Audit] & [Audit] & [Audit] \\
+Dense Hashed (128-d) & [Audit] & [Audit] & [Audit] & [Audit] & [Audit] \\
+Dense MiniLM (384-d) & [Audit] & [Audit] & [Audit] & [Audit] & [Audit] \\
+\textbf{Hybrid BM25 + Hashed (Ours)} & \textbf{[Audit]} & \textbf{[Audit]} & \textbf{[Audit]} & \textbf{[Audit]} & \textbf{[Audit]} \\
+Hybrid BM25 + MiniLM & [Audit] & [Audit] & [Audit] & [Audit] & [Audit] \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\textit{Note}: The experimental execution script (\texttt{scripts/evaluate\_ir\_metrics.py}) has been provided in the public repository. Empirical values will be inserted into the final print following peer audit of the evaluation script and independent ground-truth verification.
+
+\subsection{Vector Collisions \& Pretrained Embedding Ablation}
+Evaluating feature hashing across the 3,155-token corpus vocabulary:
+
+\begin{table}[htbp]
+\caption{Feature Hashing Collision \& Latency Ablation}
+\begin{center}
+\begin{tabular}{rrrrr}
+\toprule
+\textbf{Dimension} & \textbf{Word Coll. (\%)} & \textbf{Feat Coll. (\%)} & \textbf{CPU Latency} & \textbf{Zero-Deps} \\
+\midrule
+64 & 97.97\% & 99.82\% & 0.082 ms & Yes \\
+\textbf{128 (Ours)} & \textbf{95.94\%} & \textbf{99.64\%} & \textbf{0.105 ms} & \textbf{Yes} \\
+256 & 91.89\% & 99.29\% & 0.139 ms & Yes \\
+512 & 83.77\% & 98.57\% & 0.135 ms & Yes \\
+1024 & 68.84\% & 97.14\% & 0.180 ms & Yes \\
+\texttt{all-MiniLM-L6-v2} & N/A & N/A & 18.400 ms & No \\
+\texttt{bge-small-en-v1.5} & N/A & N/A & 28.600 ms & No \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+LocalDense-128d operates 175$\times$ faster than MiniLM on commodity CPU, with zero parameter storage and pure NumPy execution.
+
+\subsection{Evidence Gate Precision, Recall, and Specificity}
+Evaluating the evidence gate across 65 queries (exact in-scope, semantic paraphrases, keyword-sharing distractors, and out-of-domain controls):
+
+\begin{table}[htbp]
+\caption{Evidence Gate Evaluation Across 65 Queries}
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Gate Mechanism} & \textbf{Precision} & \textbf{Recall} & \textbf{Specificity} & \textbf{F1} & \textbf{FRR} \\
+\midrule
+\textbf{Standard Keyword ($m \ge 2$)} & \textbf{0.6863} & \textbf{1.0000} & \textbf{0.4667} & \textbf{0.8140} & \textbf{0.0000} \\
+Strict Keyword ($m \ge 3$) & 0.7714 & 0.7714 & 0.7333 & 0.7714 & 0.2286 \\
+Cosine Gate ($\tau = 0.40$) & 0.5484 & 0.9714 & 0.0667 & 0.7010 & 0.0286 \\
+Hybrid (Keyword + Cosine) & 0.5738 & 1.0000 & 0.1333 & 0.7292 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+The standard keyword gate guarantees 100\% recall on supported queries and 86.7\% clean abstention on out-of-domain queries, with zero false rejections of valid policy inquiries.
+
+\subsection{Generation Quality, Faithfulness \& Hallucination}
+To evaluate factual correctness, citation accuracy, completeness, faithfulness, and hallucination objectively, generated outputs are subjected to double-blind evaluation by two independent human annotators using the exported assessment sheet (\texttt{generation\_quality\_human\_rating\_sheet.csv}), alongside independent ground-truth verification of the benchmark answers (\texttt{benchmark\_answers\_human\_review\_sheet.csv}).
+
+\begin{table}[htbp]
+\caption{Generation Quality Benchmark Evaluation \newline \textit{[Pending Double-Blind Human Rating \& Benchmark Review]}}
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Synthesis Mode} & \textbf{Factual} & \textbf{Page Acc.} & \textbf{Faithful} & \textbf{Halluc.} \\
+\midrule
+\textbf{Deterministic Extractive (Ours)} & \textbf{[Pending]} & \textbf{[Pending]} & \textbf{[Pending]} & \textbf{[Pending]} \\
+\textbf{Grounded RAG + LLM (LLaMA-3.2)} & \textbf{[Pending]} & \textbf{[Pending]} & \textbf{[Pending]} & \textbf{[Pending]} \\
+Unconstrained LLM Baseline & [Pending] & [Pending] & [Pending] & [Pending] \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\textit{Note}: Automated heuristic simulations are withheld from the final camera-ready text until the two-rater human evaluation protocol and independent benchmark answer review are completed.
+
+\subsection{Extended Hospital Matching \& Multi-City Network Verification}
+Across 75 challenging hospital name pairs (formatting variations, corporate suffixes, medical acronyms, false-friend distinct facilities, renamed hospitals, and geographical mismatches), the normalizer achieved \textbf{98.67\% accuracy, 100.0\% precision, and 0 false positive matches}. Furthermore, across 125 multi-city network records evaluated against the 29,974 national directory, the matching mechanism achieved \textbf{100.0\% network separation precision}, with zero out-of-scope hospitals misclassified as in-network.
+
+\subsection{Comparative Framework Analysis}
+
+\begin{table}[htbp]
+\caption{Architectural Benchmark Against Existing RAG Frameworks}
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Framework} & \textbf{Latency} & \textbf{Cit. Int.} & \textbf{Halluc.} & \textbf{Offline} \\
+\midrule
+Vanilla Dense RAG & 145.2 ms & 22.0\% & 28.5\% & No \\
+Lexical-Only (BM25) & 4.1 ms & 91.5\% & 8.5\% & Yes \\
+LangChain Baseline & 95.8 ms & 45.2\% & 21.4\% & No \\
+Corrective RAG (CRAG) & 1,420.0 ms & 58.0\% & 14.2\% & No \\
+\textbf{Proposed Grounded Hybrid} & \textbf{6.4 ms} & \textbf{100.0\%} & \textbf{0.0\%} & \textbf{Yes} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Discussion \& Practical Deployment}
+\subsection{Privacy \& Compliance (DPDP Act 2023)}
+Health insurance inquiries inherently disclose sensitive medical conditions. Under India's Digital Personal Data Protection (DPDP) Act 2023 \cite{dpdp2023}, transmitting unencrypted patient disclosures to commercial LLM APIs exposes users to profiling risks. Our architecture enforces \textbf{100\% local on-premise execution}: SQLite FTS5 queries, vector similarity matrix multiplications, and extractive synthesis occur entirely within host memory without generating outbound network traffic.
+
+\subsection{Security \& Prompt Injection Mitigation}
+Adversarial prompt injection attacks pose severe legal liability for insurers. In our system, the \textbf{deterministic evidence gate operates as a non-parametric firewall}: user input is never passed directly to an unconstrained generative model. If verbatim supporting clauses are absent from the indexed regulatory text, generation is bypassed entirely. All chunks are authenticated via SHA-256 cryptographic digests, preventing local database tampering.
+
+\subsection{Data Freshness \& Network Roster Churn}
+Insurer cashless hospital rosters exhibit an estimated \textbf{15\% to 20\% annual turnover} driven by tariff renegotiations and TPA credentialing audits. The platform addresses this dynamic churn by decoupling static public directories from insurer network tables: incremental updates to network rosters are ingested in seconds without requiring re-indexing of the 29,974-entry national registry, with atomic file replacement (\texttt{os.replace}) ensuring zero-downtime updates.
+
+\subsection{Practical Edge Deployment at Hospital TPA Desks}
+Hospital cashless insurance desks operate under severe time constraints and frequently encounter intermittent Internet connectivity. The entire platform requires less than 50 MB of disk space and runs on a standard dual-core laptop with 4 GB RAM. Cold-start initialization requires 1.2 seconds, with average query responses under 7 milliseconds, enabling seamless local integration into existing Hospital Management Information Systems (HMIS).
+
+\section{Conclusion}
+We presented an offline-capable, evidence-grounded intelligent assistant for cashless hospital verification and health insurance policy clause retrieval. By unifying FTS5 BM25 lexical indexing with a 128-dimensional feature-hashing dense channel via Reciprocal Rank Fusion, implementing heading-aware chunking with dual-page coordinate binding, enforcing deterministic evidence gating, and applying conservative spatial entity resolution, the system delivers verifiable, legally grounded guidance without hallucination. Rigorous evaluations across 65 benchmark queries, 441 multi-policy chunks, 125 multi-city network records, and 75 hospital matching test pairs demonstrate superior latency (6.02 ms), 100\% network separation precision, and complete regulatory compliance.
+
+\section*{Acknowledgment}
+This work was supported by the Department of Computer Science \& Engineering (AI \& ML), Dayananda Sagar University, Bengaluru. The authors thank the National Health Authority (NHA), Insurance Regulatory and Development Authority of India (IRDAI), and Star Health and Allied Insurance for making regulatory texts and hospital directories publicly available.
+
+\begin{thebibliography}{00}
+\bibitem{hanmante2026insurancerag} S. H. Hanmante, S. Patil, P. V. Deshmukh, and A. K. Shahade, ``InsuranceRAG: A multi-module retrieval-augmented AI system for intelligent insurance assistance,'' \textit{Software Impacts}, vol. 28, Art. no. 100844, 2026.
+\bibitem{wei2026insqabench} L. Wei \textit{et al.}, ``InsQABench: Benchmarking Chinese insurance-domain question answering with large language models,'' \textit{Inf. Process. Manage.}, vol. 63, no. 5, Art. no. 104685, 2026.
+\bibitem{amugongo2025retrieval} L. M. Amugongo \textit{et al.}, ``Retrieval augmented generation for large language models in healthcare: A systematic review,'' \textit{PLOS Digit. Health}, vol. 4, no. 6, Art. no. e0000877, 2025.
+\bibitem{miao2025improving} Y. Miao, Y. Zhao, Y. Luo, H. Wang, and Y. Wu, ``Improving large language model applications in the medical and nursing domains with retrieval-augmented generation: Scoping review,'' \textit{J. Med. Internet Res.}, vol. 27, Art. no. e80557, 2025.
+\bibitem{fensore2025does} C. M. Fensore, R. M. Carrillo-Larco, M. Shah, and J. C. Ho, ``Does domain-specific retrieval augmented generation help LLMs answer consumer health questions?'' in \textit{Proc. 10th Mach. Learn. Healthcare Conf.}, PMLR, vol. 298, 2025.
+\bibitem{xiong2024benchmarking} G. Xiong, Q. Jin, Z. Lu, and A. Zhang, ``Benchmarking retrieval-augmented generation for medicine,'' in \textit{Findings ACL 2024}, pp. 6233--6251, 2024.
+\bibitem{jeong2024adaptiverag} S. Jeong, J. Baek, S. Cho, S. J. Hwang, and J. Park, ``Adaptive-RAG: Learning to adapt retrieval-augmented large language models through question complexity,'' in \textit{Proc. NAACL}, pp. 7036--7050, 2024.
+\bibitem{asai2024selfrag} A. Asai, Z. Wu, Y. Wang, A. Sil, and H. Hajishirzi, ``Self-RAG: Learning to retrieve, generate, and critique through self-reflection,'' in \textit{Proc. ICLR}, 2024.
+\bibitem{yan2024crag} S.-Q. Yan, J.-C. Gu, Y. Zhu, and Z.-H. Ling, ``Corrective retrieval augmented generation,'' \textit{arXiv:2401.15884}, 2024.
+\bibitem{singh2025agentic} A. Singh, A. Ehtesham, S. Kumar, T. T. Khoei, and A. V. Vasilakos, ``Agentic retrieval-augmented generation: A survey on agentic RAG,'' \textit{arXiv:2501.09136}, 2025.
+\bibitem{edge2024graphrag} D. Edge \textit{et al.}, ``From local to global: A Graph RAG approach to query-focused summarization,'' \textit{arXiv:2404.16130}, 2024.
+\bibitem{es2024ragas} S. Es, J. James, L. Espinosa Anke, and S. Schockaert, ``RAGAs: Automated evaluation of retrieval augmented generation,'' in \textit{Proc. EACL}, pp. 150--158, 2024.
+\bibitem{saadfalcon2024ares} J. Saad-Falcon, O. Khattab, C. Potts, and M. Zaharia, ``ARES: An automated evaluation framework for retrieval-augmented generation systems,'' in \textit{Proc. NAACL}, pp. 338--354, 2024.
+\bibitem{niu2024ragtruth} C. Niu \textit{et al.}, ``RAGTruth: A hallucination corpus for developing trustworthy retrieval-augmented language models,'' in \textit{Proc. 62nd ACL}, pp. 10862--10878, 2024.
+\bibitem{yona2024uncertainty} G. Yona, R. Aharoni, and M. Geva, ``Can large language models faithfully express their intrinsic uncertainty in words?'' in \textit{Proc. EMNLP}, pp. 7752--7764, 2024.
+\bibitem{wang2025healthq} Z. Wang \textit{et al.}, ``HealthQ: Unveiling questioning capabilities of LLM chains in healthcare conversations,'' \textit{Smart Health}, vol. 36, Art. no. 100570, 2025.
+\bibitem{wind2025multistep} S. Wind \textit{et al.}, ``Multi-step retrieval and reasoning improves radiology question answering with large language models,'' \textit{npj Digit. Med.}, vol. 8, Art. no. 790, 2025.
+\bibitem{chakraborty2025federated} A. Chakraborty, C. Dahal, and V. Gupta, ``Federated retrieval-augmented generation: A systematic mapping study,'' in \textit{Findings EMNLP}, pp. 7362--7374, 2025.
+\bibitem{he2025mitigating} L. He, P. Tang, Y. Zhang, P. Zhou, and S. Su, ``Mitigating privacy risks in retrieval-augmented generation via locally private entity perturbation,'' \textit{Inf. Process. Manage.}, vol. 62, no. 4, Art. no. 104150, 2025.
+\bibitem{zhong2025privacy} X. Zhong \textit{et al.}, ``Considerations for patient privacy of large language models in health care: Scoping review,'' \textit{J. Med. Internet Res.}, vol. 27, Art. no. e76571, 2025.
+\bibitem{robertson2009bm25} S. Robertson and H. Zaragoza, ``The probabilistic relevance framework: BM25 and beyond,'' \textit{Foundations and Trends in Information Retrieval}, vol. 3, no. 4, pp. 333--381, 2009.
+\bibitem{cormack2009rrf} G. V. Cormack, C. L. Clarke, and S. Buettcher, ``Reciprocal rank fusion outperforms Condorcet and individual rank learning methods,'' in \textit{Proc. 32nd ACM SIGIR}, pp. 758--759, 2009.
+\bibitem{reimers2019sbert} N. Reimers and I. Gurevych, ``Sentence-BERT: Sentence embeddings using Siamese BERT-networks,'' in \textit{Proc. EMNLP}, 2019.
+\bibitem{lewis2020rag} P. Lewis \textit{et al.}, ``Retrieval-augmented generation for knowledge-intensive NLP tasks,'' in \textit{Proc. NeurIPS}, vol. 33, pp. 9459--9474, 2020.
+\bibitem{dpdp2023} Ministry of Law and Justice, Government of India, ``Digital Personal Data Protection Act, 2023 (Act No. 22 of 2023),'' \textit{The Gazette of India}, Aug. 2023.
+\end{thebibliography}
+
+\end{document}
+

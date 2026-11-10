@@ -9,6 +9,8 @@ import {
   Building,
   RotateCcw,
   AlertCircle,
+  HelpCircle,
+  Info,
 } from 'lucide-react';
 import { Hospital, InsurerHospitalRecord, PaginationMeta } from '../types';
 import { fetchHospitals, fetchInsurerHospitals } from '../api/client';
@@ -17,6 +19,7 @@ export const HospitalExplorer: React.FC = () => {
   const [sourceTab, setSourceTab] = useState<'govt' | 'insurer'>('govt');
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [insurerRecords, setInsurerRecords] = useState<InsurerHospitalRecord[]>([]);
+  const [insurerTotalCount, setInsurerTotalCount] = useState<number | null>(null);
   const [pagination, setPagination] = useState<PaginationMeta>({
     page: 1,
     page_size: 10,
@@ -24,20 +27,42 @@ export const HospitalExplorer: React.FC = () => {
     total_pages: 0,
   });
   const [search, setSearch] = useState('');
-  const [stateFilter, setStateFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
+  const [appliedLocation, setAppliedLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadData = async (page = 1, searchTerm = search, stateTerm = stateFilter) => {
+  // Fetch actual count of imported insurer records on mount
+  useEffect(() => {
+    fetchInsurerHospitals({ page: 1, pageSize: 1, source: 'insurer' })
+      .then((data) => {
+        if (data && data.pagination) {
+          setInsurerTotalCount(data.pagination.total_items);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load insurer record count:', err);
+      });
+  }, []);
+
+  const loadData = async (
+    page = 1,
+    currentTab: 'govt' | 'insurer' = sourceTab,
+    searchTerm = appliedSearch,
+    locTerm = appliedLocation
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      if (sourceTab === 'govt') {
+      if (currentTab === 'govt') {
         const data = await fetchHospitals({
           page,
           pageSize: 10,
           search: searchTerm.trim() || undefined,
-          state: stateTerm.trim() || undefined,
+          location: locTerm.trim() || undefined,
+          source: 'govt',
+          nationwide: !locTerm.trim() ? true : false,
         });
         setHospitals(data.items);
         setPagination(data.pagination);
@@ -46,9 +71,14 @@ export const HospitalExplorer: React.FC = () => {
           page,
           pageSize: 10,
           search: searchTerm.trim() || undefined,
+          location: locTerm.trim() || undefined,
+          source: 'insurer',
         });
         setInsurerRecords(data.items);
         setPagination(data.pagination);
+        if (!searchTerm.trim() && !locTerm.trim()) {
+          setInsurerTotalCount(data.pagination.total_items);
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load hospital records. Please check the backend connection.');
@@ -58,34 +88,59 @@ export const HospitalExplorer: React.FC = () => {
   };
 
   useEffect(() => {
-    loadData(1);
+    loadData(1, sourceTab, appliedSearch, appliedLocation);
   }, [sourceTab]);
+
+  const handleTabChange = (tab: 'govt' | 'insurer') => {
+    setSourceTab(tab);
+    setSearch('');
+    setLocationFilter('');
+    setAppliedSearch('');
+    setAppliedLocation('');
+    loadData(1, tab, '', '');
+  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loadData(1);
+    const cleanSearch = search.trim();
+    const cleanLoc = locationFilter.trim();
+    setAppliedSearch(cleanSearch);
+    setAppliedLocation(cleanLoc);
+    loadData(1, sourceTab, cleanSearch, cleanLoc);
+  };
+
+  const handleQuickScope = (loc: string) => {
+    setLocationFilter(loc);
+    setAppliedLocation(loc);
+    loadData(1, sourceTab, appliedSearch, loc);
   };
 
   const handleClearFilters = () => {
     setSearch('');
-    setStateFilter('');
-    loadData(1, '', '');
+    setLocationFilter('');
+    setAppliedSearch('');
+    setAppliedLocation('');
+    loadData(1, sourceTab, '', '');
+  };
+
+  const handlePageChange = (newPage: number) => {
+    loadData(newPage, sourceTab, appliedSearch, appliedLocation);
   };
 
   return (
     <div className="space-y-8 pb-12">
-      {/* 1. COMPACT INTRODUCTORY BANNER (Does not push search below the fold) */}
+      {/* 1. COMPACT INTRODUCTORY BANNER */}
       <section className="editorial-card overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-12 items-center">
           <div className="p-6 sm:p-8 md:col-span-8 space-y-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-full inline-block">
-              HOSPITAL DIRECTORY
+              HOSPITAL DIRECTORY & NETWORK VERIFICATION
             </span>
             <h1 className="page-title text-3xl sm:text-4xl font-semibold text-white tracking-tight">
-              Find a Hospital
+              Hospital Search & Network Verification
             </h1>
             <p className="text-base text-slate-300 max-w-2xl leading-relaxed">
-              Search the national facility directory or check the Star Health network sample by hospital, city, or state.
+              Search nationwide healthcare facilities or verify hospital coverage against the verified Star Health network dataset.
             </p>
           </div>
 
@@ -107,10 +162,10 @@ export const HospitalExplorer: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-navy-800">
           <div>
             <h2 className="text-base font-bold text-white">
-              Select Provider Directory
+              Select Dataset Source
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Choose a directory to search. The two sources are listed separately.
+              Choose between the national facility directory and the insurer-specific network dataset.
             </p>
           </div>
 
@@ -118,11 +173,7 @@ export const HospitalExplorer: React.FC = () => {
             <button
               role="tab"
               aria-selected={sourceTab === 'govt'}
-              onClick={() => {
-                setSourceTab('govt');
-                setSearch('');
-                setStateFilter('');
-              }}
+              onClick={() => handleTabChange('govt')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition ${
                 sourceTab === 'govt'
                   ? 'bg-navy-800 text-white shadow-xs font-bold border border-navy-700'
@@ -130,16 +181,12 @@ export const HospitalExplorer: React.FC = () => {
               }`}
             >
               <Building className="w-3.5 h-3.5 text-cyan-400" />
-                <span>National directory</span>
+              <span>National Directory (29,974)</span>
             </button>
             <button
               role="tab"
               aria-selected={sourceTab === 'insurer'}
-              onClick={() => {
-                setSourceTab('insurer');
-                setSearch('');
-                setStateFilter('');
-              }}
+              onClick={() => handleTabChange('insurer')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition ${
                 sourceTab === 'insurer'
                   ? 'bg-navy-800 text-white shadow-xs font-bold border border-navy-700'
@@ -147,26 +194,42 @@ export const HospitalExplorer: React.FC = () => {
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Star Health sample · 10</span>
+              <span>
+                Star Health Network Sample{insurerTotalCount !== null ? ` (${insurerTotalCount})` : ''}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Safety & Honest Limitations Notice */}
-        <div className="p-4 sm:p-5 rounded-xl bg-navy-950/80 border border-navy-800 text-sm text-slate-300 space-y-1 leading-relaxed">
-          <div className="flex items-center gap-2 text-cyan-300 font-semibold">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>About these listings</span>
+        {/* Transparent Dataset Scope & Semantics Notice */}
+        <div className="p-4 sm:p-5 rounded-xl bg-navy-950/80 border border-navy-800 text-sm text-slate-300 space-y-2 leading-relaxed">
+          <div className="flex items-center gap-2 text-cyan-300 font-semibold text-xs uppercase tracking-wider">
+            <Info className="w-4 h-4 flex-shrink-0" />
+            <span>Dataset Scope & Network Verification Semantics</span>
           </div>
-          <p>
-            • <strong className="text-white">National Directory:</strong> Lists government-registered healthcare providers (29,974 facilities). Inclusion does <strong className="text-white">not</strong> establish Star Health network membership.
-          </p>
-          <p>
-            • <strong className="text-white">Star Health Network:</strong> The offline sample contains Bangalore records only. A search with no match means no record was found in this sample; it does not establish that a hospital is outside Star Health's current network. A listing does <strong className="text-white">not</strong> guarantee claim approval, which remains subject to policy terms and pre-authorization.
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs text-slate-300">
+            <div className="bg-navy-900/60 p-3 rounded-lg border border-navy-800 space-y-1">
+              <span className="font-semibold text-white flex items-center gap-1.5">
+                <Building className="w-3.5 h-3.5 text-cyan-400" />
+                Government Facility Directory (29,974 records)
+              </span>
+              <p className="text-slate-400">
+                Nationwide registry of healthcare providers. A directory listing describes facility existence and does <strong>not</strong> imply Star Health network participation, cashless authorization, or claim approval.
+              </p>
+            </div>
+            <div className="bg-navy-900/60 p-3 rounded-lg border border-navy-800 space-y-1">
+              <span className="font-semibold text-white flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                Star Health Network Sample (10 Bengaluru records)
+              </span>
+              <p className="text-slate-400">
+                Offline sample covering Bengaluru, Karnataka only. Absence from this sample does <strong>not</strong> prove a hospital is out of network. Facilities outside Bengaluru are classified as <em>Unverified</em>.
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Search & Filter Controls */}
+        {/* Search & Location Filter Controls */}
         <form onSubmit={handleSearchSubmit} className="space-y-3">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
             <div className="relative flex-1">
@@ -175,8 +238,8 @@ export const HospitalExplorer: React.FC = () => {
                 type="text"
                 placeholder={
                   sourceTab === 'govt'
-                    ? 'Search hospital name or district (e.g. Apollo, General Hospital)...'
-                    : 'Search network hospital name or city (e.g. Fortis, Manipal)...'
+                    ? 'Search hospital name (e.g. Apollo, Baptist, Fortis, Manipal)...'
+                    : 'Search network hospital name (e.g. Apollo, Baptist, Cambridge)...'
                 }
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -185,18 +248,17 @@ export const HospitalExplorer: React.FC = () => {
               />
             </div>
 
-            {sourceTab === 'govt' && (
-              <div className="w-full sm:w-52">
-                <input
-                  type="text"
-                  placeholder="State (e.g. Karnataka)"
-                  value={stateFilter}
-                  onChange={(e) => setStateFilter(e.target.value)}
-                  className="w-full bg-white border border-slate-300 hover:border-slate-400 text-sm text-[#1C3437] font-medium placeholder:text-[#718383] caret-[#1C3437] rounded-xl px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition"
-                  aria-label="Filter by state"
-                />
-              </div>
-            )}
+            <div className="w-full sm:w-64 relative">
+              <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Location / City / State (e.g. Bengaluru)"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="w-full bg-white border border-slate-300 hover:border-slate-400 text-sm text-[#1C3437] font-medium placeholder:text-[#718383] caret-[#1C3437] rounded-xl pl-9 pr-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan shadow-sm transition"
+                aria-label="Filter by location"
+              />
+            </div>
 
             <div className="flex items-center gap-2">
               <button
@@ -206,7 +268,7 @@ export const HospitalExplorer: React.FC = () => {
               >
                 {loading ? 'Searching...' : 'Search'}
               </button>
-              {(search || stateFilter) && (
+              {(search || locationFilter || appliedSearch || appliedLocation) && (
                 <button
                   type="button"
                   onClick={handleClearFilters}
@@ -219,6 +281,38 @@ export const HospitalExplorer: React.FC = () => {
               )}
             </div>
           </div>
+
+          {/* Quick Scope Filter Buttons */}
+          <div className="flex items-center gap-2 text-xs text-slate-400 pt-1">
+            <span className="text-[11px] font-medium text-slate-500">Quick scope:</span>
+            <button
+              type="button"
+              onClick={() => handleQuickScope('Bengaluru')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition border ${
+                appliedLocation.toLowerCase().includes('bengaluru') || locationFilter.toLowerCase().includes('bengaluru')
+                  ? 'bg-cyan-950 text-cyan-300 border-cyan-500/40'
+                  : 'bg-navy-950 text-slate-300 border-navy-800 hover:text-white hover:border-navy-700'
+              }`}
+            >
+              Bengaluru (Sample Scope)
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickScope('')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition border ${
+                !appliedLocation && !locationFilter
+                  ? 'bg-cyan-950 text-cyan-300 border-cyan-500/40'
+                  : 'bg-navy-950 text-slate-300 border-navy-800 hover:text-white hover:border-navy-700'
+              }`}
+            >
+              All India (Nationwide)
+            </button>
+            {appliedLocation && (
+              <span className="text-cyan-400 text-[11px] ml-auto">
+                Filtered by location: <strong className="text-white">{appliedLocation}</strong>
+              </span>
+            )}
+          </div>
         </form>
 
         {/* Error Notification */}
@@ -226,7 +320,7 @@ export const HospitalExplorer: React.FC = () => {
           <div className="p-4 bg-red-950/40 border border-red-500/30 text-red-200 rounded-xl text-xs flex items-center justify-between">
             <span>{error}</span>
             <button
-              onClick={() => loadData(1)}
+              onClick={() => loadData(pagination.page, sourceTab, appliedSearch, appliedLocation)}
               className="text-xs font-bold underline hover:no-underline ml-4"
             >
               Retry
@@ -239,8 +333,9 @@ export const HospitalExplorer: React.FC = () => {
           <table className="w-full text-left text-xs text-slate-300">
             <thead className="bg-navy-950 text-[11px] font-bold text-slate-200 uppercase tracking-wider border-b border-navy-800">
               <tr>
-                <th className="py-3.5 px-4">Hospital Name & Details</th>
-                <th className="py-3.5 px-4">Classification & Status</th>
+                <th className="py-3.5 px-4">Hospital Name & Category</th>
+                <th className="py-3.5 px-4">Data Source</th>
+                <th className="py-3.5 px-4">Insurer Network Status</th>
                 <th className="py-3.5 px-4">Location</th>
                 <th className="py-3.5 px-4">Pincode</th>
                 <th className="py-3.5 px-4 text-right">Capacity / Coverage</th>
@@ -250,102 +345,173 @@ export const HospitalExplorer: React.FC = () => {
               {loading ? (
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={5} className="py-4 px-4 h-12 bg-navy-950/40" />
+                    <td colSpan={6} className="py-4 px-4 h-12 bg-navy-950/40" />
                   </tr>
                 ))
               ) : sourceTab === 'govt' ? (
                 hospitals.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-slate-400">
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
                       <Building className="w-8 h-8 mx-auto text-slate-600 mb-2" />
                       <p className="font-semibold text-white">No matching government hospitals found.</p>
-                      <p className="text-xs mt-0.5">Try searching with a broader name or resetting state filters.</p>
+                      <p className="text-xs mt-0.5">Try searching with a broader name or resetting location filters.</p>
                     </td>
                   </tr>
                 ) : (
-                  hospitals.map((h) => (
-                    <tr key={h.id} className="hover:bg-navy-800/60 transition">
-                      <td className="py-3.5 px-4 font-semibold text-white">
-                        {h.hospital_name}
-                        {h.hospital_category && (
-                          <span className="block text-[11px] text-slate-400 font-normal mt-0.5">
-                            {h.hospital_category}
+                  hospitals.map((h) => {
+                    const isListed =
+                      h.network_status_code === 'LISTED' ||
+                      h.network_status === 'Listed in Star Health network data';
+                    const isNotFound =
+                      h.network_status_code === 'NOT_FOUND' ||
+                      h.network_status === 'Not found in available network data' ||
+                      h.network_status === 'Not found in the imported network data';
+
+                    return (
+                      <tr key={h.id} className="hover:bg-navy-800/60 transition">
+                        {/* 1. Hospital Name & Category */}
+                        <td className="py-3.5 px-4 font-semibold text-white max-w-xs">
+                          <div>{h.hospital_name}</div>
+                          {h.hospital_category && (
+                            <span className="block text-[11px] text-slate-400 font-normal mt-0.5">
+                              {h.hospital_category}
+                            </span>
+                          )}
+                        </td>
+
+                        {/* 2. Data Source (Separate Column) */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium bg-navy-950 text-slate-200 border border-navy-700">
+                            <Building className="w-3.5 h-3.5 text-cyan-400" />
+                            Government Directory
                           </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-medium bg-navy-950 text-slate-300 border border-navy-800">
-                          <Building className="w-3 h-3 text-cyan-400" />
-                          Government Directory
-                        </span>
-                        {h.network_status ? (
-                          <span className="ml-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-                            <ShieldCheck className="w-3 h-3" />
-                            Star Cashless
+                        </td>
+
+                        {/* 3. Insurer Network Status (Separate Column with Transparent Explanation) */}
+                        <td className="py-3.5 px-4 max-w-sm">
+                          {isListed ? (
+                            <div className="space-y-0.5">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                                Listed in Star Health network data
+                              </span>
+                              <p className="text-[10px] text-slate-400 leading-tight">
+                                {h.network_status_explanation ||
+                                  'Matched in offline Star Health sample. Subject to policy terms and pre-authorization.'}
+                              </p>
+                            </div>
+                          ) : isNotFound ? (
+                            <div className="space-y-0.5">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-amber-950/60 text-amber-300 border border-amber-500/30">
+                                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                                Not found in available network data
+                              </span>
+                              <p className="text-[10px] text-slate-400 leading-tight">
+                                {h.network_status_explanation ||
+                                  'No matching record found in available Star Health sample (offline Bengaluru sample). Does not prove hospital is out of network.'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="space-y-0.5">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-slate-900 text-slate-300 border border-slate-700">
+                                <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                                Network status unverified
+                              </span>
+                              <p className="text-[10px] text-slate-400 leading-tight">
+                                {h.network_status_explanation ||
+                                  "The available Star Health dataset contains only a limited Bengaluru sample. This hospital's network status cannot be confirmed using the available data. Please verify with Star Health before planning cashless treatment."}
+                              </p>
+                            </div>
+                          )}
+                        </td>
+
+                        {/* 4. Location */}
+                        <td className="py-3.5 px-4 text-slate-300 whitespace-nowrap">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                            {h.district ? `${h.district}, ${h.state || ''}` : h.state || 'N/A'}
                           </span>
-                        ) : (
-                          <span className="ml-1.5 inline-block text-[11px] text-slate-400 italic">
-                            (Network status not verified)
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-300">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-                          {h.district || h.state || 'N/A'}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-slate-400">
-                        {h.pincode || 'Not available'}
-                      </td>
-                      <td className="py-3.5 px-4 text-right text-slate-300">
-                        {h.total_beds ? (
-                          <span className="inline-flex items-center gap-1 text-slate-200 font-medium">
-                            <Bed className="w-3.5 h-3.5 text-cyan-400" />
-                            {h.total_beds} beds
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 font-mono text-[11px]">Not reported in directory</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+
+                        {/* 5. Pincode */}
+                        <td className="py-3.5 px-4 font-mono text-slate-400 whitespace-nowrap">
+                          {h.pincode || 'Not reported'}
+                        </td>
+
+                        {/* 6. Capacity / Coverage */}
+                        <td className="py-3.5 px-4 text-right text-slate-300 whitespace-nowrap">
+                          {h.total_beds ? (
+                            <span className="inline-flex items-center gap-1 text-slate-200 font-medium">
+                              <Bed className="w-3.5 h-3.5 text-cyan-400" />
+                              {h.total_beds} beds
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 font-mono text-[11px]">Not reported</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )
               ) : insurerRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
                     <ShieldCheck className="w-8 h-8 mx-auto text-slate-600 mb-2" />
-                    <p className="font-semibold text-white">No match in the local Star Health network sample.</p>
-                    <p className="text-xs text-slate-400 mt-1">The imported sample covers Bangalore only; it is not a live nationwide network lookup. Try a hospital name or city from the sample, clear the search, or verify network status with Star Health.</p>
+                    <p className="font-semibold text-white">No match in the imported Star Health network data.</p>
+                    <p className="text-xs text-slate-400 mt-1 max-w-xl mx-auto">
+                      The offline dataset contains 10 Bengaluru records only. Absence from this sample does not prove a hospital is out of network.
+                    </p>
                   </td>
                 </tr>
               ) : (
                 insurerRecords.map((r) => (
                   <tr key={r.id} className="hover:bg-navy-800/60 transition">
-                    <td className="py-3.5 px-4 font-semibold text-white">
-                      {r.hospital_name}
+                    {/* 1. Hospital Name & Address */}
+                    <td className="py-3.5 px-4 font-semibold text-white max-w-xs">
+                      <div>{r.hospital_name}</div>
                       {r.address && (
                         <span className="block text-[11px] text-slate-400 font-normal mt-0.5 truncate max-w-md">
                           {r.address}
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
-                        <ShieldCheck className="w-3 h-3" />
-                        Star Health Network
+
+                    {/* 2. Data Source */}
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium bg-navy-950 text-emerald-300 border border-emerald-500/30">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        Star Health Sample
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-300">
+
+                    {/* 3. Network Status */}
+                    <td className="py-3.5 px-4 max-w-sm">
+                      <div className="space-y-0.5">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                          Listed in Star Health network data
+                        </span>
+                        <p className="text-[10px] text-slate-400 leading-tight">
+                          Imported from offline Star Health Bengaluru network sample. Cashless access is subject to policy terms and pre-authorization.
+                        </p>
+                      </div>
+                    </td>
+
+                    {/* 4. Location */}
+                    <td className="py-3.5 px-4 text-slate-300 whitespace-nowrap">
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-                        {r.city || r.state || 'N/A'}
+                        {r.city ? `${r.city}, ${r.state || ''}` : r.state || 'N/A'}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-400">
-                      {r.pincode || 'Not available'}
+
+                    {/* 5. Pincode */}
+                    <td className="py-3.5 px-4 font-mono text-slate-400 whitespace-nowrap">
+                      {r.pincode || 'Not reported'}
                     </td>
-                    <td className="py-3.5 px-4 text-right">
+
+                    {/* 6. Coverage Type */}
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <span className="text-[11px] font-semibold text-cyan-300 bg-cyan-950 border border-cyan-500/30 px-2.5 py-0.5 rounded">
                         {r.network_type || 'Cashless Network'}
                       </span>
@@ -369,7 +535,7 @@ export const HospitalExplorer: React.FC = () => {
             </span>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => loadData(pagination.page - 1)}
+                onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page <= 1 || loading}
                 className="px-3 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-800 disabled:opacity-40 transition border border-navy-700 text-slate-200 font-medium flex items-center gap-1"
                 aria-label="Previous page"
@@ -378,7 +544,7 @@ export const HospitalExplorer: React.FC = () => {
                 Previous
               </button>
               <button
-                onClick={() => loadData(pagination.page + 1)}
+                onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page >= pagination.total_pages || loading}
                 className="px-3 py-1.5 rounded-lg bg-navy-900 hover:bg-navy-800 disabled:opacity-40 transition border border-navy-700 text-slate-200 font-medium flex items-center gap-1"
                 aria-label="Next page"

@@ -1,0 +1,47 @@
+{
+  "total_test_pairs": 75,
+  "correct_predictions": 74,
+  "accuracy": 98.67,
+  "precision": 100.0,
+  "recall": 97.37,
+  "specificity": 100.0,
+  "f1_score": 98.67,
+  "confusion_matrix": {
+    "TP": 37,
+    "FP": 0,
+    "TN": 37,
+    "FN": 1
+  },
+  "category_breakdown": {
+    "formatting": {
+      "total": 15,
+      "correct": 14,
+      "accuracy_pct": 93.33
+    },
+    "legal_suffixes": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "abbreviations": {
+      "total": 15,
+      "correct": 15,
+      "accuracy_pct": 100.0
+    },
+    "distinct_facilities": {
+      "total": 15,
+      "correct": 15,
+      "accuracy_pct": 100.0
+    },
+    "renamed_facilities": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    },
+    "geographic_mismatches": {
+      "total": 10,
+      "correct": 10,
+      "accuracy_pct": 100.0
+    }
+  }
+}

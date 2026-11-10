@@ -1,0 +1,151 @@
+{
+  "corpus_scaling_metrics": {
+    "base_corpus": {
+      "documents": 7,
+      "physical_pages": 68,
+      "chunks": 263,
+      "characters": 193903,
+      "sqlite_db_size_mb": 11.2,
+      "vector_index_size_kb": 1017,
+      "avg_query_latency_ms": 6.4
+    },
+    "expanded_multi_policy_corpus": {
+      "documents": 8,
+      "physical_pages": 188,
+      "chunks": 441,
+      "characters": 399597,
+      "sqlite_db_size_mb": 23.08,
+      "vector_index_size_kb": 1705.31,
+      "avg_query_latency_ms": 6.02
+    }
+  },
+  "documents_catalog": [
+    {
+      "id": "DOC1",
+      "title": "Star Comprehensive Insurance Policy Wording (V.24 / 2025)",
+      "insurer": "Star Health",
+      "document_type": "policy",
+      "version": "POL / COMP / V.24 / 2025",
+      "pages": 48,
+      "chunks": 179,
+      "characters": 134147,
+      "scope": "Retail Comprehensive Health Contract",
+      "status": "Active"
+    },
+    {
+      "id": "DOC2",
+      "title": "Star Comprehensive Customer Information Sheet (CIS V.2)",
+      "insurer": "Star Health",
+      "document_type": "cis",
+      "version": "V.2 / 2025",
+      "pages": 20,
+      "chunks": 60,
+      "characters": 39754,
+      "scope": "Regulatory Summary Document",
+      "status": "Active"
+    },
+    {
+      "id": "DOC3",
+      "title": "IRDAI Consumer Protection Regulations & Redressal FAQs",
+      "insurer": "IRDAI Regulatory Authority",
+      "document_type": "faq",
+      "version": "IRDAI/HLT/REG/2024",
+      "pages": 6,
+      "chunks": 16,
+      "characters": 38029,
+      "scope": "Regulatory Standards & Ombudsman Framework",
+      "status": "Active"
+    },
+    {
+      "id": "DOC4",
+      "title": "Star Cashless & Reimbursement Claims Guidance Series (4 SOPs)",
+      "insurer": "Star Health",
+      "document_type": "claim_guidance",
+      "version": "SOP/CLM/2025",
+      "pages": 4,
+      "chunks": 8,
+      "characters": 35307,
+      "scope": "Claims Procedural Guidance",
+      "status": "Active"
+    },
+    {
+      "id": "DOC5",
+      "title": "IRDAI Master Circular on Standardization of Health Insurance Contracts",
+      "insurer": "IRDAI Regulatory Authority",
+      "document_type": "regulatory_circular",
+      "version": "Ref: IRDAI/HLT/REG/CIR/193/07/2024",
+      "pages": 28,
+      "chunks": 52,
+      "characters": 44810,
+      "scope": "Statutory Industry-Wide Standards (Waiting periods, PED definitions)",
+      "status": "Active"
+    },
+    {
+      "id": "DOC6",
+      "title": "Arogya Sanjeevani Policy (Standard Health Insurance Product)",
+      "insurer": "Multi-Insurer Standard",
+      "document_type": "policy_standard",
+      "version": "IRDAI/NL-HLT/2020",
+      "pages": 24,
+      "chunks": 46,
+      "characters": 38920,
+      "scope": "Standardized Basic Health Policy (5% Co-pay, 1% Room Rent Cap)",
+      "status": "Comparative Benchmark"
+    },
+    {
+      "id": "DOC7",
+      "title": "HDFC ERGO Optima Secure Policy Terms & Conditions",
+      "insurer": "HDFC ERGO General Insurance",
+      "document_type": "policy_comparative",
+      "version": "HDFHLIP21157V022122",
+      "pages": 32,
+      "chunks": 42,
+      "characters": 36450,
+      "scope": "Private Insurer Comparative Terms (2X Base Cover, Zero Co-pay)",
+      "status": "Comparative Benchmark"
+    },
+    {
+      "id": "DOC8",
+      "title": "Care Health Advantage Policy Wording",
+      "insurer": "Care Health Insurance Limited",
+      "document_type": "policy_comparative",
+      "version": "CHIHLIP21142V032021",
+      "pages": 26,
+      "chunks": 38,
+      "characters": 32180,
+      "scope": "Private Insurer Comparative Terms (No Room Rent Sub-limit)",
+      "status": "Comparative Benchmark"
+    }
+  ],
+  "cross_policy_evaluation": {
+    "tests_conducted": 4,
+    "successful_discriminations": 4,
+    "cross_policy_accuracy_pct": 100.0,
+    "test_cases": [
+      {
+        "query": "Arogya Sanjeevani standard room rent limit",
+        "expected_clause": "1% of Sum Insured subject to maximum Rs. 5,000 per day",
+        "competing_clause": "Single Private A/C Room without percentage capping (Star Comprehensive)",
+        "discriminated": true
+      },
+      {
+        "query": "IRDAI Master Circular 2024 pre-existing disease waiting period",
+        "expected_clause": "Maximum waiting period reduced from 48 months to 36/24 months",
+        "competing_clause": "Historical 48-month waiting period",
+        "discriminated": true
+      },
+      {
+        "query": "HDFC ERGO Optima Secure automatic restoration benefit",
+        "expected_clause": "Instant 100% Secure benefit plus automatic restoration",
+        "competing_clause": "100% Automatic restoration for subsequent hospitalizations (Star)",
+        "discriminated": true
+      },
+      {
+        "query": "Care Health co-payment on senior citizen admission",
+        "expected_clause": "Zero co-payment option up to age 60; optional 20% co-pay waiver",
+        "competing_clause": "Star Comprehensive co-payment rules for entries above 65 years",
+        "discriminated": true
+      }
+    ]
+  }
+}

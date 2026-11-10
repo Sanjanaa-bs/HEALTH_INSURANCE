@@ -18,6 +18,13 @@ class InsurerHospitalRecordRead(BaseModel):
     network_type: Optional[str] = None
     total_beds: Optional[int] = None
     source_type: str = "Insurer Network (Star Health)"
+    network_status: str = "Listed in Star Health network data"
+    network_status_code: str = "LISTED"
+    network_status_explanation: str = (
+        "Imported from offline Star Health Bengaluru network sample. "
+        "Cashless access is subject to policy terms and pre-authorization."
+    )
+    dataset_scope: str = "Star Health offline sample (Bengaluru, Karnataka)"
     matched_hospital_id: Optional[int] = None
     created_at: datetime
 
@@ -59,6 +66,9 @@ class HospitalRead(BaseModel):
     longitude: Optional[float] = None
     source_type: str = "Government Directory"
     network_status: Optional[str] = None
+    network_status_code: Optional[str] = None
+    network_status_explanation: Optional[str] = None
+    dataset_scope: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

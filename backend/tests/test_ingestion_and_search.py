@@ -153,7 +153,7 @@ def test_hospital_source_classification(client: TestClient, db_session: Session)
     assert res_govt.status_code == 200
     govt_data = res_govt.json()
     assert govt_data["source_type"] == "Government Directory"
-    assert govt_data["network_status"] == "Star Health Cashless"
+    assert govt_data["network_status"] == "Listed in Star Health network data"
 
     # Insurer Network API
     res_ins = client.get("/api/v1/hospitals/insurer-network")
