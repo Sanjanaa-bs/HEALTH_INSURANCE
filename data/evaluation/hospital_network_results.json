@@ -1,45 +1,81 @@
 {
-  "dataset_overview": {
-    "total_insurer_records_evaluated": 125,
-    "cities_covered": 9,
-    "city_list": [
-      "Hyderabad",
-      "Bengaluru",
-      "Chennai",
-      "Kolkata",
-      "Lucknow",
-      "Pune",
-      "Jaipur",
-      "Ahmedabad",
-      "Mumbai"
-    ],
+  "metadata": {
+    "command": "python scripts/evaluate_hospital_network.py",
+    "git_commit": "7fc8e410687f5b2753a2ad97b4b555bfd7eed753",
+    "date": "2026-11-11T05:15:04.177562+00:00",
+    "random_seed": 42,
     "national_directory_size": 29974
   },
-  "cohort_performance": {
-    "in_sample_matched": {
-      "total": 125,
-      "LISTED": 125,
-      "NOT_FOUND": 0,
-      "UNVERIFIED": 0
+  "real_network_evaluation": {
+    "dataset_type": "real_production_database",
+    "records_count": 10,
+    "linked_records_count": 6,
+    "unlinked_records_count": 4,
+    "dataset_limitation": "The production database contains only 10 real Star Health records covering Bengaluru. Generalization to other cities requires further insurer dataset ingestion.",
+    "cohorts": {
+      "real_linked_facilities": {
+        "total": 6,
+        "LISTED": 6,
+        "NOT_FOUND": 0,
+        "UNVERIFIED": 0
+      },
+      "bagalkot_facilities_outside_bengaluru": {
+        "total": 20,
+        "LISTED": 0,
+        "NOT_FOUND": 0,
+        "UNVERIFIED": 20
+      },
+      "distant_state_facilities": {
+        "total": 50,
+        "LISTED": 0,
+        "NOT_FOUND": 0,
+        "UNVERIFIED": 50
+      },
+      "bengaluru_unlisted_facilities": {
+        "total": 50,
+        "LISTED": 0,
+        "NOT_FOUND": 50,
+        "UNVERIFIED": 0
+      }
     },
-    "in_scope_unlisted": {
-      "total": 50,
-      "LISTED": 0,
-      "NOT_FOUND": 50,
-      "UNVERIFIED": 0
-    },
-    "out_of_scope_facilities": {
-      "total": 50,
-      "LISTED": 0,
-      "NOT_FOUND": 0,
-      "UNVERIFIED": 50
+    "metrics": {
+      "linked_recall": 1.0,
+      "bagalkot_unverified_rate": 1.0,
+      "distant_unverified_rate": 1.0,
+      "false_positive_listed_rate": 0.0
     }
   },
-  "metrics": {
-    "matched_accuracy_pct": 100.0,
-    "in_scope_not_found_rate_pct": 100.0,
-    "out_of_scope_unverified_rate_pct": 100.0,
-    "network_separation_precision_pct": 100.0,
-    "false_positive_network_rate_pct": 0.0
+  "synthetic_stress_evaluation": {
+    "dataset_type": "synthetic_stress_sample",
+    "label": "SYNTHETIC STRESS TEST (NOT real Star Health data)",
+    "synthetic_file": "data\\synthetic\\synthetic_hospital_stress_sample.json",
+    "synthetic_sha256": "4cbf3123e25819d6bdd56649a8de04d119b28a74aaacc96937c89e133efd1ec7",
+    "records_count": 125,
+    "cities_covered": 9,
+    "cohorts": {
+      "synthetic_in_sample_targets": {
+        "total": 125,
+        "LISTED": 125,
+        "NOT_FOUND": 0,
+        "UNVERIFIED": 0
+      },
+      "synthetic_in_scope_unlisted": {
+        "total": 50,
+        "LISTED": 0,
+        "NOT_FOUND": 50,
+        "UNVERIFIED": 0
+      },
+      "synthetic_out_of_scope_facilities": {
+        "total": 50,
+        "LISTED": 0,
+        "NOT_FOUND": 0,
+        "UNVERIFIED": 50
+      }
+    },
+    "metrics": {
+      "target_facility_recall": 1.0,
+      "in_scope_absence_detection": 1.0,
+      "out_of_scope_isolation_rate": 1.0
+    }
   }
 }

@@ -1,26 +1,63 @@
 {
-  "deterministic_extractive": {
-    "factual_correctness_pct": 78.46,
-    "citation_accuracy_pct": 60.38,
-    "completeness_pct": 78.46,
-    "faithfulness_ratio_pct": 86.77,
-    "hallucination_rate_pct": 12.31,
-    "abstention_precision_pct": 33.33
+  "metadata": {
+    "command": "python scripts/evaluate_generation_quality.py",
+    "git_commit": "7fc8e410687f5b2753a2ad97b4b555bfd7eed753",
+    "date": "2026-11-11T05:11:14.494621+00:00",
+    "random_seed": 42,
+    "benchmark_file": "data/evaluation/benchmark_qa_60.json",
+    "benchmark_sha256": "36a55b2d22809e8f901e484042d671bc70564bd5f7f573cda02b68ccd1c60010",
+    "total_queries": 65,
+    "human_evaluation_sheet": "data/evaluation/generation_quality_human_rating_sheet.csv"
   },
-  "grounded_rag_llm": {
-    "factual_correctness_pct": 87.69,
-    "citation_accuracy_pct": 60.38,
-    "completeness_pct": 87.69,
-    "faithfulness_ratio_pct": 84.84,
-    "hallucination_rate_pct": 12.31,
-    "abstention_precision_pct": 33.33
-  },
-  "unconstrained_llm_baseline": {
-    "factual_correctness_pct": 76.92,
-    "citation_accuracy_pct": 20.75,
-    "completeness_pct": 0.0,
-    "faithfulness_ratio_pct": 57.77,
-    "hallucination_rate_pct": 23.08,
-    "abstention_precision_pct": 0.0
+  "systems": {
+    "deterministic_extractive_synthesis": {
+      "status": "EVALUATED_LIVE",
+      "mode": "deterministic_extractive_synthesis",
+      "description": "Verbatim extraction of retrieved policy clauses with strict gate abstention",
+      "metrics_type": "automatic_lexical_proxy",
+      "total_queries_evaluated": 65,
+      "answerable_queries": {
+        "total": 53,
+        "answered": 51,
+        "coverage_rate": 0.9623
+      },
+      "out_of_domain_queries": {
+        "total": 12,
+        "abstained": 6,
+        "abstention_rate": 0.5
+      },
+      "citation_verification": {
+        "total_citations_returned": 132,
+        "gold_chunk_precision": 0.2652,
+        "expected_page_match_precision": 0.3788
+      },
+      "lexical_grounding": {
+        "total_benchmark_key_phrases": 171,
+        "matched_key_phrases": 91,
+        "key_phrase_recall": 0.5322,
+        "extractive_verbatim_grounding_pct": 100.0,
+        "parametric_hallucination_pct": 0.0
+      },
+      "human_evaluation": {
+        "status": "[Pending Human Rating]",
+        "rating_sheet": "data/evaluation/generation_quality_human_rating_sheet.csv",
+        "protocol": "docs/HUMAN_EVALUATION_PROTOCOL.md",
+        "raters_required": 2
+      }
+    },
+    "grounded_local_llm": {
+      "status": "[NOT RUN - Local LLM offline]",
+      "mode": "grounded_local_llm",
+      "reason": "Ollama daemon was not reachable at http://localhost:11434 during evaluation run. No simulated or fabricated numbers reported.",
+      "human_evaluation": {
+        "status": "[Pending Human Rating]",
+        "rating_sheet": "data/evaluation/generation_quality_human_rating_sheet.csv"
+      }
+    },
+    "unconstrained_parametric_llm": {
+      "status": "[NOT RUN - Local LLM offline]",
+      "mode": "unconstrained_parametric_llm",
+      "reason": "Unconstrained baseline requires live local inference model. Deleted simulated responses per scientific integrity protocol."
+    }
   }
 }

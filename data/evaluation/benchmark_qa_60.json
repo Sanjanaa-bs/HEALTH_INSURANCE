@@ -1,1205 +1,2715 @@
-[
-  {
-    "id": "Q01",
-    "category": "coverage_terms_and_limits",
-    "question": "What does the policy say about room rent?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      9,
-      8
-    ],
-    "key_phrases": [
-      "room rent",
-      "single private a/c room",
-      "boarding"
-    ],
-    "ground_truth_summary": "Single Private A/C Room is covered for sum insured of 5 lakhs and above. Boarding and nursing expenses provided by hospital."
-  },
-  {
-    "id": "Q02",
-    "category": "coverage_terms_and_limits",
-    "question": "What is the policy coverage for ICU charges?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      9,
-      8
-    ],
-    "key_phrases": [
-      "icu",
-      "intensive care unit"
-    ],
-    "ground_truth_summary": "ICU and Intensive Cardiac Care Unit charges are covered at actuals up to sum insured without capping."
-  },
-  {
-    "id": "Q03",
-    "category": "coverage_terms_and_limits",
-    "question": "What does the policy say about pre-hospitalisation expenses?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      11,
-      3
-    ],
-    "key_phrases": [
-      "pre-hospitalization",
-      "60 days"
-    ],
-    "ground_truth_summary": "Pre-hospitalization medical expenses incurred for a period of up to 60 days prior to the date of hospitalization are covered."
-  },
-  {
-    "id": "Q04",
-    "category": "coverage_terms_and_limits",
-    "question": "What is the limit and duration for post-hospitalization medical expenses?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      11,
-      3
-    ],
-    "key_phrases": [
-      "post-hospitalization",
-      "90 days"
-    ],
-    "ground_truth_summary": "Post-hospitalization medical expenses incurred for a period up to 90 days following discharge are covered."
-  },
-  {
-    "id": "Q05",
-    "category": "coverage_terms_and_limits",
-    "question": "Are day care treatments covered under this policy?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      9,
-      3
-    ],
-    "key_phrases": [
-      "day care",
-      "24 hours"
-    ],
-    "ground_truth_summary": "All day care procedures and surgeries requiring less than 24 hours hospitalization due to technological advancement are covered."
-  },
-  {
-    "id": "Q06",
-    "category": "coverage_terms_and_limits",
-    "question": "What is the coverage limit for road ambulance charges?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      10,
-      3
-    ],
-    "key_phrases": [
-      "ambulance",
-      "road ambulance"
-    ],
-    "ground_truth_summary": "Road ambulance expenses incurred for transportation of the insured to the hospital are payable as per policy limits."
-  },
-  {
-    "id": "Q07",
-    "category": "coverage_terms_and_limits",
-    "question": "Does the policy cover air ambulance services and what is the limit?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      11,
-      3
-    ],
-    "key_phrases": [
-      "air ambulance"
-    ],
-    "ground_truth_summary": "Air ambulance services are covered up to specified limits (e.g. Rs. 2,50,000 per hospitalization, up to 5,00,000 per policy year) subject to treating doctor certification."
-  },
-  {
-    "id": "Q08",
-    "category": "coverage_terms_and_limits",
-    "question": "Are AYUSH and alternative system treatments covered?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      10,
-      3
-    ],
-    "key_phrases": [
-      "ayush",
-      "ayurveda",
-      "unani",
-      "siddha",
-      "homeopathy"
-    ],
-    "ground_truth_summary": "Inpatient hospitalization expenses incurred under Ayurveda, Yoga & Naturopathy, Unani, Siddha, and Homeopathy in government-recognized hospitals are covered up to the sum insured."
-  },
-  {
-    "id": "Q09",
-    "category": "coverage_terms_and_limits",
-    "question": "What are the rules regarding organ donor expenses?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      11,
-      3
-    ],
-    "key_phrases": [
-      "organ donor",
-      "harvesting"
-    ],
-    "ground_truth_summary": "Inpatient hospitalization expenses incurred for organ donor during organ harvesting are covered provided the organ donation complies with Transplantation of Human Organs Act."
-  },
-  {
-    "id": "Q10",
-    "category": "coverage_terms_and_limits",
-    "question": "Is domiciliary hospitalization covered under the policy?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      10,
-      3
-    ],
-    "key_phrases": [
-      "domiciliary",
-      "home treatment"
-    ],
-    "ground_truth_summary": "Domiciliary hospitalization exceeding 3 days for medical treatment which ordinarily requires hospital confinement is covered under specified conditions."
-  },
-  {
-    "id": "Q11",
-    "category": "coverage_terms_and_limits",
-    "question": "What is the cumulative bonus percentage awarded for claim-free years?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      12,
-      4
-    ],
-    "key_phrases": [
-      "cumulative bonus",
-      "no claim bonus",
-      "50%"
-    ],
-    "ground_truth_summary": "Cumulative bonus of 50% of the basic sum insured is awarded for each claim-free year, up to a maximum of 100% of the sum insured."
-  },
-  {
-    "id": "Q12",
-    "category": "coverage_terms_and_limits",
-    "question": "How does automatic restoration of the sum insured operate?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      12,
-      4
-    ],
-    "key_phrases": [
-      "restoration",
-      "sum insured"
-    ],
-    "ground_truth_summary": "Automatic restoration of 100% of the sum insured is available upon partial or full exhaustion, usable for subsequent hospitalizations during the policy year."
-  },
-  {
-    "id": "Q13",
-    "category": "coverage_terms_and_limits",
-    "question": "Does the policy cover modern treatments and robotic surgery?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      13,
-      4
-    ],
-    "key_phrases": [
-      "modern treatment",
-      "robotic surgery",
-      "stem cell"
-    ],
-    "ground_truth_summary": "Modern treatments including robotic surgeries, deep brain stimulation, and stem cell therapy are covered up to specified limits or full sum insured depending on procedure."
-  },
-  {
-    "id": "Q14",
-    "category": "coverage_terms_and_limits",
-    "question": "What is the coverage for second medical opinion?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      13,
-      4
-    ],
-    "key_phrases": [
-      "second medical opinion"
-    ],
-    "ground_truth_summary": "The insured person can obtain a second medical opinion from the company's network doctor without impacting the sum insured."
-  },
-  {
-    "id": "Q15",
-    "category": "coverage_terms_and_limits",
-    "question": "Are health checkup expenses reimbursed and at what interval?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      13,
-      4
-    ],
-    "key_phrases": [
-      "health checkup"
-    ],
-    "ground_truth_summary": "Health checkup expenses are covered for each claim-free year up to specified financial limits based on sum insured."
-  },
-  {
-    "id": "Q16",
-    "category": "waiting_periods_and_conditions",
-    "question": "What is the waiting period for pre-existing diseases?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      41,
-      7
-    ],
-    "key_phrases": [
-      "waiting period",
-      "pre-existing",
-      "24 months"
-    ],
-    "ground_truth_summary": "Pre-existing diseases have a standard waiting period of 24 months of continuous coverage without break from inception."
-  },
-  {
-    "id": "Q17",
-    "category": "waiting_periods_and_conditions",
-    "question": "What is the initial waiting period after taking a new policy?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      41,
-      7
-    ],
-    "key_phrases": [
-      "30 days",
-      "initial waiting period"
-    ],
-    "ground_truth_summary": "An initial waiting period of 30 days applies from policy inception, during which illnesses are excluded except hospitalizations caused by accidents."
-  },
-  {
-    "id": "Q18",
-    "category": "waiting_periods_and_conditions",
-    "question": "Are cataract treatments subject to specific conditions?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      30,
-      9
-    ],
-    "key_phrases": [
-      "cataract",
-      "24 months",
-      "sub-limit"
-    ],
-    "ground_truth_summary": "Cataract treatment is subject to a 24-month waiting period and specific financial sub-limits per eye based on sum insured."
-  },
-  {
-    "id": "Q19",
-    "category": "waiting_periods_and_conditions",
-    "question": "What is the waiting period for hernia, hydrocele, and piles?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      30,
-      8
-    ],
-    "key_phrases": [
-      "hernia",
-      "24 months",
-      "specified illness"
-    ],
-    "ground_truth_summary": "A 24-month waiting period applies for benign ENT disorders, hernia, hydrocele, and benign prostatic hypertrophy."
-  },
-  {
-    "id": "Q20",
-    "category": "waiting_periods_and_conditions",
-    "question": "What is the waiting period for joint replacement surgery unless caused by accident?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      30,
-      8
-    ],
-    "key_phrases": [
-      "joint replacement",
-      "knee replacement",
-      "24 months"
-    ],
-    "ground_truth_summary": "Joint replacement surgeries (knee, hip) are excluded until the expiry of 24 months of continuous coverage unless required due to an accidental injury."
-  },
-  {
-    "id": "Q21",
-    "category": "waiting_periods_and_conditions",
-    "question": "Is bariatric surgery covered and what waiting period applies?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      31,
-      8
-    ],
-    "key_phrases": [
-      "bariatric surgery",
-      "24 months",
-      "bmi"
-    ],
-    "ground_truth_summary": "Bariatric metabolic surgery is covered after 24 months waiting period if severe clinical obesity criteria (e.g. BMI >= 40 or BMI >= 35 with co-morbidities) are satisfied."
-  },
-  {
-    "id": "Q22",
-    "category": "waiting_periods_and_conditions",
-    "question": "What waiting period applies to maternity expenses and normal or caesarean delivery?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      10,
-      8
-    ],
-    "key_phrases": [
-      "maternity",
-      "24 months"
-    ],
-    "ground_truth_summary": "Maternity cover requires 24 months of continuous coverage under the policy, with maximum limits per delivery (normal/caesarean) up to 2 deliveries."
-  },
-  {
-    "id": "Q23",
-    "category": "waiting_periods_and_conditions",
-    "question": "Are newborn baby medical expenses covered under maternity benefits?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      10,
-      8
-    ],
-    "key_phrases": [
-      "newborn",
-      "baby cover"
-    ],
-    "ground_truth_summary": "Hospitalization expenses for newborn baby born to insured mother are covered from day 1 up to specified limits under maternity section."
-  },
-  {
-    "id": "Q24",
-    "category": "waiting_periods_and_conditions",
-    "question": "Does the policy cover mental illnesses or psychiatric disorders?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      13,
-      8
-    ],
-    "key_phrases": [
-      "mental illness",
-      "psychiatric"
-    ],
-    "ground_truth_summary": "Inpatient treatment for mental illnesses is covered in accordance with Mental Healthcare Act 2017 without discriminatory sub-limits."
-  },
-  {
-    "id": "Q25",
-    "category": "waiting_periods_and_conditions",
-    "question": "Can pre-existing disease waiting period be reduced by paying additional premium?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      41,
-      7
-    ],
-    "key_phrases": [
-      "buyback",
-      "pre-existing waiting period",
-      "reduction"
-    ],
-    "ground_truth_summary": "An optional buyback / waiting period reduction rider may be available at inception reducing 24-month waiting period to 12 months on payment of specific additional premium."
-  },
-  {
-    "id": "Q26",
-    "category": "waiting_periods_and_conditions",
-    "question": "What waiting period applies for stone disease of biliary and urinary systems?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      30,
-      8
-    ],
-    "key_phrases": [
-      "calculus",
-      "gallstones",
-      "kidney stone",
-      "24 months"
-    ],
-    "ground_truth_summary": "Calculus diseases of gall bladder, biliary tract, and urinary system are subject to a 24-month waiting period from inception."
-  },
-  {
-    "id": "Q27",
-    "category": "waiting_periods_and_conditions",
-    "question": "What is the waiting period for genetic diseases or disorders?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      31,
-      8
-    ],
-    "key_phrases": [
-      "genetic",
-      "waiting period"
-    ],
-    "ground_truth_summary": "Genetic diseases are covered subject to standard pre-existing disease waiting periods (24 months) and IRDAI non-exclusion guidelines."
-  },
-  {
-    "id": "Q28",
-    "category": "exclusions_and_restrictions",
-    "question": "What are the policy's exclusions?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      31,
-      5
-    ],
-    "key_phrases": [
-      "exclusion",
-      "code excl"
-    ],
-    "ground_truth_summary": "The policy details standardized exclusions Code Excl 01 to Excl 18 including investigation, cosmetic surgery, hazardous sports, and breach of law."
-  },
-  {
-    "id": "Q29",
-    "category": "exclusions_and_restrictions",
-    "question": "Are diagnostic tests without inpatient hospitalization payable?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      31,
-      5
-    ],
-    "key_phrases": [
-      "investigation",
-      "evaluation",
-      "diagnostic",
-      "excl 04"
-    ],
-    "ground_truth_summary": "Hospitalization admission solely for investigation or diagnostic evaluation purposes is excluded under Code Excl 04."
-  },
-  {
-    "id": "Q30",
-    "category": "exclusions_and_restrictions",
-    "question": "Is cosmetic surgery or plastic surgery covered under any circumstance?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      31,
-      5
-    ],
-    "key_phrases": [
-      "cosmetic",
-      "plastic surgery",
-      "excl 08"
-    ],
-    "ground_truth_summary": "Cosmetic or plastic surgery is excluded under Code Excl 08 unless required reconstructively due to accidents, burns, or cancer."
-  },
-  {
-    "id": "Q31",
-    "category": "exclusions_and_restrictions",
-    "question": "Are non-medical administrative charges like gloves and admission kits covered?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      48,
-      6
-    ],
-    "key_phrases": [
-      "non-medical",
-      "registration",
-      "admission kit",
-      "gloves"
-    ],
-    "ground_truth_summary": "Non-payable items listed in IRDAI guidelines (admission kit, documentation, registration fees, sanitary items) are excluded from reimbursement."
-  },
-  {
-    "id": "Q32",
-    "category": "exclusions_and_restrictions",
-    "question": "Does the policy cover treatment for alcohol or substance abuse?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      32,
-      5
-    ],
-    "key_phrases": [
-      "alcohol",
-      "substance abuse",
-      "excl 12"
-    ],
-    "ground_truth_summary": "Treatment for alcoholism, drug addiction, substance abuse, and their direct complications is excluded under Code Excl 12."
-  },
-  {
-    "id": "Q33",
-    "category": "exclusions_and_restrictions",
-    "question": "Are treatments arising from participation in hazardous sports covered?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      32,
-      5
-    ],
-    "key_phrases": [
-      "hazardous sports",
-      "scuba diving",
-      "racing",
-      "excl 09"
-    ],
-    "ground_truth_summary": "Hospitalization resulting from professional hazardous sports (racing, parachuting, mountaineering) is excluded under Code Excl 09."
-  },
-  {
-    "id": "Q34",
-    "category": "exclusions_and_restrictions",
-    "question": "Are dietary supplements and vitamins without illness diagnosis covered?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      32,
-      5
-    ],
-    "key_phrases": [
-      "dietary supplements",
-      "vitamins",
-      "excl 14"
-    ],
-    "ground_truth_summary": "Dietary supplements, tonics, and vitamins not prescribed as part of treatment for active disease during inpatient stay are excluded under Code Excl 14."
-  },
-  {
-    "id": "Q35",
-    "category": "exclusions_and_restrictions",
-    "question": "Does the policy cover gender reassignment or sex change surgery?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      31,
-      5
-    ],
-    "key_phrases": [
-      "gender reassignment",
-      "sex change",
-      "excl 07"
-    ],
-    "ground_truth_summary": "Expenses incurred for change-of-gender treatments are excluded under Code Excl 07."
-  },
-  {
-    "id": "Q36",
-    "category": "exclusions_and_restrictions",
-    "question": "Is routine outpatient dental treatment covered under base hospitalization?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      32,
-      5
-    ],
-    "key_phrases": [
-      "dental",
-      "excl 11"
-    ],
-    "ground_truth_summary": "Dental treatment or surgery that does not require hospitalization is excluded under Code Excl 11 unless required following accident."
-  },
-  {
-    "id": "Q37",
-    "category": "exclusions_and_restrictions",
-    "question": "What is the policy regarding intentional self-inflicted injuries or suicide attempts?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      32,
-      5
-    ],
-    "key_phrases": [
-      "self-inflicted",
-      "suicide",
-      "excl 10"
-    ],
-    "ground_truth_summary": "Expenses related to intentional self-inflicted injuries or attempted suicide are excluded under Code Excl 10."
-  },
-  {
-    "id": "Q38",
-    "category": "exclusions_and_restrictions",
-    "question": "Are war, invasion, and nuclear contamination risks covered?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      32,
-      5
-    ],
-    "key_phrases": [
-      "war",
-      "nuclear",
-      "invasion"
-    ],
-    "ground_truth_summary": "Losses directly or indirectly caused by war, civil commotion, radiation, or nuclear contamination are excluded."
-  },
-  {
-    "id": "Q39",
-    "category": "exclusions_and_restrictions",
-    "question": "Is sleep apnea and snoring treatment covered or excluded?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      32,
-      5
-    ],
-    "key_phrases": [
-      "sleep apnea",
-      "snoring",
-      "excl 15"
-    ],
-    "ground_truth_summary": "Treatment of sleep apnea disorders and corrective procedures for snoring are excluded under Code Excl 15."
-  },
-  {
-    "id": "Q40",
-    "category": "claims_procedures_and_guidance",
-    "question": "What is the procedure and timeline to intimate a planned cashless hospitalization?",
-    "expected_status": "answered",
-    "target_documents": [
-      "claim_guidance",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      1,
-      14
-    ],
-    "key_phrases": [
-      "cashless",
-      "48 hours",
-      "pre-authorization"
-    ],
-    "ground_truth_summary": "For planned hospitalization, pre-authorization must be submitted at least 48 hours prior to admission via the hospital insurance desk."
-  },
-  {
-    "id": "Q41",
-    "category": "claims_procedures_and_guidance",
-    "question": "What is the notification window for an emergency cashless hospitalization?",
-    "expected_status": "answered",
-    "target_documents": [
-      "claim_guidance",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      1,
-      14
-    ],
-    "key_phrases": [
-      "emergency",
-      "24 hours",
-      "cashless"
-    ],
-    "ground_truth_summary": "For emergency admission, intimation and cashless request must be submitted within 24 hours of hospitalization."
-  },
-  {
-    "id": "Q42",
-    "category": "claims_procedures_and_guidance",
-    "question": "Within how many days must reimbursement claim documents be submitted after discharge?",
-    "expected_status": "answered",
-    "target_documents": [
-      "claim_guidance",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      1,
-      14
-    ],
-    "key_phrases": [
-      "reimbursement",
-      "15 days",
-      "30 days"
-    ],
-    "ground_truth_summary": "Duly completed claim form and original bills must be submitted within 15 to 30 days from the date of hospital discharge."
-  },
-  {
-    "id": "Q43",
-    "category": "claims_procedures_and_guidance",
-    "question": "What mandatory documents are required to support a reimbursement claim?",
-    "expected_status": "answered",
-    "target_documents": [
-      "claim_guidance",
-      "policy"
-    ],
-    "expected_page_numbers": [
-      1,
-      35
-    ],
-    "key_phrases": [
-      "discharge summary",
-      "original bills",
-      "receipts",
-      "prescriptions"
-    ],
-    "ground_truth_summary": "Discharge summary, original hospital bills with breakup, payment receipts, diagnostic test reports, and doctor prescriptions are mandatory."
-  },
-  {
-    "id": "Q44",
-    "category": "claims_procedures_and_guidance",
-    "question": "How can policyholders check their claim status online?",
-    "expected_status": "answered",
-    "target_documents": [
-      "claim_guidance"
-    ],
-    "expected_page_numbers": [
-      1
-    ],
-    "key_phrases": [
-      "claim status",
-      "intimation number",
-      "portal"
-    ],
-    "ground_truth_summary": "Claim status can be tracked online on the insurer website or mobile application using claim intimation number or health card ID."
-  },
-  {
-    "id": "Q45",
-    "category": "claims_procedures_and_guidance",
-    "question": "What grievance escalation mechanism exists if an insurer denies a claim unjustly?",
-    "expected_status": "answered",
-    "target_documents": [
-      "faq",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      1,
-      16
-    ],
-    "key_phrases": [
-      "grievance",
-      "gro",
-      "irda",
-      "bima bharosa"
-    ],
-    "ground_truth_summary": "The policyholder can approach the Grievance Redressal Officer (GRO), escalate to IRDAI Bima Bharosa portal, or appeal to the Insurance Ombudsman."
-  },
-  {
-    "id": "Q46",
-    "category": "claims_procedures_and_guidance",
-    "question": "What is the role and pecuniary jurisdiction limit of the Insurance Ombudsman?",
-    "expected_status": "answered",
-    "target_documents": [
-      "faq",
-      "policy"
-    ],
-    "expected_page_numbers": [
-      1,
-      47
-    ],
-    "key_phrases": [
-      "ombudsman",
-      "30 lakhs",
-      "jurisdiction"
-    ],
-    "ground_truth_summary": "The Insurance Ombudsman adjudicates consumer insurance disputes for claims up to Rs. 30 lakhs within regional jurisdiction."
-  },
-  {
-    "id": "Q47",
-    "category": "claims_procedures_and_guidance",
-    "question": "What is the free-look period duration for review of a newly issued health policy?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      38,
-      15
-    ],
-    "key_phrases": [
-      "free look",
-      "15 days",
-      "30 days"
-    ],
-    "ground_truth_summary": "A free look period of 15 days (30 days for electronic or distance marketing policies) is allowed to cancel policy with refund minus proportionate risk premium."
-  },
-  {
-    "id": "Q48",
-    "category": "claims_procedures_and_guidance",
-    "question": "What are the portability rules for porting to another insurer under IRDAI guidelines?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis",
-      "faq"
-    ],
-    "expected_page_numbers": [
-      40,
-      15
-    ],
-    "key_phrases": [
-      "portability",
-      "45 days",
-      "credit for waiting period"
-    ],
-    "ground_truth_summary": "Portability requests must be initiated at least 45 days prior to renewal date, protecting accrued waiting period credits."
-  },
-  {
-    "id": "Q49",
-    "category": "claims_procedures_and_guidance",
-    "question": "Does cashless approval guarantee that zero payment will be made at the hospital?",
-    "expected_status": "answered",
-    "target_documents": [
-      "claim_guidance",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      1,
-      14
-    ],
-    "key_phrases": [
-      "non-payable",
-      "co-payment",
-      "settlement"
-    ],
-    "ground_truth_summary": "Cashless pre-authorization covers admissible expenses; non-medical items, exclusions, co-payments, and expenses exceeding room limits must be paid by the patient."
-  },
-  {
-    "id": "Q50",
-    "category": "claims_procedures_and_guidance",
-    "question": "What is the grace period allowed for policy renewal premium payment?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      37,
-      15
-    ],
-    "key_phrases": [
-      "grace period",
-      "30 days"
-    ],
-    "ground_truth_summary": "A grace period of 30 days is allowed for annual renewal to maintain continuity of benefits without loss of waiting period credits."
-  },
-  {
-    "id": "Q51",
-    "category": "claims_procedures_and_guidance",
-    "question": "What happens if a cashless pre-authorization is denied by the insurer?",
-    "expected_status": "answered",
-    "target_documents": [
-      "claim_guidance",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      1,
-      14
-    ],
-    "key_phrases": [
-      "denial of cashless",
-      "reimbursement"
-    ],
-    "ground_truth_summary": "Denial of cashless access does not mean claim is rejected; the insured person can pay hospital directly and file for reimbursement post-discharge."
-  },
-  {
-    "id": "Q52",
-    "category": "claims_procedures_and_guidance",
-    "question": "What is the timeline for the insurer to settle or reject a reimbursement claim?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "faq"
-    ],
-    "expected_page_numbers": [
-      36,
-      1
-    ],
-    "key_phrases": [
-      "30 days",
-      "settlement timeline",
-      "interest"
-    ],
-    "ground_truth_summary": "Insurers must settle or reject a claim within 30 days of receiving all necessary documents; delayed payment attracts penal interest at 2% above bank rate."
-  },
-  {
-    "id": "Q53",
-    "category": "claims_procedures_and_guidance",
-    "question": "Can a policy be terminated for fraud or intentional non-disclosure of medical facts?",
-    "expected_status": "answered",
-    "target_documents": [
-      "policy",
-      "cis"
-    ],
-    "expected_page_numbers": [
-      37,
-      15
-    ],
-    "key_phrases": [
-      "fraud",
-      "misrepresentation",
-      "cancellation"
-    ],
-    "ground_truth_summary": "The policy may be cancelled ab initio on grounds of fraud, moral hazard, or material misrepresentation with forfeiture of premium paid."
-  },
-  {
-    "id": "Q54",
-    "category": "out_of_domain_and_adversarial",
-    "question": "Does this health insurance policy cover orbital space flight planetary excursions?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "orbital",
-      "space flight"
-    ],
-    "ground_truth_summary": "Out of domain. System must abstain cleanly with insufficient evidence."
-  },
-  {
-    "id": "Q55",
-    "category": "out_of_domain_and_adversarial",
-    "question": "How do I bake sourdough bread at high altitude with active starter?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "sourdough",
-      "bread"
-    ],
-    "ground_truth_summary": "Out of domain. System must abstain cleanly."
-  },
-  {
-    "id": "Q56",
-    "category": "out_of_domain_and_adversarial",
-    "question": "What is the compensation payout for car collision bumper damage and windshield replacement?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "bumper",
-      "windshield",
-      "car collision"
-    ],
-    "ground_truth_summary": "Motor insurance query. Out of domain for health policy; system must abstain."
-  },
-  {
-    "id": "Q57",
-    "category": "out_of_domain_and_adversarial",
-    "question": "Does this health policy reimburse losses from cryptocurrency market crashes or Bitcoin theft?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "cryptocurrency",
-      "bitcoin"
-    ],
-    "ground_truth_summary": "Financial asset query. Out of domain; system must abstain."
-  },
-  {
-    "id": "Q58",
-    "category": "out_of_domain_and_adversarial",
-    "question": "What veterinary surgeries and dog vaccination treatments are covered for domestic pets?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "veterinary",
-      "dog",
-      "pets"
-    ],
-    "ground_truth_summary": "Pet insurance query. Out of domain; system must abstain."
-  },
-  {
-    "id": "Q59",
-    "category": "out_of_domain_and_adversarial",
-    "question": "How do I calculate income tax exemptions under Section 80C for life insurance endowment policies?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "section 80c",
-      "life insurance",
-      "endowment"
-    ],
-    "ground_truth_summary": "Tax / Life insurance query. Policy corpus covers health terms; system must abstain."
-  },
-  {
-    "id": "Q60",
-    "category": "out_of_domain_and_adversarial",
-    "question": "Does the policy cover airline flight cancellation compensations and lost luggage abroad?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "flight cancellation",
-      "lost luggage"
-    ],
-    "ground_truth_summary": "Travel insurance query. Out of domain; system must abstain."
-  },
-  {
-    "id": "Q61",
-    "category": "out_of_domain_and_adversarial",
-    "question": "What is the waiting period for cosmetic tooth whitening and porcelain dental veneer fitting?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "tooth whitening",
-      "porcelain veneer"
-    ],
-    "ground_truth_summary": "Cosmetic dental query not recognized as covered clinical procedure; system must abstain."
-  },
-  {
-    "id": "Q62",
-    "category": "out_of_domain_and_adversarial",
-    "question": "Is home burglary and jewelry theft reimbursed under the comprehensive health plan?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "burglary",
-      "jewelry theft"
-    ],
-    "ground_truth_summary": "Property insurance query. Out of domain; system must abstain."
-  },
-  {
-    "id": "Q63",
-    "category": "out_of_domain_and_adversarial",
-    "question": "How do I configure quantum computing qubits for financial derivative portfolio hedging?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "quantum computing",
-      "qubits"
-    ],
-    "ground_truth_summary": "Out of domain. System must abstain."
-  },
-  {
-    "id": "Q64",
-    "category": "out_of_domain_and_adversarial",
-    "question": "Can I claim health insurance reimbursement for purchasing organic grocery store vegetables?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "organic grocery",
-      "vegetables"
-    ],
-    "ground_truth_summary": "Absurd / out-of-scope query. System must abstain."
-  },
-  {
-    "id": "Q65",
-    "category": "out_of_domain_and_adversarial",
-    "question": "What is the maximum reimbursement for cyber hacking ransom payments on smart home devices?",
-    "expected_status": "insufficient_evidence",
-    "target_documents": [],
-    "expected_page_numbers": [],
-    "key_phrases": [
-      "cyber hacking",
-      "ransom payments"
-    ],
-    "ground_truth_summary": "Cyber insurance query. Out of domain; system must abstain."
-  }
-]
+{
+  "metadata": {
+    "authorship": "Authored by paper authors; independent validation pending",
+    "validation_status": "authored_pending_human_audit",
+    "total_queries": 65,
+    "answerable_queries": 53,
+    "out_of_domain_queries": 12,
+    "indexed_database_chunks": 263
+  },
+  "queries": [
+    {
+      "id": "Q01",
+      "category": "coverage_terms_and_limits",
+      "question": "What does the policy say about room rent?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        9,
+        8
+      ],
+      "key_phrases": [
+        "room rent",
+        "single private a/c room",
+        "boarding"
+      ],
+      "ground_truth_summary": "Single Private A/C Room is covered for sum insured of 5 lakhs and above. Boarding and nursing expenses provided by hospital.",
+      "gold_chunk_ids": [
+        92,
+        93
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 92,
+          "document_type": "policy",
+          "page_number": 9,
+          "section_heading": "Schedule against this In-Patient treatment",
+          "snippet": "and if such disease or injury shall require the Insured\tperson,\tupon\tthe\tadvice\tof\ta\tduly\tqualified Medical Practitioner to incur Hospitalization expenses for Medical / Surgical tr..."
+        },
+        {
+          "chunk_id": 93,
+          "document_type": "policy",
+          "page_number": 9,
+          "section_heading": "Schedule against this In-Patient treatment",
+          "snippet": "Boarding and Nursing Expenses as provided by the Hospital / Nursing Home. Note: Any hospitalization expenses arising under this Policy, which vary based on the room rent occupied b..."
+        }
+      ]
+    },
+    {
+      "id": "Q02",
+      "category": "coverage_terms_and_limits",
+      "question": "What is the policy coverage for ICU charges?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        9,
+        8
+      ],
+      "key_phrases": [
+        "icu",
+        "intensive care unit"
+      ],
+      "ground_truth_summary": "ICU and Intensive Cardiac Care Unit charges are covered at actuals up to sum insured without capping.",
+      "gold_chunk_ids": [
+        93
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 93,
+          "document_type": "policy",
+          "page_number": 9,
+          "section_heading": "Schedule against this In-Patient treatment",
+          "snippet": "Boarding and Nursing Expenses as provided by the Hospital / Nursing Home. Note: Any hospitalization expenses arising under this Policy, which vary based on the room rent occupied b..."
+        }
+      ]
+    },
+    {
+      "id": "Q03",
+      "category": "coverage_terms_and_limits",
+      "question": "What does the policy say about pre-hospitalisation expenses?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        11,
+        3
+      ],
+      "key_phrases": [
+        "pre-hospitalization",
+        "60 days"
+      ],
+      "ground_truth_summary": "Pre-hospitalization medical expenses incurred for a period of up to 60 days prior to the date of hospitalization are covered.",
+      "gold_chunk_ids": [
+        5,
+        100
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 5,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(6)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 2 / 19 5 Policy Coverage:..."
+        },
+        {
+          "chunk_id": 100,
+          "document_type": "policy",
+          "page_number": 11,
+          "section_heading": "Page 11",
+          "snippet": "5.  Pre-Hospitalization Expenses:  Medical expenses incurred for a period not exceeding 60 days prior to the date of hospitalization are payable subject to an admissible hospitaliz..."
+        }
+      ]
+    },
+    {
+      "id": "Q04",
+      "category": "coverage_terms_and_limits",
+      "question": "What is the limit and duration for post-hospitalization medical expenses?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        11,
+        3
+      ],
+      "key_phrases": [
+        "post-hospitalization",
+        "90 days"
+      ],
+      "ground_truth_summary": "Post-hospitalization medical expenses incurred for a period up to 90 days following discharge are covered.",
+      "gold_chunk_ids": [
+        5,
+        100
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 5,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(6)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 2 / 19 5 Policy Coverage:..."
+        },
+        {
+          "chunk_id": 100,
+          "document_type": "policy",
+          "page_number": 11,
+          "section_heading": "Page 11",
+          "snippet": "5.  Pre-Hospitalization Expenses:  Medical expenses incurred for a period not exceeding 60 days prior to the date of hospitalization are payable subject to an admissible hospitaliz..."
+        }
+      ]
+    },
+    {
+      "id": "Q05",
+      "category": "coverage_terms_and_limits",
+      "question": "Are day care treatments covered under this policy?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        9,
+        3
+      ],
+      "key_phrases": [
+        "day care",
+        "24 hours"
+      ],
+      "ground_truth_summary": "All day care procedures and surgeries requiring less than 24 hours hospitalization due to technological advancement are covered.",
+      "gold_chunk_ids": [
+        5,
+        67,
+        68,
+        94
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 5,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(6)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 2 / 19 5 Policy Coverage:..."
+        },
+        {
+          "chunk_id": 67,
+          "document_type": "policy",
+          "page_number": 3,
+          "section_heading": "Condition Precedent:  Condition Precedent",
+          "snippet": "ii.  External Congenital Anomaly: Congenital anomaly which is in the visible and accessible parts of the body Co-payment: Co-payment means a cost- sharing requirement under a healt..."
+        },
+        {
+          "chunk_id": 68,
+          "document_type": "policy",
+          "page_number": 3,
+          "section_heading": "Condition Precedent:  Condition Precedent",
+          "snippet": "the\tsupervision\tof\ta\tregistered\tand\tqualified Medical Practitioner AND must comply with all minimum criteria as under :- i.\t \thas\t qualified\t nursing\t staff\t under\t its employment;..."
+        },
+        {
+          "chunk_id": 94,
+          "document_type": "policy",
+          "page_number": 9,
+          "section_heading": "Schedule against this In-Patient treatment",
+          "snippet": "will pay cost of stent as per the Drug Price Control Order (DPCO) / National Pharmaceuticals Pricing Authority (NPPA) Capping. 2.  Day Care Treatment:  We will cover the Medical Ex..."
+        }
+      ]
+    },
+    {
+      "id": "Q06",
+      "category": "coverage_terms_and_limits",
+      "question": "What is the coverage limit for road ambulance charges?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        10,
+        3
+      ],
+      "key_phrases": [
+        "ambulance",
+        "road ambulance"
+      ],
+      "ground_truth_summary": "Road ambulance expenses incurred for transportation of the insured to the hospital are payable as per policy limits.",
+      "gold_chunk_ids": [
+        5,
+        6
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 5,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(6)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 2 / 19 5 Policy Coverage:..."
+        },
+        {
+          "chunk_id": 6,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(9)",
+          "snippet": "Road Ambulance: Expenses incurred for transportation of the Insured Person by private ambulance service to go to hospital or transportation from one hospital to another hospital fo..."
+        }
+      ]
+    },
+    {
+      "id": "Q07",
+      "category": "coverage_terms_and_limits",
+      "question": "Does the policy cover air ambulance services and what is the limit?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        11,
+        3
+      ],
+      "key_phrases": [
+        "air ambulance"
+      ],
+      "ground_truth_summary": "Air ambulance services are covered up to specified limits (e.g. Rs. 2,50,000 per hospitalization, up to 5,00,000 per policy year) subject to treating doctor certification.",
+      "gold_chunk_ids": [
+        6,
+        101,
+        102
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 6,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(9)",
+          "snippet": "Road Ambulance: Expenses incurred for transportation of the Insured Person by private ambulance service to go to hospital or transportation from one hospital to another hospital fo..."
+        },
+        {
+          "chunk_id": 101,
+          "document_type": "policy",
+          "page_number": 11,
+          "section_heading": "Page 11",
+          "snippet": "i.  for transportation of the Insured Person by private ambulance service to go to hospital when this is needed for medical reasons or ii.  for transportation of the Insured Person..."
+        },
+        {
+          "chunk_id": 102,
+          "document_type": "policy",
+          "page_number": 11,
+          "section_heading": "Page 11",
+          "snippet": "per Policy Period, if the said service was availed on the advice of the treating Medical Practitioner / Hospital. Expenses towards Air ambulance service is payable for\tonly\tfrom\tth..."
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "category": "coverage_terms_and_limits",
+      "question": "Are AYUSH and alternative system treatments covered?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        10,
+        3
+      ],
+      "key_phrases": [
+        "ayush",
+        "ayurveda",
+        "unani",
+        "siddha",
+        "homeopathy"
+      ],
+      "ground_truth_summary": "Inpatient hospitalization expenses incurred under Ayurveda, Yoga & Naturopathy, Unani, Siddha, and Homeopathy in government-recognized hospitals are covered up to the sum insured.",
+      "gold_chunk_ids": [
+        5,
+        65
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 5,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(6)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 2 / 19 5 Policy Coverage:..."
+        },
+        {
+          "chunk_id": 65,
+          "document_type": "policy",
+          "page_number": 3,
+          "section_heading": "Page 3",
+          "snippet": "a. Having at least 5 in-patient beds; b.\t \tHaving\tqualified\tAYUSH\tMedical\tPractitioner in charge round the clock; c.  Having dedicated AYUSH therapy Sections as required and/or has..."
+        }
+      ]
+    },
+    {
+      "id": "Q09",
+      "category": "coverage_terms_and_limits",
+      "question": "What are the rules regarding organ donor expenses?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        11,
+        3
+      ],
+      "key_phrases": [
+        "organ donor",
+        "harvesting"
+      ],
+      "ground_truth_summary": "Inpatient hospitalization expenses incurred for organ donor during organ harvesting are covered provided the organ donation complies with Transplantation of Human Organs Act.",
+      "gold_chunk_ids": [
+        6,
+        102
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 6,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(9)",
+          "snippet": "Road Ambulance: Expenses incurred for transportation of the Insured Person by private ambulance service to go to hospital or transportation from one hospital to another hospital fo..."
+        },
+        {
+          "chunk_id": 102,
+          "document_type": "policy",
+          "page_number": 11,
+          "section_heading": "Page 11",
+          "snippet": "per Policy Period, if the said service was availed on the advice of the treating Medical Practitioner / Hospital. Expenses towards Air ambulance service is payable for\tonly\tfrom\tth..."
+        }
+      ]
+    },
+    {
+      "id": "Q10",
+      "category": "coverage_terms_and_limits",
+      "question": "Is domiciliary hospitalization covered under the policy?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        10,
+        3
+      ],
+      "key_phrases": [
+        "domiciliary",
+        "home treatment"
+      ],
+      "ground_truth_summary": "Domiciliary hospitalization exceeding 3 days for medical treatment which ordinarily requires hospital confinement is covered under specified conditions.",
+      "gold_chunk_ids": [
+        7
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 7,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(13)",
+          "snippet": "Home Care Treatment: Payable up to 10% of Sum Insured subject to maximum of Rs.5 lakhs in a Policy Year, for treatment availed by the Insured Person at home, only for the specified..."
+        }
+      ]
+    },
+    {
+      "id": "Q11",
+      "category": "coverage_terms_and_limits",
+      "question": "What is the cumulative bonus percentage awarded for claim-free years?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        12,
+        4
+      ],
+      "key_phrases": [
+        "cumulative bonus",
+        "no claim bonus",
+        "50%"
+      ],
+      "ground_truth_summary": "Cumulative bonus of 50% of the basic sum insured is awarded for each claim-free year, up to a maximum of 100% of the sum insured.",
+      "gold_chunk_ids": [
+        106,
+        107
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 106,
+          "document_type": "policy",
+          "page_number": 12,
+          "section_heading": "Treatment",
+          "snippet": "The condition of the patient is such that he/she is not in a condition to be removed to a Hospital, or The patient takes treatment at home on account of non-availability of room in..."
+        },
+        {
+          "chunk_id": 107,
+          "document_type": "policy",
+          "page_number": 12,
+          "section_heading": "Treatment",
+          "snippet": "to\t the\t benefit\t of\t Cumulative\t Bonus calculated at 50% of the Basic Sum Insured under this policy following after every claim free year up to a maximum of 100%...."
+        }
+      ]
+    },
+    {
+      "id": "Q12",
+      "category": "coverage_terms_and_limits",
+      "question": "How does automatic restoration of the sum insured operate?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        12,
+        4
+      ],
+      "key_phrases": [
+        "restoration",
+        "sum insured"
+      ],
+      "ground_truth_summary": "Automatic restoration of 100% of the sum insured is available upon partial or full exhaustion, usable for subsequent hospitalizations during the policy year.",
+      "gold_chunk_ids": [
+        9,
+        11,
+        36,
+        37,
+        104,
+        106,
+        107
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 9,
+          "document_type": "cis",
+          "page_number": 4,
+          "section_heading": "II(18)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 3 / 19 Medical Consultati..."
+        },
+        {
+          "chunk_id": 11,
+          "document_type": "cis",
+          "page_number": 4,
+          "section_heading": "II(25)",
+          "snippet": "The Company will pay an amount as compensation the Sum Insured for the person specifically mentioned in the Schedule II(23) Star Wellness Program: This program intends to promote,..."
+        },
+        {
+          "chunk_id": 36,
+          "document_type": "cis",
+          "page_number": 12,
+          "section_heading": "II(16)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 11 / 19 5. Limits of Vacc..."
+        },
+        {
+          "chunk_id": 37,
+          "document_type": "cis",
+          "page_number": 12,
+          "section_heading": "II (21)",
+          "snippet": "8. Out-patient Dental and Ophthalmic Treatment Sum Insured (Rs.) Limit for each block of continuous 3 years 5,00,000/- to 7,50,000/- 5,000/- 10,00,000/-  to 25,00,000/- 10,000/- Ab..."
+        },
+        {
+          "chunk_id": 104,
+          "document_type": "policy",
+          "page_number": 12,
+          "section_heading": "Treatment",
+          "snippet": "ii.  There is a continuous active line of treatment with monitoring of the health status by a medical practitioner for each day through the duration of the Home Care Treatment iii...."
+        },
+        {
+          "chunk_id": 106,
+          "document_type": "policy",
+          "page_number": 12,
+          "section_heading": "Treatment",
+          "snippet": "The condition of the patient is such that he/she is not in a condition to be removed to a Hospital, or The patient takes treatment at home on account of non-availability of room in..."
+        },
+        {
+          "chunk_id": 107,
+          "document_type": "policy",
+          "page_number": 12,
+          "section_heading": "Treatment",
+          "snippet": "to\t the\t benefit\t of\t Cumulative\t Bonus calculated at 50% of the Basic Sum Insured under this policy following after every claim free year up to a maximum of 100%...."
+        }
+      ]
+    },
+    {
+      "id": "Q13",
+      "category": "coverage_terms_and_limits",
+      "question": "Does the policy cover modern treatments and robotic surgery?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        13,
+        4
+      ],
+      "key_phrases": [
+        "modern treatment",
+        "robotic surgery",
+        "stem cell"
+      ],
+      "ground_truth_summary": "Modern treatments including robotic surgeries, deep brain stimulation, and stem cell therapy are covered up to specified limits or full sum insured depending on procedure.",
+      "gold_chunk_ids": [
+        96,
+        5
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 5,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(6)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 2 / 19 5 Policy Coverage:..."
+        },
+        {
+          "chunk_id": 96,
+          "document_type": "policy",
+          "page_number": 10,
+          "section_heading": "Page 10",
+          "snippet": "4.  Coverage for Modern Treatments: The expenses payable during the entire Policy Period for the following treatment / procedure (either as a day care or as an in-patient exceeding..."
+        }
+      ]
+    },
+    {
+      "id": "Q14",
+      "category": "coverage_terms_and_limits",
+      "question": "What is the coverage for second medical opinion?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        13,
+        4
+      ],
+      "key_phrases": [
+        "second medical opinion"
+      ],
+      "ground_truth_summary": "The insured person can obtain a second medical opinion from the company's network doctor without impacting the sum insured.",
+      "gold_chunk_ids": [
+        10
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 10,
+          "document_type": "cis",
+          "page_number": 4,
+          "section_heading": "Accidental Death and Permanent Total Disablement",
+          "snippet": "II(18) E-Domestic Second Medical Opinion: The Insured Person can obtain a Second Medical Opinion from a Doctor in the Company\u2019s network of Medical Practitioners practicing in India..."
+        }
+      ]
+    },
+    {
+      "id": "Q15",
+      "category": "coverage_terms_and_limits",
+      "question": "Are health checkup expenses reimbursed and at what interval?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        13,
+        4
+      ],
+      "key_phrases": [
+        "health checkup"
+      ],
+      "ground_truth_summary": "Health checkup expenses are covered for each claim-free year up to specified financial limits based on sum insured.",
+      "gold_chunk_ids": [
+        121,
+        9
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 9,
+          "document_type": "cis",
+          "page_number": 4,
+          "section_heading": "II(18)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 3 / 19 Medical Consultati..."
+        },
+        {
+          "chunk_id": 121,
+          "document_type": "policy",
+          "page_number": 16,
+          "section_heading": "the\tconditions\tspecified\tbelow",
+          "snippet": "10,00,000/- to 25,00,000/- 10,000/- Above 25,00,000/- 15,000/- 18.  Preventive Health Check-up:  We will arrange for a Preventive Health Check- up at Our Network Providers for the..."
+        }
+      ]
+    },
+    {
+      "id": "Q16",
+      "category": "waiting_periods_and_conditions",
+      "question": "What is the waiting period for pre-existing diseases?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        41,
+        7
+      ],
+      "key_phrases": [
+        "waiting period",
+        "pre-existing",
+        "24 months"
+      ],
+      "ground_truth_summary": "Pre-existing diseases have a standard waiting period of 24 months of continuous coverage without break from inception.",
+      "gold_chunk_ids": [
+        19,
+        82,
+        83,
+        208,
+        209,
+        210
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 19,
+          "document_type": "cis",
+          "page_number": 7,
+          "section_heading": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 6 / 19 Applicable for Acc..."
+        },
+        {
+          "chunk_id": 82,
+          "document_type": "policy",
+          "page_number": 7,
+          "section_heading": "Reasonable and Customary charges",
+          "snippet": "Reasonable and Customary charges: Reasonable and Customary charges means the charges for services or supplies, which are the\tstandard\tcharges\tfor\tthe\tspecific\tprovider and consiste..."
+        },
+        {
+          "chunk_id": 83,
+          "document_type": "policy",
+          "page_number": 7,
+          "section_heading": "Reasonable and Customary charges",
+          "snippet": "Specific Waiting Period:\tSpecific\tWaiting\tPeriod means a period up to 36 months from the commencement of a health insurance policy during\twhich\tperiod\tspecified\tdiseases/treatments..."
+        },
+        {
+          "chunk_id": 208,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "8. Portability",
+          "snippet": "Claim\t Bonus,\t Specific\t Waiting\t Periods, Waiting period for Pre-Existing Diseases, Moratorium period etc. in the previous policy to the migrated policy. 8. Portability: i.  The P..."
+        },
+        {
+          "chunk_id": 209,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "10. Withdrawal of policy",
+          "snippet": "9.  Renewal of policy:  The policy shall be renewable provided the product is not withdrawn, except in case of established fraud or non-disclosure or misrepresentation by the Polic..."
+        },
+        {
+          "chunk_id": 210,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "10. Withdrawal of policy",
+          "snippet": "In the likelihood of this product being withdrawn in future, the Company will intimate the Policyholder about the same 90 days prior to expiry of the policy. i.  A one-time option..."
+        }
+      ]
+    },
+    {
+      "id": "Q17",
+      "category": "waiting_periods_and_conditions",
+      "question": "What is the initial waiting period after taking a new policy?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        41,
+        7
+      ],
+      "key_phrases": [
+        "30 days",
+        "initial waiting period"
+      ],
+      "ground_truth_summary": "An initial waiting period of 30 days applies from policy inception, during which illnesses are excluded except hospitalizations caused by accidents.",
+      "gold_chunk_ids": [
+        208,
+        209
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 208,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "8. Portability",
+          "snippet": "Claim\t Bonus,\t Specific\t Waiting\t Periods, Waiting period for Pre-Existing Diseases, Moratorium period etc. in the previous policy to the migrated policy. 8. Portability: i.  The P..."
+        },
+        {
+          "chunk_id": 209,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "10. Withdrawal of policy",
+          "snippet": "9.  Renewal of policy:  The policy shall be renewable provided the product is not withdrawn, except in case of established fraud or non-disclosure or misrepresentation by the Polic..."
+        }
+      ]
+    },
+    {
+      "id": "Q18",
+      "category": "waiting_periods_and_conditions",
+      "question": "Are cataract treatments subject to specific conditions?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        30,
+        9
+      ],
+      "key_phrases": [
+        "cataract",
+        "24 months",
+        "sub-limit"
+      ],
+      "ground_truth_summary": "Cataract treatment is subject to a 24-month waiting period and specific financial sub-limits per eye based on sum insured.",
+      "gold_chunk_ids": [
+        27,
+        166
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 27,
+          "document_type": "cis",
+          "page_number": 9,
+          "section_heading": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 8 / 19 F. List of specifi..."
+        },
+        {
+          "chunk_id": 166,
+          "document_type": "policy",
+          "page_number": 30,
+          "section_heading": "coverage after the date of inception",
+          "snippet": "treatments shall be excluded until the expiry of 24 months of continuous coverage after the date of inception of\tthe\tfirst\tpolicy\twith\tus.\tThis\texclusion shall not be applicable fo..."
+        }
+      ]
+    },
+    {
+      "id": "Q19",
+      "category": "waiting_periods_and_conditions",
+      "question": "What is the waiting period for hernia, hydrocele, and piles?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        30,
+        8
+      ],
+      "key_phrases": [
+        "hernia",
+        "24 months",
+        "specified illness"
+      ],
+      "ground_truth_summary": "A 24-month waiting period applies for benign ENT disorders, hernia, hydrocele, and benign prostatic hypertrophy.",
+      "gold_chunk_ids": [
+        25,
+        166
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 25,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "exclusion shall not be applicable for claims arising due",
+          "snippet": "A. Expenses related to the treatment of the following listed Conditions, surgeries/ treatments shall be excluded until the expiry of 24 months of continuous coverage after the date..."
+        },
+        {
+          "chunk_id": 166,
+          "document_type": "policy",
+          "page_number": 30,
+          "section_heading": "coverage after the date of inception",
+          "snippet": "treatments shall be excluded until the expiry of 24 months of continuous coverage after the date of inception of\tthe\tfirst\tpolicy\twith\tus.\tThis\texclusion shall not be applicable fo..."
+        }
+      ]
+    },
+    {
+      "id": "Q20",
+      "category": "waiting_periods_and_conditions",
+      "question": "What is the waiting period for joint replacement surgery unless caused by accident?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        30,
+        8
+      ],
+      "key_phrases": [
+        "joint replacement",
+        "knee replacement",
+        "24 months"
+      ],
+      "ground_truth_summary": "Joint replacement surgeries (knee, hip) are excluded until the expiry of 24 months of continuous coverage unless required due to an accidental injury.",
+      "gold_chunk_ids": [
+        25,
+        166,
+        167
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 25,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "exclusion shall not be applicable for claims arising due",
+          "snippet": "A. Expenses related to the treatment of the following listed Conditions, surgeries/ treatments shall be excluded until the expiry of 24 months of continuous coverage after the date..."
+        },
+        {
+          "chunk_id": 166,
+          "document_type": "policy",
+          "page_number": 30,
+          "section_heading": "coverage after the date of inception",
+          "snippet": "treatments shall be excluded until the expiry of 24 months of continuous coverage after the date of inception of\tthe\tfirst\tpolicy\twith\tus.\tThis\texclusion shall not be applicable fo..."
+        },
+        {
+          "chunk_id": 167,
+          "document_type": "policy",
+          "page_number": 30,
+          "section_heading": "coverage after the date of inception",
+          "snippet": "Diseases of ENT, Diseases related to Thyroid, Benign diseases of the breast ii.  Subcutaneous Benign Lumps, Sebaceous cyst, Dermoid cyst, Mucous cyst lip / cheek, Carpal Tunnel Syn..."
+        }
+      ]
+    },
+    {
+      "id": "Q21",
+      "category": "waiting_periods_and_conditions",
+      "question": "Is bariatric surgery covered and what waiting period applies?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        31,
+        8
+      ],
+      "key_phrases": [
+        "bariatric surgery",
+        "24 months",
+        "bmi"
+      ],
+      "ground_truth_summary": "Bariatric metabolic surgery is covered after 24 months waiting period if severe clinical obesity criteria (e.g. BMI >= 40 or BMI >= 35 with co-morbidities) are satisfied.",
+      "gold_chunk_ids": [
+        25,
+        170
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 25,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "exclusion shall not be applicable for claims arising due",
+          "snippet": "A. Expenses related to the treatment of the following listed Conditions, surgeries/ treatments shall be excluded until the expiry of 24 months of continuous coverage after the date..."
+        },
+        {
+          "chunk_id": 170,
+          "document_type": "policy",
+          "page_number": 31,
+          "section_heading": "exclusion shall not be applicable for",
+          "snippet": "extent of Sum Insured increase C.  If the Insured Person is continuously covered without any break as defined\tunder\tthe\tapplicable\tnorms on portability stipulated by IRDAI, then wa..."
+        }
+      ]
+    },
+    {
+      "id": "Q22",
+      "category": "waiting_periods_and_conditions",
+      "question": "What waiting period applies to maternity expenses and normal or caesarean delivery?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        10,
+        8
+      ],
+      "key_phrases": [
+        "maternity",
+        "24 months"
+      ],
+      "ground_truth_summary": "Maternity cover requires 24 months of continuous coverage under the policy, with maximum limits per delivery (normal/caesarean) up to 2 deliveries.",
+      "gold_chunk_ids": [
+        25
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 25,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "exclusion shall not be applicable for claims arising due",
+          "snippet": "A. Expenses related to the treatment of the following listed Conditions, surgeries/ treatments shall be excluded until the expiry of 24 months of continuous coverage after the date..."
+        }
+      ]
+    },
+    {
+      "id": "Q23",
+      "category": "waiting_periods_and_conditions",
+      "question": "Are newborn baby medical expenses covered under maternity benefits?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        10,
+        8
+      ],
+      "key_phrases": [
+        "newborn",
+        "baby cover"
+      ],
+      "ground_truth_summary": "Hospitalization expenses for newborn baby born to insured mother are covered from day 1 up to specified limits under maternity section.",
+      "gold_chunk_ids": [
+        116,
+        8
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 8,
+          "document_type": "cis",
+          "page_number": 3,
+          "section_heading": "II(15)",
+          "snippet": "Vaccination expenses for the new born baby are payable up to the limits mentioned in the policy schedule, until the new born baby completes one year of age and is added in the poli..."
+        },
+        {
+          "chunk_id": 116,
+          "document_type": "policy",
+          "page_number": 15,
+          "section_heading": "Special conditions",
+          "snippet": "Sum Insured (Rs.) Limit per Policy Period (Rs.) 5,00,000/- to 15,00,000/- 2,50,000/- Above 15,00,000/- 5,00,000/- Special conditions: i.\t \tThis\t benefit\t is\t subject\t to\t a\t waitin..."
+        }
+      ]
+    },
+    {
+      "id": "Q24",
+      "category": "waiting_periods_and_conditions",
+      "question": "Does the policy cover mental illnesses or psychiatric disorders?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        13,
+        8
+      ],
+      "key_phrases": [
+        "mental illness",
+        "psychiatric"
+      ],
+      "ground_truth_summary": "Inpatient treatment for mental illnesses is covered in accordance with Mental Healthcare Act 2017 without discriminatory sub-limits.",
+      "gold_chunk_ids": [
+        124,
+        9
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 9,
+          "document_type": "cis",
+          "page_number": 4,
+          "section_heading": "II(18)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 3 / 19 Medical Consultati..."
+        },
+        {
+          "chunk_id": 124,
+          "document_type": "policy",
+          "page_number": 17,
+          "section_heading": "following conditions",
+          "snippet": "iv.  Any liability due to any errors or omission or consequences of any action taken in reliance of the second opinion provided by the Medical Practitioner is outside the scope of..."
+        }
+      ]
+    },
+    {
+      "id": "Q25",
+      "category": "waiting_periods_and_conditions",
+      "question": "Can pre-existing disease waiting period be reduced by paying additional premium?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        41,
+        7
+      ],
+      "key_phrases": [
+        "buyback",
+        "pre-existing waiting period",
+        "reduction"
+      ],
+      "ground_truth_summary": "An optional buyback / waiting period reduction rider may be available at inception reducing 24-month waiting period to 12 months on payment of specific additional premium.",
+      "gold_chunk_ids": [
+        129
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 129,
+          "document_type": "policy",
+          "page_number": 18,
+          "section_heading": "disablement provided that",
+          "snippet": "Accident, then the Company will pay an amount as compensation the Sum Insured mentioned in the Schedule. ii.  Permanent Total Disablement of the Insured Person:  If following an Ac..."
+        }
+      ]
+    },
+    {
+      "id": "Q26",
+      "category": "waiting_periods_and_conditions",
+      "question": "What waiting period applies for stone disease of biliary and urinary systems?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        30,
+        8
+      ],
+      "key_phrases": [
+        "calculus",
+        "gallstones",
+        "kidney stone",
+        "24 months"
+      ],
+      "ground_truth_summary": "Calculus diseases of gall bladder, biliary tract, and urinary system are subject to a 24-month waiting period from inception.",
+      "gold_chunk_ids": [
+        25,
+        166
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 25,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "exclusion shall not be applicable for claims arising due",
+          "snippet": "A. Expenses related to the treatment of the following listed Conditions, surgeries/ treatments shall be excluded until the expiry of 24 months of continuous coverage after the date..."
+        },
+        {
+          "chunk_id": 166,
+          "document_type": "policy",
+          "page_number": 30,
+          "section_heading": "coverage after the date of inception",
+          "snippet": "treatments shall be excluded until the expiry of 24 months of continuous coverage after the date of inception of\tthe\tfirst\tpolicy\twith\tus.\tThis\texclusion shall not be applicable fo..."
+        }
+      ]
+    },
+    {
+      "id": "Q27",
+      "category": "waiting_periods_and_conditions",
+      "question": "What is the waiting period for genetic diseases or disorders?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        31,
+        8
+      ],
+      "key_phrases": [
+        "genetic",
+        "waiting period"
+      ],
+      "ground_truth_summary": "Genetic diseases are covered subject to standard pre-existing disease waiting periods (24 months) and IRDAI non-exclusion guidelines.",
+      "gold_chunk_ids": [
+        24,
+        25,
+        26,
+        170,
+        171
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 24,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "coverage",
+          "snippet": "Excl 15 7 Waiting Period: \u2022 Time period during which specified diseases/ treatments are not covered \u2022 It is counted from the beginning of the policy coverage \u2022 Initial waiting peri..."
+        },
+        {
+          "chunk_id": 25,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "exclusion shall not be applicable for claims arising due",
+          "snippet": "A. Expenses related to the treatment of the following listed Conditions, surgeries/ treatments shall be excluded until the expiry of 24 months of continuous coverage after the date..."
+        },
+        {
+          "chunk_id": 26,
+          "document_type": "cis",
+          "page_number": 8,
+          "section_heading": "exclusion shall not be applicable for claims arising due",
+          "snippet": "break as defined under the applicable norms on portability stipulated by IRDAI, then waiting period for the same would be reduced to the extent of prior coverage III A(2) Excl 02..."
+        },
+        {
+          "chunk_id": 170,
+          "document_type": "policy",
+          "page_number": 31,
+          "section_heading": "exclusion shall not be applicable for",
+          "snippet": "extent of Sum Insured increase C.  If the Insured Person is continuously covered without any break as defined\tunder\tthe\tapplicable\tnorms on portability stipulated by IRDAI, then wa..."
+        },
+        {
+          "chunk_id": 171,
+          "document_type": "policy",
+          "page_number": 31,
+          "section_heading": "exclusion shall not be applicable for",
+          "snippet": "B.  In case of enhancement of Sum Insured the exclusion shall apply afresh to the extent of Sum Insured increase C.\t \tIf\t any\t of\t the\t specified\t disease/ procedure falls under th..."
+        }
+      ]
+    },
+    {
+      "id": "Q28",
+      "category": "exclusions_and_restrictions",
+      "question": "What are the policy's exclusions?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        31,
+        5
+      ],
+      "key_phrases": [
+        "exclusion",
+        "code excl"
+      ],
+      "ground_truth_summary": "The policy details standardized exclusions Code Excl 01 to Excl 18 including investigation, cosmetic surgery, hazardous sports, and breach of law.",
+      "gold_chunk_ids": [
+        12,
+        13,
+        14,
+        15,
+        169,
+        170,
+        171
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        },
+        {
+          "chunk_id": 13,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "admission is arranged wholly or partly for domestic reasons Excl 13 Dietary supplements and substances that can be purchased without prescription, including but not limited to Vita..."
+        },
+        {
+          "chunk_id": 14,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "infertility. This includes; a. Any type of contraception, sterilization b. Assisted Reproduction services including artificial insemination and advanced reproductive technologies s..."
+        },
+        {
+          "chunk_id": 15,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "accident), Preputioplasty, Frenuloplasty, Preputial Dilatation and Removal of SMEGMA Excl 19..."
+        },
+        {
+          "chunk_id": 169,
+          "document_type": "policy",
+          "page_number": 31,
+          "section_heading": "STANDARD EXCLUSIONS",
+          "snippet": "xii. Varicose veins and Varicose ulcers xiii.  All types of transplant and related surgeries xiv.  Congenital Internal disease / defect (except to the extent provided under Section..."
+        },
+        {
+          "chunk_id": 170,
+          "document_type": "policy",
+          "page_number": 31,
+          "section_heading": "exclusion shall not be applicable for",
+          "snippet": "extent of Sum Insured increase C.  If the Insured Person is continuously covered without any break as defined\tunder\tthe\tapplicable\tnorms on portability stipulated by IRDAI, then wa..."
+        },
+        {
+          "chunk_id": 171,
+          "document_type": "policy",
+          "page_number": 31,
+          "section_heading": "exclusion shall not be applicable for",
+          "snippet": "B.  In case of enhancement of Sum Insured the exclusion shall apply afresh to the extent of Sum Insured increase C.\t \tIf\t any\t of\t the\t specified\t disease/ procedure falls under th..."
+        }
+      ]
+    },
+    {
+      "id": "Q29",
+      "category": "exclusions_and_restrictions",
+      "question": "Are diagnostic tests without inpatient hospitalization payable?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        31,
+        5
+      ],
+      "key_phrases": [
+        "investigation",
+        "evaluation",
+        "diagnostic",
+        "excl 04"
+      ],
+      "ground_truth_summary": "Hospitalization admission solely for investigation or diagnostic evaluation purposes is excluded under Code Excl 04.",
+      "gold_chunk_ids": [
+        12
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        }
+      ]
+    },
+    {
+      "id": "Q30",
+      "category": "exclusions_and_restrictions",
+      "question": "Is cosmetic surgery or plastic surgery covered under any circumstance?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        31,
+        5
+      ],
+      "key_phrases": [
+        "cosmetic",
+        "plastic surgery",
+        "excl 08"
+      ],
+      "ground_truth_summary": "Cosmetic or plastic surgery is excluded under Code Excl 08 unless required reconstructively due to accidents, burns, or cancer.",
+      "gold_chunk_ids": [
+        12
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        }
+      ]
+    },
+    {
+      "id": "Q31",
+      "category": "exclusions_and_restrictions",
+      "question": "Are non-medical administrative charges like gloves and admission kits covered?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        48,
+        6
+      ],
+      "key_phrases": [
+        "non-medical",
+        "registration",
+        "admission kit",
+        "gloves"
+      ],
+      "ground_truth_summary": "Non-payable items listed in IRDAI guidelines (admission kit, documentation, registration fees, sanitary items) are excluded from reimbursement.",
+      "gold_chunk_ids": [
+        17,
+        18,
+        81,
+        237,
+        238
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 17,
+          "document_type": "cis",
+          "page_number": 6,
+          "section_heading": "Section II.17)",
+          "snippet": "Oxygen Therapy, Rotational Field Quantum Magnetic Resonance Therapy, VAX-D, Low level laser therapy, Photodynamic therapy Excl 26 Unconventional, Untested, Experimental therapies E..."
+        },
+        {
+          "chunk_id": 18,
+          "document_type": "cis",
+          "page_number": 6,
+          "section_heading": "Section II.17)",
+          "snippet": "Hospital registration charges, admission charges, record charges, telephone charges and such other charges Excl 34 Cochlear implants and procedure related hospitalization expenses...."
+        },
+        {
+          "chunk_id": 81,
+          "document_type": "policy",
+          "page_number": 6,
+          "section_heading": "that",
+          "snippet": "diseases\t and\t specific\t waiting\t periods\t from one insurer to another insurer. Post-Hospitalization Medical Expenses: Post-hospitalization Medical Expenses means medical\texpenses..."
+        },
+        {
+          "chunk_id": 237,
+          "document_type": "policy",
+          "page_number": 48,
+          "section_heading": "35 INCIDENTAL EXPENSES / MISC. CHARGES (NOT EXPLAINED)",
+          "snippet": "Items that are to be subsumed into Room Charges SI.No. Item 1 BABY CHARGES (UNLESS SPECIFIED / INDICATED) 2 HAND WASH 3 SHOE COVER 4 CAPS 5 CRADLE CHARGES 6 COMB 7 EAU-DE-COLOGNE /..."
+        },
+        {
+          "chunk_id": 238,
+          "document_type": "policy",
+          "page_number": 48,
+          "section_heading": "2 HOSPITALIZATION FOR EVALUATION / DIAGNOSTIC PURPOSE",
+          "snippet": "35 INCIDENTAL EXPENSES / MISC. CHARGES (NOT EXPLAINED) 36 PATIENT IDENTIFICATION BAND / NAME TAG 37 PULSEOXYMETER CHARGES Items that are to be subsumed into Procedure Charges SI.No..."
+        }
+      ]
+    },
+    {
+      "id": "Q32",
+      "category": "exclusions_and_restrictions",
+      "question": "Does the policy cover treatment for alcohol or substance abuse?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        32,
+        5
+      ],
+      "key_phrases": [
+        "alcohol",
+        "substance abuse",
+        "excl 12"
+      ],
+      "ground_truth_summary": "Treatment for alcoholism, drug addiction, substance abuse, and their direct complications is excluded under Code Excl 12.",
+      "gold_chunk_ids": [
+        12
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        }
+      ]
+    },
+    {
+      "id": "Q33",
+      "category": "exclusions_and_restrictions",
+      "question": "Are treatments arising from participation in hazardous sports covered?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        32,
+        5
+      ],
+      "key_phrases": [
+        "hazardous sports",
+        "scuba diving",
+        "racing",
+        "excl 09"
+      ],
+      "ground_truth_summary": "Hospitalization resulting from professional hazardous sports (racing, parachuting, mountaineering) is excluded under Code Excl 09.",
+      "gold_chunk_ids": [
+        12
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        }
+      ]
+    },
+    {
+      "id": "Q34",
+      "category": "exclusions_and_restrictions",
+      "question": "Are dietary supplements and vitamins without illness diagnosis covered?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        32,
+        5
+      ],
+      "key_phrases": [
+        "dietary supplements",
+        "vitamins",
+        "excl 14"
+      ],
+      "ground_truth_summary": "Dietary supplements, tonics, and vitamins not prescribed as part of treatment for active disease during inpatient stay are excluded under Code Excl 14.",
+      "gold_chunk_ids": [
+        13
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 13,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "admission is arranged wholly or partly for domestic reasons Excl 13 Dietary supplements and substances that can be purchased without prescription, including but not limited to Vita..."
+        }
+      ]
+    },
+    {
+      "id": "Q35",
+      "category": "exclusions_and_restrictions",
+      "question": "Does the policy cover gender reassignment or sex change surgery?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        31,
+        5
+      ],
+      "key_phrases": [
+        "gender reassignment",
+        "sex change",
+        "excl 07"
+      ],
+      "ground_truth_summary": "Expenses incurred for change-of-gender treatments are excluded under Code Excl 07.",
+      "gold_chunk_ids": [
+        12
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        }
+      ]
+    },
+    {
+      "id": "Q36",
+      "category": "exclusions_and_restrictions",
+      "question": "Is routine outpatient dental treatment covered under base hospitalization?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        32,
+        5
+      ],
+      "key_phrases": [
+        "dental",
+        "excl 11"
+      ],
+      "ground_truth_summary": "Dental treatment or surgery that does not require hospitalization is excluded under Code Excl 11 unless required following accident.",
+      "gold_chunk_ids": [
+        12,
+        74
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        },
+        {
+          "chunk_id": 74,
+          "document_type": "policy",
+          "page_number": 5,
+          "section_heading": "characteristics",
+          "snippet": "ii.  Chronic condition  - A chronic condition is\t defined\t as\t a\t disease,\t illness,\t or\t injury that has one or more of the following characteristics: a.  it needs ongoing or long..."
+        }
+      ]
+    },
+    {
+      "id": "Q37",
+      "category": "exclusions_and_restrictions",
+      "question": "What is the policy regarding intentional self-inflicted injuries or suicide attempts?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        32,
+        5
+      ],
+      "key_phrases": [
+        "self-inflicted",
+        "suicide",
+        "excl 10"
+      ],
+      "ground_truth_summary": "Expenses related to intentional self-inflicted injuries or attempted suicide are excluded under Code Excl 10.",
+      "gold_chunk_ids": [
+        12
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 12,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 4 / 19 6 Exclusions: (Wha..."
+        }
+      ]
+    },
+    {
+      "id": "Q38",
+      "category": "exclusions_and_restrictions",
+      "question": "Are war, invasion, and nuclear contamination risks covered?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        32,
+        5
+      ],
+      "key_phrases": [
+        "war",
+        "nuclear",
+        "invasion"
+      ],
+      "ground_truth_summary": "Losses directly or indirectly caused by war, civil commotion, radiation, or nuclear contamination are excluded.",
+      "gold_chunk_ids": [
+        14,
+        74,
+        75,
+        76
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 14,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "infertility. This includes; a. Any type of contraception, sterilization b. Assisted Reproduction services including artificial insemination and advanced reproductive technologies s..."
+        },
+        {
+          "chunk_id": 74,
+          "document_type": "policy",
+          "page_number": 5,
+          "section_heading": "characteristics",
+          "snippet": "ii.  Chronic condition  - A chronic condition is\t defined\t as\t a\t disease,\t illness,\t or\t injury that has one or more of the following characteristics: a.  it needs ongoing or long..."
+        },
+        {
+          "chunk_id": 75,
+          "document_type": "policy",
+          "page_number": 5,
+          "section_heading": "characteristics",
+          "snippet": "an\tidentified\tSection,\tward\tor\twing\tof\ta\thospital which is under the constant supervision of a dedicated medical practitioner(s), and which is specially equipped for the continuous..."
+        },
+        {
+          "chunk_id": 76,
+          "document_type": "policy",
+          "page_number": 5,
+          "section_heading": "characteristics",
+          "snippet": "to childbirth (including complicated deliveries and caesarean Sections incurred during Hospitalization). ii.  expenses towards the lawful medical termination of pregnancy during th..."
+        }
+      ]
+    },
+    {
+      "id": "Q39",
+      "category": "exclusions_and_restrictions",
+      "question": "Is sleep apnea and snoring treatment covered or excluded?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        32,
+        5
+      ],
+      "key_phrases": [
+        "sleep apnea",
+        "snoring",
+        "excl 15"
+      ],
+      "ground_truth_summary": "Treatment of sleep apnea disorders and corrective procedures for snoring are excluded under Code Excl 15.",
+      "gold_chunk_ids": [
+        13
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 13,
+          "document_type": "cis",
+          "page_number": 5,
+          "section_heading": "Exclusions",
+          "snippet": "admission is arranged wholly or partly for domestic reasons Excl 13 Dietary supplements and substances that can be purchased without prescription, including but not limited to Vita..."
+        }
+      ]
+    },
+    {
+      "id": "Q40",
+      "category": "claims_procedures_and_guidance",
+      "question": "What is the procedure and timeline to intimate a planned cashless hospitalization?",
+      "expected_status": "answered",
+      "target_documents": [
+        "claim_guidance",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        1,
+        14
+      ],
+      "key_phrases": [
+        "cashless",
+        "48 hours",
+        "pre-authorization"
+      ],
+      "ground_truth_summary": "For planned hospitalization, pre-authorization must be submitted at least 48 hours prior to admission via the hospital insurance desk.",
+      "gold_chunk_ids": [
+        39,
+        40,
+        41,
+        256,
+        260,
+        261
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 39,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "Emergency Hospitalization (Cashless / Reimbursement)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 13 / 19 9 Claims/ Claims..."
+        },
+        {
+          "chunk_id": 40,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "For Cashless Treatment",
+          "snippet": "least 48 hours prior to the proposed treatment or date and time of Hospitalization. For Cashless Treatment: a.\t \u0007For assistance call 24 hours help-line 044-69006900 or Toll Free No..."
+        },
+        {
+          "chunk_id": 41,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "For Cashless Treatment",
+          "snippet": "additional documents / clarifications if the information furnished is inadequate g.\t \u0007Once all the details are furnished, the Company will process the request as per the terms and..."
+        },
+        {
+          "chunk_id": 256,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Cashless claims",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to file Cashless Claims online Now you can intimate your Cashless Claim online with Star Health Insurance. Whether it is a planned h..."
+        },
+        {
+          "chunk_id": 260,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Health Claim Status",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to check your Claim Status online Now you can check your reimbursement/cashless claim status online with Star Health Insurance. Chec..."
+        },
+        {
+          "chunk_id": 261,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "3. Click My Claims 4. Select your Claim Intimation Number > Select Click here 5. Select Claim Type Reimbursement (or Cashless) 6. Find the Status of your reimbursement claim **Plea..."
+        }
+      ]
+    },
+    {
+      "id": "Q41",
+      "category": "claims_procedures_and_guidance",
+      "question": "What is the notification window for an emergency cashless hospitalization?",
+      "expected_status": "answered",
+      "target_documents": [
+        "claim_guidance",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        1,
+        14
+      ],
+      "key_phrases": [
+        "emergency",
+        "24 hours",
+        "cashless"
+      ],
+      "ground_truth_summary": "For emergency admission, intimation and cashless request must be submitted within 24 hours of hospitalization.",
+      "gold_chunk_ids": [
+        39,
+        40,
+        41,
+        256,
+        260,
+        261,
+        262
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 39,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "Emergency Hospitalization (Cashless / Reimbursement)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 13 / 19 9 Claims/ Claims..."
+        },
+        {
+          "chunk_id": 40,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "For Cashless Treatment",
+          "snippet": "least 48 hours prior to the proposed treatment or date and time of Hospitalization. For Cashless Treatment: a.\t \u0007For assistance call 24 hours help-line 044-69006900 or Toll Free No..."
+        },
+        {
+          "chunk_id": 41,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "For Cashless Treatment",
+          "snippet": "additional documents / clarifications if the information furnished is inadequate g.\t \u0007Once all the details are furnished, the Company will process the request as per the terms and..."
+        },
+        {
+          "chunk_id": 256,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Cashless claims",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to file Cashless Claims online Now you can intimate your Cashless Claim online with Star Health Insurance. Whether it is a planned h..."
+        },
+        {
+          "chunk_id": 260,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Health Claim Status",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to check your Claim Status online Now you can check your reimbursement/cashless claim status online with Star Health Insurance. Chec..."
+        },
+        {
+          "chunk_id": 261,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "3. Click My Claims 4. Select your Claim Intimation Number > Select Click here 5. Select Claim Type Reimbursement (or Cashless) 6. Find the Status of your reimbursement claim **Plea..."
+        },
+        {
+          "chunk_id": 262,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Reimbursement Claims",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to file Reimbursement Claims online Now you can intimate your Reimbursement Claim online with Star Health Insurance. Whether it is a..."
+        }
+      ]
+    },
+    {
+      "id": "Q42",
+      "category": "claims_procedures_and_guidance",
+      "question": "Within how many days must reimbursement claim documents be submitted after discharge?",
+      "expected_status": "answered",
+      "target_documents": [
+        "claim_guidance",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        1,
+        14
+      ],
+      "key_phrases": [
+        "reimbursement",
+        "15 days",
+        "30 days"
+      ],
+      "ground_truth_summary": "Duly completed claim form and original bills must be submitted within 15 to 30 days from the date of hospital discharge.",
+      "gold_chunk_ids": [
+        39,
+        41,
+        260,
+        261,
+        262
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 39,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "Emergency Hospitalization (Cashless / Reimbursement)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 13 / 19 9 Claims/ Claims..."
+        },
+        {
+          "chunk_id": 41,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "For Cashless Treatment",
+          "snippet": "additional documents / clarifications if the information furnished is inadequate g.\t \u0007Once all the details are furnished, the Company will process the request as per the terms and..."
+        },
+        {
+          "chunk_id": 260,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Health Claim Status",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to check your Claim Status online Now you can check your reimbursement/cashless claim status online with Star Health Insurance. Chec..."
+        },
+        {
+          "chunk_id": 261,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "3. Click My Claims 4. Select your Claim Intimation Number > Select Click here 5. Select Claim Type Reimbursement (or Cashless) 6. Find the Status of your reimbursement claim **Plea..."
+        },
+        {
+          "chunk_id": 262,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Reimbursement Claims",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to file Reimbursement Claims online Now you can intimate your Reimbursement Claim online with Star Health Insurance. Whether it is a..."
+        }
+      ]
+    },
+    {
+      "id": "Q43",
+      "category": "claims_procedures_and_guidance",
+      "question": "What mandatory documents are required to support a reimbursement claim?",
+      "expected_status": "answered",
+      "target_documents": [
+        "claim_guidance",
+        "policy"
+      ],
+      "expected_page_numbers": [
+        1,
+        35
+      ],
+      "key_phrases": [
+        "discharge summary",
+        "original bills",
+        "receipts",
+        "prescriptions"
+      ],
+      "ground_truth_summary": "Discharge summary, original hospital bills with breakup, payment receipts, diagnostic test reports, and doctor prescriptions are mandatory.",
+      "gold_chunk_ids": [
+        258
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 258,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Health Upload Documents",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to Upload Health Claim Documents online Now you can upload your health claim documents online with Star Health Insurance. Upload you..."
+        }
+      ]
+    },
+    {
+      "id": "Q44",
+      "category": "claims_procedures_and_guidance",
+      "question": "How can policyholders check their claim status online?",
+      "expected_status": "answered",
+      "target_documents": [
+        "claim_guidance"
+      ],
+      "expected_page_numbers": [
+        1
+      ],
+      "key_phrases": [
+        "claim status",
+        "intimation number",
+        "portal"
+      ],
+      "ground_truth_summary": "Claim status can be tracked online on the insurer website or mobile application using claim intimation number or health card ID.",
+      "gold_chunk_ids": [
+        257,
+        259,
+        260,
+        261,
+        263
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 257,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "13. Select the Insured Person Name 14. Enter the Reason for Admission 15. Enter the Hospital Admission Date 16. Select Medical Treatment (or For a Surgery) 17. Select hospital type..."
+        },
+        {
+          "chunk_id": 259,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "2. Select Claims 3. Select Document Upload 4. Select Health Policy 5. Click Options 6. Select Claim Intimation Number 7. Enter your Claim Intimation Number 8. Select your Mobile Nu..."
+        },
+        {
+          "chunk_id": 260,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Health Claim Status",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to check your Claim Status online Now you can check your reimbursement/cashless claim status online with Star Health Insurance. Chec..."
+        },
+        {
+          "chunk_id": 261,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "3. Click My Claims 4. Select your Claim Intimation Number > Select Click here 5. Select Claim Type Reimbursement (or Cashless) 6. Find the Status of your reimbursement claim **Plea..."
+        },
+        {
+          "chunk_id": 263,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "13. Select the Insured Person Name 14. Enter the Reason for Admission 15. Enter the Hospital Admission Date 16. Select Medical Treatment (or For a Surgery) 17. Select All 18. Enter..."
+        }
+      ]
+    },
+    {
+      "id": "Q45",
+      "category": "claims_procedures_and_guidance",
+      "question": "What grievance escalation mechanism exists if an insurer denies a claim unjustly?",
+      "expected_status": "answered",
+      "target_documents": [
+        "faq",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        1,
+        16
+      ],
+      "key_phrases": [
+        "grievance",
+        "gro",
+        "irda",
+        "bima bharosa"
+      ],
+      "ground_truth_summary": "The policyholder can approach the Grievance Redressal Officer (GRO), escalate to IRDAI Bima Bharosa portal, or appeal to the Insurance Ombudsman.",
+      "gold_chunk_ids": [
+        46,
+        47,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        250,
+        251,
+        252
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 46,
+          "document_type": "cis",
+          "page_number": 16,
+          "section_heading": "Details of Grievance Redressal  Officer of the Insurer",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 15 / 19 10 Policy Servici..."
+        },
+        {
+          "chunk_id": 47,
+          "document_type": "cis",
+          "page_number": 16,
+          "section_heading": "IV(15)",
+          "snippet": "Mail ID:-\u00a0gro@starhealth.in | grievances@starhealth.in https://www.starhealth.in/grievance-redressal lf lnsured person is not satisfied with the redressal of grievance, Insured per..."
+        },
+        {
+          "chunk_id": 240,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "FAQs on Health Insurance Regulations",
+          "snippet": "Evolution of Insurance Regulations Public Notices List of Registered Insurance Entities List of Life Insurers List of General Insurers List of Health Insurers List of Reinsurers Li..."
+        },
+        {
+          "chunk_id": 241,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "FAQs on Health Insurance Regulations",
+          "snippet": "About Microinsurance ACTUARIAL AGENCY DISTRIBUTION BROKERS COMMUNICATIONS CORPORATE AGENTS DISTRIBUTION DEVELOPMENT INSURANCE WEB AGGREGATORS INSURANCE REPOSITORIES (IR) INSURANCE..."
+        },
+        {
+          "chunk_id": 242,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "FAQs on Health Insurance Regulations",
+          "snippet": "List of Life Insurers List of General Insurers List of Health Insurers List of Reinsurers List of Reinsurer branches List of Corporate Agents List Of Corporate Agents List of Telem..."
+        },
+        {
+          "chunk_id": 243,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "FAQs on Health Insurance Regulations",
+          "snippet": "Life Insurance Products Terms and Conditions List of Life Products Non-Life Insurance Products Health Insurance Products Standard Products Standard Products Life Standard Products..."
+        },
+        {
+          "chunk_id": 244,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "What is Health Insurance Business?",
+          "snippet": "ACTUARIAL AGENCY DISTRIBUTION BROKERS COMMUNICATIONS CORPORATE AGENTS DISTRIBUTION DEVELOPMENT INSURANCE WEB AGGREGATORS INSURANCE REPOSITORIES (IR) INSURANCE SELF NETWORK PLATFORM..."
+        },
+        {
+          "chunk_id": 245,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "What is the maximum age at entry for taking a Health Insurance policy? Whether Health Insurance is available lifelong once taken a policy?",
+          "snippet": "Health Insurance policies are offered by all Life, General and Health Insurance companies that are registered with IRDAI. While General and Heath Insurance Companies offer both ind..."
+        },
+        {
+          "chunk_id": 246,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "Whether pre-existing diseases are covered under a health insurance policy?",
+          "snippet": "As part of Guidelines on Standardization, IRDAI has defined Pre-Existing Diseases (reproduced below in verbatim), at Clause 33 of Chapter I of Guidelines on Standardization in Heal..."
+        },
+        {
+          "chunk_id": 247,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "Are there any principles on charging premium for Health Insurance coverage?",
+          "snippet": "However, in terms of Chapter IV of the Guidelines on Standardization of Exclusions in Health Insurance Contracts under Sec 1 of IRDAI Master Circular ref IRDAI/HLT/REG/CIR/193/07/2..."
+        },
+        {
+          "chunk_id": 248,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "Who is Third Party Administrator (TPA)?",
+          "snippet": "In terms of Regulation 8(e) of the IRDAI (Health Insurance) Regulations 2016, the insured shall be informed in writing of any underwriting loading charged over and above the premiu..."
+        },
+        {
+          "chunk_id": 250,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "What is AYUSH Hospital?",
+          "snippet": "AYUSH Treatment refers to the medical and / or hospitalization treatments given under \ufffd\ufffd\ufffdAyurveda, Yoga and Naturopathy, Unani, Siddha and Homeopathy systems\ufffd\ufffd\ufffd. Whether or not AYU..."
+        },
+        {
+          "chunk_id": 251,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "What is AYUSH Day Care Centre?",
+          "snippet": "As part of Guidelines on Standardization, IRDAI has defined AYUSH Hospital (reproduced below in verbatim), at clause 46 of Chapter I of Guidelines on Standardization in Health Insu..."
+        },
+        {
+          "chunk_id": 252,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "What are the Regulatory provisions for settlement of Health Insurance claims by TPAs/Insurers?",
+          "snippet": "Regulatory Provisions for settlement of Health Insurance claims by Insurers/TPAs are mentioned below: 1) An insurer shall settle or reject a claim, within thirty days of the receip..."
+        }
+      ]
+    },
+    {
+      "id": "Q46",
+      "category": "claims_procedures_and_guidance",
+      "question": "What is the role and pecuniary jurisdiction limit of the Insurance Ombudsman?",
+      "expected_status": "answered",
+      "target_documents": [
+        "faq",
+        "policy"
+      ],
+      "expected_page_numbers": [
+        1,
+        47
+      ],
+      "key_phrases": [
+        "ombudsman",
+        "30 lakhs",
+        "jurisdiction"
+      ],
+      "ground_truth_summary": "The Insurance Ombudsman adjudicates consumer insurance disputes for claims up to Rs. 30 lakhs within regional jurisdiction.",
+      "gold_chunk_ids": [
+        233,
+        234,
+        235,
+        236,
+        240,
+        242,
+        252
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 233,
+          "document_type": "policy",
+          "page_number": 47,
+          "section_heading": "Districts of Uttar Pradesh",
+          "snippet": "JAIPUR Office\tof\tthe\tInsurance\tOmbudsman, Jeevan\tNidhi\t\u2013\tII\tBldg.,\tGr. Floor, Bhawani Singh Marg, Jaipur - 302 005. Tel.:\t0141\t\u2013\t2740363 Rajasthan. Email: oio.jaipur@cioins.co.in K..."
+        },
+        {
+          "chunk_id": 234,
+          "document_type": "policy",
+          "page_number": 47,
+          "section_heading": "U.P-201301.",
+          "snippet": "Barabanki, Raebareli, Sravasti, Gonda, Faizabad, Amethi, Kaushambi, Balrampur, Basti, Ambedkarnagar, Sultanpur, Maharajgang, Santkabirnagar, Azamgarh, Kushinagar, Gorkhpur, Deoria,..."
+        },
+        {
+          "chunk_id": 235,
+          "document_type": "policy",
+          "page_number": 47,
+          "section_heading": "PUNE",
+          "snippet": "State of Uttarakhand and the following Districts of Uttar Pradesh: Agra, Aligarh, Bagpat, Bareilly, Bijnor, Budaun, Bulandshehar, Etah, Kannauj, Mainpuri, Mathura, Meerut, Moradaba..."
+        },
+        {
+          "chunk_id": 236,
+          "document_type": "policy",
+          "page_number": 47,
+          "section_heading": "THANE",
+          "snippet": "areas of Navi Mumbai, Thane district,Palghar District, Raigad district & Mumbai Metropolitan Region Email: oio.pune@cioins.co.in THANE Office\tof\tthe\tInsurance\tOmbudsman, 2nd Floor,..."
+        },
+        {
+          "chunk_id": 240,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "FAQs on Health Insurance Regulations",
+          "snippet": "Evolution of Insurance Regulations Public Notices List of Registered Insurance Entities List of Life Insurers List of General Insurers List of Health Insurers List of Reinsurers Li..."
+        },
+        {
+          "chunk_id": 242,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "FAQs on Health Insurance Regulations",
+          "snippet": "List of Life Insurers List of General Insurers List of Health Insurers List of Reinsurers List of Reinsurer branches List of Corporate Agents List Of Corporate Agents List of Telem..."
+        },
+        {
+          "chunk_id": 252,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "What are the Regulatory provisions for settlement of Health Insurance claims by TPAs/Insurers?",
+          "snippet": "Regulatory Provisions for settlement of Health Insurance claims by Insurers/TPAs are mentioned below: 1) An insurer shall settle or reject a claim, within thirty days of the receip..."
+        }
+      ]
+    },
+    {
+      "id": "Q47",
+      "category": "claims_procedures_and_guidance",
+      "question": "What is the free-look period duration for review of a newly issued health policy?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        38,
+        15
+      ],
+      "key_phrases": [
+        "free look",
+        "15 days",
+        "30 days"
+      ],
+      "ground_truth_summary": "A free look period of 15 days (30 days for electronic or distance marketing policies) is allowed to cancel policy with refund minus proportionate risk premium.",
+      "gold_chunk_ids": [
+        43
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 43,
+          "document_type": "cis",
+          "page_number": 15,
+          "section_heading": "Turn Around Time (TAT) for claims settlement",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 14 / 19 For Reimbursement..."
+        }
+      ]
+    },
+    {
+      "id": "Q48",
+      "category": "claims_procedures_and_guidance",
+      "question": "What are the portability rules for porting to another insurer under IRDAI guidelines?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis",
+        "faq"
+      ],
+      "expected_page_numbers": [
+        40,
+        15
+      ],
+      "key_phrases": [
+        "portability",
+        "45 days",
+        "credit for waiting period"
+      ],
+      "ground_truth_summary": "Portability requests must be initiated at least 45 days prior to renewal date, protecting accrued waiting period credits.",
+      "gold_chunk_ids": [
+        207,
+        226
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 207,
+          "document_type": "policy",
+          "page_number": 40,
+          "section_heading": "insurer to issue an insurance policy",
+          "snippet": "by the Insured Person by giving 15 days\u2019 written notice. There would be no refund of premium on cancellation on grounds of misrepresentation, non-disclosure of material facts or fr..."
+        },
+        {
+          "chunk_id": 226,
+          "document_type": "policy",
+          "page_number": 45,
+          "section_heading": "Page 45",
+          "snippet": "is drawn to our website www. starhealth.in for anti-fraud policy of the company for necessary compliance by all stake holders. 29.  Customer Service:  If at any time the Insured\tPe..."
+        }
+      ]
+    },
+    {
+      "id": "Q49",
+      "category": "claims_procedures_and_guidance",
+      "question": "Does cashless approval guarantee that zero payment will be made at the hospital?",
+      "expected_status": "answered",
+      "target_documents": [
+        "claim_guidance",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        1,
+        14
+      ],
+      "key_phrases": [
+        "non-payable",
+        "co-payment",
+        "settlement"
+      ],
+      "ground_truth_summary": "Cashless pre-authorization covers admissible expenses; non-medical items, exclusions, co-payments, and expenses exceeding room limits must be paid by the patient.",
+      "gold_chunk_ids": [
+        240,
+        18
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 18,
+          "document_type": "cis",
+          "page_number": 6,
+          "section_heading": "Section II.17)",
+          "snippet": "Hospital registration charges, admission charges, record charges, telephone charges and such other charges Excl 34 Cochlear implants and procedure related hospitalization expenses...."
+        },
+        {
+          "chunk_id": 240,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "FAQs on Health Insurance Regulations",
+          "snippet": "Evolution of Insurance Regulations Public Notices List of Registered Insurance Entities List of Life Insurers List of General Insurers List of Health Insurers List of Reinsurers Li..."
+        }
+      ]
+    },
+    {
+      "id": "Q50",
+      "category": "claims_procedures_and_guidance",
+      "question": "What is the grace period allowed for policy renewal premium payment?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        37,
+        15
+      ],
+      "key_phrases": [
+        "grace period",
+        "30 days"
+      ],
+      "ground_truth_summary": "A grace period of 30 days is allowed for annual renewal to maintain continuity of benefits without loss of waiting period credits.",
+      "gold_chunk_ids": [
+        49,
+        53,
+        209,
+        212,
+        223
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 49,
+          "document_type": "cis",
+          "page_number": 17,
+          "section_heading": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 16 / 19 Policy renewal: T..."
+        },
+        {
+          "chunk_id": 53,
+          "document_type": "cis",
+          "page_number": 18,
+          "section_heading": "exclusion - Code Excl 01",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 17 / 19 i.\t First 30 days..."
+        },
+        {
+          "chunk_id": 209,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "10. Withdrawal of policy",
+          "snippet": "9.  Renewal of policy:  The policy shall be renewable provided the product is not withdrawn, except in case of established fraud or non-disclosure or misrepresentation by the Polic..."
+        },
+        {
+          "chunk_id": 212,
+          "document_type": "policy",
+          "page_number": 42,
+          "section_heading": "Page 42",
+          "snippet": "12.  Premium Payment in Instalments: lf the Policyholder has opted for Payment of Premium on an instalment basis i.e. Yearly or Half Yearly or Quarterly or Monthly, as mentioned in..."
+        },
+        {
+          "chunk_id": 223,
+          "document_type": "policy",
+          "page_number": 44,
+          "section_heading": "Exclusion as under shall apply afresh",
+          "snippet": "Insured including the respective sublimits shall be subject to the following terms. Exclusion as under shall apply afresh from the date of such enhancement for the increase in the..."
+        }
+      ]
+    },
+    {
+      "id": "Q51",
+      "category": "claims_procedures_and_guidance",
+      "question": "What happens if a cashless pre-authorization is denied by the insurer?",
+      "expected_status": "answered",
+      "target_documents": [
+        "claim_guidance",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        1,
+        14
+      ],
+      "key_phrases": [
+        "denial of cashless",
+        "reimbursement"
+      ],
+      "ground_truth_summary": "Denial of cashless access does not mean claim is rejected; the insured person can pay hospital directly and file for reimbursement post-discharge.",
+      "gold_chunk_ids": [
+        39,
+        41,
+        260,
+        261,
+        262
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 39,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "Emergency Hospitalization (Cashless / Reimbursement)",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 13 / 19 9 Claims/ Claims..."
+        },
+        {
+          "chunk_id": 41,
+          "document_type": "cis",
+          "page_number": 14,
+          "section_heading": "For Cashless Treatment",
+          "snippet": "additional documents / clarifications if the information furnished is inadequate g.\t \u0007Once all the details are furnished, the Company will process the request as per the terms and..."
+        },
+        {
+          "chunk_id": 260,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Health Claim Status",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to check your Claim Status online Now you can check your reimbursement/cashless claim status online with Star Health Insurance. Chec..."
+        },
+        {
+          "chunk_id": 261,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Couldn\ufffd\ufffd\ufffdt find what you are looking for?",
+          "snippet": "3. Click My Claims 4. Select your Claim Intimation Number > Select Click here 5. Select Claim Type Reimbursement (or Cashless) 6. Find the Status of your reimbursement claim **Plea..."
+        },
+        {
+          "chunk_id": 262,
+          "document_type": "claim_guidance",
+          "page_number": 1,
+          "section_heading": "Reimbursement Claims",
+          "snippet": "Buy Policy Support Network Hospital Simple ways to file Reimbursement Claims online Now you can intimate your Reimbursement Claim online with Star Health Insurance. Whether it is a..."
+        }
+      ]
+    },
+    {
+      "id": "Q52",
+      "category": "claims_procedures_and_guidance",
+      "question": "What is the timeline for the insurer to settle or reject a reimbursement claim?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "faq"
+      ],
+      "expected_page_numbers": [
+        36,
+        1
+      ],
+      "key_phrases": [
+        "30 days",
+        "settlement timeline",
+        "interest"
+      ],
+      "ground_truth_summary": "Insurers must settle or reject a claim within 30 days of receiving all necessary documents; delayed payment attracts penal interest at 2% above bank rate.",
+      "gold_chunk_ids": [
+        252
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 252,
+          "document_type": "faq",
+          "page_number": 1,
+          "section_heading": "What are the Regulatory provisions for settlement of Health Insurance claims by TPAs/Insurers?",
+          "snippet": "Regulatory Provisions for settlement of Health Insurance claims by Insurers/TPAs are mentioned below: 1) An insurer shall settle or reject a claim, within thirty days of the receip..."
+        }
+      ]
+    },
+    {
+      "id": "Q53",
+      "category": "claims_procedures_and_guidance",
+      "question": "Can a policy be terminated for fraud or intentional non-disclosure of medical facts?",
+      "expected_status": "answered",
+      "target_documents": [
+        "policy",
+        "cis"
+      ],
+      "expected_page_numbers": [
+        37,
+        15
+      ],
+      "key_phrases": [
+        "fraud",
+        "misrepresentation",
+        "cancellation"
+      ],
+      "ground_truth_summary": "The policy may be cancelled ab initio on grounds of fraud, moral hazard, or material misrepresentation with forfeiture of premium paid.",
+      "gold_chunk_ids": [
+        49,
+        54,
+        206,
+        207,
+        209,
+        211
+      ],
+      "gold_passages": [
+        {
+          "chunk_id": 49,
+          "document_type": "cis",
+          "page_number": 17,
+          "section_heading": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS",
+          "snippet": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED  |  CIS Star Comprehensive Insurance Policy   |   UIN : SHAHLIP26044V092526   |   CIS / COMP / V.5 / 2025 16 / 19 Policy renewal: T..."
+        },
+        {
+          "chunk_id": 54,
+          "document_type": "cis",
+          "page_number": 18,
+          "section_heading": "IV(11)",
+          "snippet": "Moratorium Period: After completion of sixty continuous months of coverage (including portability and migration) in health insurance policy, no policy and claim shall be contestabl..."
+        },
+        {
+          "chunk_id": 206,
+          "document_type": "policy",
+          "page_number": 40,
+          "section_heading": "insurer to issue an insurance policy",
+          "snippet": "was true to the best of his knowledge and there was no deliberate intention to suppress the fact or that such misstatement of or suppression of material fact are within the knowled..."
+        },
+        {
+          "chunk_id": 207,
+          "document_type": "policy",
+          "page_number": 40,
+          "section_heading": "insurer to issue an insurance policy",
+          "snippet": "by the Insured Person by giving 15 days\u2019 written notice. There would be no refund of premium on cancellation on grounds of misrepresentation, non-disclosure of material facts or fr..."
+        },
+        {
+          "chunk_id": 209,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "10. Withdrawal of policy",
+          "snippet": "9.  Renewal of policy:  The policy shall be renewable provided the product is not withdrawn, except in case of established fraud or non-disclosure or misrepresentation by the Polic..."
+        },
+        {
+          "chunk_id": 211,
+          "document_type": "policy",
+          "page_number": 41,
+          "section_heading": "10. Withdrawal of policy",
+          "snippet": "of sixty continuous months of coverage (including portability and migration) in health insurance policy, no policy and claim shall be contestable by the insurer on grounds of non-d..."
+        }
+      ]
+    },
+    {
+      "id": "Q54",
+      "category": "out_of_domain_and_adversarial",
+      "question": "Does this health insurance policy cover orbital space flight planetary excursions?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "orbital",
+        "space flight"
+      ],
+      "ground_truth_summary": "Out of domain. System must abstain cleanly with insufficient evidence.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q55",
+      "category": "out_of_domain_and_adversarial",
+      "question": "How do I bake sourdough bread at high altitude with active starter?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "sourdough",
+        "bread"
+      ],
+      "ground_truth_summary": "Out of domain. System must abstain cleanly.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q56",
+      "category": "out_of_domain_and_adversarial",
+      "question": "What is the compensation payout for car collision bumper damage and windshield replacement?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "bumper",
+        "windshield",
+        "car collision"
+      ],
+      "ground_truth_summary": "Motor insurance query. Out of domain for health policy; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q57",
+      "category": "out_of_domain_and_adversarial",
+      "question": "Does this health policy reimburse losses from cryptocurrency market crashes or Bitcoin theft?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "cryptocurrency",
+        "bitcoin"
+      ],
+      "ground_truth_summary": "Financial asset query. Out of domain; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q58",
+      "category": "out_of_domain_and_adversarial",
+      "question": "What veterinary surgeries and dog vaccination treatments are covered for domestic pets?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "veterinary",
+        "dog",
+        "pets"
+      ],
+      "ground_truth_summary": "Pet insurance query. Out of domain; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q59",
+      "category": "out_of_domain_and_adversarial",
+      "question": "How do I calculate income tax exemptions under Section 80C for life insurance endowment policies?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "section 80c",
+        "life insurance",
+        "endowment"
+      ],
+      "ground_truth_summary": "Tax / Life insurance query. Policy corpus covers health terms; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q60",
+      "category": "out_of_domain_and_adversarial",
+      "question": "Does the policy cover airline flight cancellation compensations and lost luggage abroad?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "flight cancellation",
+        "lost luggage"
+      ],
+      "ground_truth_summary": "Travel insurance query. Out of domain; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q61",
+      "category": "out_of_domain_and_adversarial",
+      "question": "What is the waiting period for cosmetic tooth whitening and porcelain dental veneer fitting?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "tooth whitening",
+        "porcelain veneer"
+      ],
+      "ground_truth_summary": "Cosmetic dental query not recognized as covered clinical procedure; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q62",
+      "category": "out_of_domain_and_adversarial",
+      "question": "Is home burglary and jewelry theft reimbursed under the comprehensive health plan?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "burglary",
+        "jewelry theft"
+      ],
+      "ground_truth_summary": "Property insurance query. Out of domain; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q63",
+      "category": "out_of_domain_and_adversarial",
+      "question": "How do I configure quantum computing qubits for financial derivative portfolio hedging?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "quantum computing",
+        "qubits"
+      ],
+      "ground_truth_summary": "Out of domain. System must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q64",
+      "category": "out_of_domain_and_adversarial",
+      "question": "Can I claim health insurance reimbursement for purchasing organic grocery store vegetables?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "organic grocery",
+        "vegetables"
+      ],
+      "ground_truth_summary": "Absurd / out-of-scope query. System must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    },
+    {
+      "id": "Q65",
+      "category": "out_of_domain_and_adversarial",
+      "question": "What is the maximum reimbursement for cyber hacking ransom payments on smart home devices?",
+      "expected_status": "insufficient_evidence",
+      "target_documents": [],
+      "expected_page_numbers": [],
+      "key_phrases": [
+        "cyber hacking",
+        "ransom payments"
+      ],
+      "ground_truth_summary": "Cyber insurance query. Out of domain; system must abstain.",
+      "gold_chunk_ids": [],
+      "gold_passages": []
+    }
+  ]
+}

@@ -1,166 +1,162 @@
+"""
+Evaluate Real Polynomial Hash Function & Vector Collisions
+
+Analyzes the actual hash implementation in backend/app/services/embeddings.py:
+  h = 0
+  for char in token:
+      h = (h * 31 + ord(char)) & 0xFFFFFFFF
+  return h % vector_dim
+
+Measures real collision rates and encoding latency across dimensions:
+64, 128 (canonical default), 256, 512, 1024, 4096 on the corpus vocabulary
+extracted directly from SQLite document_chunks.
+"""
+
+import hashlib
 import json
-import math
 import re
+import sqlite3
+import subprocess
 import sys
 import time
-import sqlite3
-import numpy as np
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Dict, Any, List
+import numpy as np
 
+# Ensure backend can be imported
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-conn = sqlite3.connect("health_insurance.db")
-c = conn.cursor()
-c.execute("SELECT text FROM document_chunks")
-all_texts = [r[0] for r in c.fetchall()]
-conn.close()
+RANDOM_SEED = 42
 
-# Extract vocabulary
-all_words = set()
-all_bigrams = set()
-all_4grams = set()
+def get_git_commit() -> str:
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+    except Exception:
+        return "unknown"
 
-for text in all_texts:
-    clean = text.lower()
-    words = re.findall(r"\b[a-z0-9]+\b", clean)
-    for i, w in enumerate(words):
-        if len(w) >= 2:
-            all_words.add(w)
-            if i < len(words) - 1:
-                all_bigrams.add(f"{w}_{words[i+1]}")
-    for i in range(len(clean) - 3):
-        sub = clean[i:i+4]
-        if sub.strip():
-            all_4grams.add(sub)
-
-vocab_tokens = list(all_words)
-total_tokens = len(vocab_tokens)
-total_bigrams = len(all_bigrams)
-total_4grams = len(all_4grams)
-
-print(f"Extracted Corpus Vocab: {total_tokens} unique words, {total_bigrams} unique bigrams, {total_4grams} unique character 4-grams.")
-
-def hash_token(token: str, dim: int) -> int:
+def polynomial_hash(token: str, vector_dim: int) -> int:
     h = 0
     for char in token:
         h = (h * 31 + ord(char)) & 0xFFFFFFFF
-    return h % dim
+    return h % vector_dim
 
-dimensions = [64, 128, 256, 512, 1024, 2048, 4096]
-collision_analysis = []
+def run_collision_evaluation():
+    db_path = Path("health_insurance.db")
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute("SELECT text FROM document_chunks")
+    chunk_texts = [row[0] for row in c.fetchall()]
+    conn.close()
 
-for d in dimensions:
-    # 1. Word token buckets
-    word_buckets = [0] * d
-    for w in vocab_tokens:
-        word_buckets[hash_token(w, d)] += 1
-    
-    non_empty_words = sum(1 for count in word_buckets if count > 0)
-    word_collision_count = sum(count - 1 for count in word_buckets if count > 1)
-    word_collision_rate = word_collision_count / total_tokens if total_tokens > 0 else 0
-    
-    # 2. Combined feature hashing (words + bigrams + 4grams)
-    feature_buckets = [0] * d
-    all_features = vocab_tokens + list(all_bigrams) + list(all_4grams)
-    N_feat = len(all_features)
-    for feat in all_features:
-        feature_buckets[hash_token(feat, d)] += 1
-        
-    occupied_buckets = sum(1 for count in feature_buckets if count > 0)
-    feat_collision_count = sum(count - 1 for count in feature_buckets if count > 1)
-    feat_collision_rate = feat_collision_count / N_feat
-    
-    # Theoretical occupancy assuming uniform random distribution: d * (1 - (1 - 1/d)^N)
-    theoretical_occupied = d * (1.0 - math.pow(1.0 - 1.0/d, N_feat)) if d > 1 else 1
-    theoretical_collision_rate = (N_feat - theoretical_occupied) / N_feat
-    
-    # Average items per bucket
-    avg_load = N_feat / d
-    max_load = max(feature_buckets)
+    full_corpus = " ".join(chunk_texts).lower()
 
-    collision_analysis.append({
-        "dimension": d,
-        "word_collision_rate": round(word_collision_rate * 100, 2),
-        "feature_collision_rate": round(feat_collision_rate * 100, 2),
-        "theoretical_collision_rate": round(theoretical_collision_rate * 100, 2),
-        "occupied_buckets": occupied_buckets,
-        "bucket_occupancy_ratio": round(occupied_buckets / d * 100, 2),
-        "avg_items_per_bucket": round(avg_load, 2),
-        "max_items_per_bucket": max_load,
-    })
+    # Extract corpus vocabulary
+    words = re.findall(r"\b[a-z0-9]+\b", full_corpus)
+    unique_words = sorted(list(set(w for w in words if len(w) >= 2)))
 
-# Latency and memory benchmark
-benchmark_models = [
-    {"name": "LocalDense-128d", "dim": 128, "type": "Hashed Polynomial Roll", "params": 0, "size_kb_per_1k": 500},
-    {"name": "LocalDense-256d", "dim": 256, "type": "Hashed Polynomial Roll", "params": 0, "size_kb_per_1k": 1000},
-    {"name": "LocalDense-512d", "dim": 512, "type": "Hashed Polynomial Roll", "params": 0, "size_kb_per_1k": 2000},
-    {"name": "all-MiniLM-L6-v2", "dim": 384, "type": "6-layer MiniLM Transformer", "params": 22700000, "size_kb_per_1k": 1500},
-    {"name": "bge-small-en-v1.5", "dim": 384, "type": "12-layer BERT Transformer", "params": 33400000, "size_kb_per_1k": 1500},
-]
+    # Bigrams
+    unique_bigrams = set()
+    for text in chunk_texts:
+        t_words = re.findall(r"\b[a-z0-9]+\b", text.lower())
+        for i in range(len(t_words) - 1):
+            unique_bigrams.add(f"{t_words[i]}_{t_words[i+1]}")
+    unique_bigrams = sorted(list(unique_bigrams))
 
-from backend.app.services.embeddings import LocalDenseEmbeddingProvider
-sample_query = "What is the waiting period for pre-existing disease and cataract surgery under the policy?"
+    # 4-grams character subwords
+    unique_4grams = set()
+    for text in chunk_texts:
+        clean = text.lower()
+        for i in range(len(clean) - 3):
+            sub = clean[i:i+4]
+            if sub.strip():
+                unique_4grams.add(sub)
+    unique_4grams = sorted(list(unique_4grams))
 
-latency_results = []
-for m in benchmark_models:
-    dim = m["dim"]
-    embedder = LocalDenseEmbeddingProvider(vector_dim=dim)
-    
-    # Warmup
-    for _ in range(5):
-        embedder.embed_text(sample_query)
-        
-    start_t = time.perf_counter()
-    iters = 100
-    for _ in range(iters):
-        v = embedder.embed_text(sample_query)
-    elapsed_ms = (time.perf_counter() - start_t) / iters * 1000
-    
-    # Simulated transformer latency on commodity CPU if torch not present
-    if "MiniLM" in m["name"]:
-        est_latency = 18.4  # Standard CPU forward pass for 25-token sentence on i7/Ryzen
-    elif "bge-small" in m["name"]:
-        est_latency = 28.6
-    else:
-        est_latency = round(elapsed_ms, 3)
-        
-    latency_results.append({
-        "model": m["name"],
-        "dimension": dim,
-        "parameters": m["params"],
-        "latency_ms_per_query_cpu": est_latency,
-        "storage_kb_per_1k_chunks": m["size_kb_per_1k"],
-        "gpu_required": False,
-        "zero_dependency_pure_numpy": "LocalDense" in m["name"]
-    })
+    dimensions = [64, 128, 256, 512, 1024, 4096]
+    ablation_results = {}
 
-final_payload = {
-    "corpus_summary": {
-        "unique_words": total_tokens,
-        "unique_bigrams": total_bigrams,
-        "unique_4grams": total_4grams,
-        "total_extracted_features": N_feat
-    },
-    "collision_analysis": collision_analysis,
-    "model_comparison": latency_results
-}
+    print("\n" + "=" * 95)
+    print(f"REAL POLYNOMIAL HASH COLLISION & LATENCY ANALYSIS (Corpus Vocab: {len(unique_words)} words)")
+    print("=" * 95)
+    print(f"{'DIM':<6} | {'WORD COLL (%)':<15} | {'BIGRAM COLL (%)':<16} | {'SUBWORD COLL (%)':<17} | {'CPU LATENCY (ms)':<16} | {'ZERO-DEPS'}")
+    print("=" * 95)
 
-out_path = Path("data/evaluation/embeddings_collision_results.json")
-with open(out_path, "w", encoding="utf-8") as f:
-    json.dump(final_payload, f, indent=2)
+    sample_texts = chunk_texts[:50]
 
-print("\n" + "="*85)
-print(f"{'DIMENSION':<10} | {'WORD COLLISION %':<18} | {'FEATURE COLLISION %':<20} | {'OCCUPIED BUCKETS':<18} | {'MAX BUCKET LOAD':<15}")
-print("="*85)
-for ca in collision_analysis:
-    print(f"{ca['dimension']:<10} | {ca['word_collision_rate']:<18.2f} | {ca['feature_collision_rate']:<20.2f} | {ca['occupied_buckets']:<18} | {ca['max_items_per_bucket']:<15}")
-print("="*85)
+    for dim in dimensions:
+        # 1. Word collision
+        word_buckets = set(polynomial_hash(w, dim) for w in unique_words)
+        word_coll_rate = (1.0 - (len(word_buckets) / len(unique_words))) * 100.0
 
-print("\n" + "="*95)
-print(f"{'EMBEDDING MODEL':<20} | {'DIM':<5} | {'PARAMS':<10} | {'CPU LATENCY (ms)':<18} | {'STORAGE (KB/1k)':<16} | {'ZERO DEPS'}")
-print("="*95)
-for lr in latency_results:
-    print(f"{lr['model']:<20} | {lr['dimension']:<5} | {lr['parameters']:<10} | {lr['latency_ms_per_query_cpu']:<18.3f} | {lr['storage_kb_per_1k_chunks']:<16} | {lr['zero_dependency_pure_numpy']}")
-print("="*95)
-print(f"Collision & Model Comparison successfully saved to {out_path.resolve()}\n")
+        # 2. Bigram collision
+        bigram_buckets = set(polynomial_hash(b, dim) for b in unique_bigrams)
+        bigram_coll_rate = (1.0 - (len(bigram_buckets) / len(unique_bigrams))) * 100.0
 
+        # 3. Subword collision
+        subword_buckets = set(polynomial_hash(s, dim) for s in unique_4grams)
+        subword_coll_rate = (1.0 - (len(subword_buckets) / len(unique_4grams))) * 100.0
+
+        # 4. Latency measurement (encode 50 passages)
+        from backend.app.services.embeddings import LocalDenseEmbeddingProvider
+        embedder = LocalDenseEmbeddingProvider(vector_dim=dim)
+        t0 = time.perf_counter()
+        for _ in range(5):
+            for st in sample_texts:
+                _ = embedder.embed_text(st)
+        t1 = time.perf_counter()
+        avg_latency_ms = ((t1 - t0) / (5 * len(sample_texts))) * 1000.0
+
+        ablation_results[dim] = {
+            "dimension": dim,
+            "unique_words_count": len(unique_words),
+            "word_collision_pct": round(word_coll_rate, 2),
+            "unique_bigrams_count": len(unique_bigrams),
+            "bigram_collision_pct": round(bigram_coll_rate, 2),
+            "unique_subwords_count": len(unique_4grams),
+            "subword_collision_pct": round(subword_coll_rate, 2),
+            "latency_ms": round(avg_latency_ms, 4),
+            "zero_dependencies": True,
+        }
+
+        print(f"{dim:<6} | {word_coll_rate:<15.2f} | {bigram_coll_rate:<16.2f} | {subword_coll_rate:<17.2f} | {avg_latency_ms:<16.4f} | Yes")
+
+    print("=" * 95)
+
+    # MiniLM latency comparison
+    try:
+        from sentence_transformers import SentenceTransformer
+        m_model = SentenceTransformer("all-MiniLM-L6-v2")
+        t0 = time.perf_counter()
+        for st in sample_texts[:20]:
+            _ = m_model.encode(st)
+        t1 = time.perf_counter()
+        minilm_latency_ms = ((t1 - t0) / 20.0) * 1000.0
+    except Exception:
+        minilm_latency_ms = None
+
+    output_data = {
+        "metadata": {
+            "command": "python scripts/evaluate_embeddings_and_collisions.py",
+            "git_commit": get_git_commit(),
+            "date": datetime.now(timezone.utc).isoformat(),
+            "random_seed": RANDOM_SEED,
+            "hash_algorithm": "polynomial_mod (h * 31 + ord(char)) & 0xFFFFFFFF % dim",
+            "corpus_chunks_count": len(chunk_texts),
+            "minilm_cpu_latency_ms": round(minilm_latency_ms, 2) if minilm_latency_ms else "NOT RUN",
+        },
+        "vocabulary_stats": {
+            "unique_words": len(unique_words),
+            "unique_bigrams": len(unique_bigrams),
+            "unique_4grams": len(unique_4grams),
+        },
+        "dimension_ablation": ablation_results,
+    }
+
+    out_file = Path("data/evaluation/embeddings_collision_results.json")
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, indent=2)
+    print(f"Saved real collision evaluation results to {out_file}\n")
+
+if __name__ == "__main__":
+    run_collision_evaluation()

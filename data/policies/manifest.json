@@ -1,0 +1,23 @@
+{
+  "description": "Authoritative manifest of verified policy documents present in data/policies",
+  "documents": [
+    {
+      "filename": "CIS_Star_Comprehensive_Insurance_Policy_V_2_69c15a9ee1.pdf",
+      "path": "data/policies/CIS_Star_Comprehensive_Insurance_Policy_V_2_69c15a9ee1.pdf",
+      "size_bytes": 1671059,
+      "sha256": "afe91f7446ed4dfc6090d3ce746386cf182ab5b094c9c6ae1b5af81a1375e665"
+    },
+    {
+      "filename": "Policy_Star_Comprehensive_Insurance_Policy_V_21_3a414ab104.pdf",
+      "path": "data/policies/Policy_Star_Comprehensive_Insurance_Policy_V_21_3a414ab104.pdf",
+      "size_bytes": 3572004,
+      "sha256": "e46624b8877c3520138606c1fc7f40e200394eae04dc636440fd8642f434191d"
+    },
+    {
+      "filename": "Policy_Star_Comprehensive_Insurance_Policy_clean.pdf",
+      "path": "data/policies/Policy_Star_Comprehensive_Insurance_Policy_clean.pdf",
+      "size_bytes": 2101643,
+      "sha256": "b1dbe8fb78646f75566d47c32b7ebfa27c4071941c8f548224c461ee35a8021f"
+    }
+  ]
+}

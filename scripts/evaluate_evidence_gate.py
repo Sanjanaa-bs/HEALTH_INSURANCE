@@ -1,241 +1,270 @@
+"""
+Evaluate Evidence Gate Mechanisms Against Ground Truth
+
+Evaluates evidence gating mechanisms at the passage level using the benchmark
+ground truth in data/evaluation/benchmark_qa_60.json (53 answerable + 12 OOD = 65 queries).
+
+Compares:
+1. Old Gate (legacy substring matching)
+2. New Gate (whole-word boundary regex + insurance query normalization)
+3. Strict Gate (higher threshold: m >= 3 if |W| >= 3 else 2)
+4. Cosine Gate (real SentenceTransformer all-MiniLM-L6-v2 with threshold tau = 0.45)
+5. Hybrid Gate (keyword match >= 1 and MiniLM cosine >= 0.35)
+
+Outputs real passage-level Precision, Recall, F1, Distractor Rejection Rate,
+and Out-of-Domain (N=12) Query Abstention Rate to data/evaluation/evidence_gate_results.json.
+"""
+
+import hashlib
 import json
 import re
-import sys
 import sqlite3
-import numpy as np
+import subprocess
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Dict, Any, List, Set
+import numpy as np
 
+# Ensure backend can be imported
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from backend.app.services.qa import extract_meaningful_keywords
-from backend.app.services.embeddings import LocalDenseEmbeddingProvider
-from backend.app.search import search_document_chunks
 from backend.app.database import SessionLocal
+from backend.app.search import search_document_chunks, normalize_insurance_query_text
+from backend.app.services.qa import extract_meaningful_keywords
+from sentence_transformers import SentenceTransformer
 
-db = SessionLocal()
-embedder = LocalDenseEmbeddingProvider(vector_dim=128)
+RANDOM_SEED = 42
 
-# Connect to database to fetch all chunks
-conn = sqlite3.connect("health_insurance.db")
-c = conn.cursor()
-c.execute("SELECT id, text, section_heading FROM document_chunks")
-all_chunks = {r[0]: (r[2] + " " + r[1]).lower() for r in c.fetchall()}
-conn.close()
+def get_git_commit() -> str:
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+    except Exception:
+        return "unknown"
 
-# Test queries covering 4 evaluation cohorts:
-# 1. Exact In-Scope (20 queries) - True Label: RELEVANT (1)
-# 2. Semantic Paraphrases / Synonyms (15 queries) - True Label: RELEVANT (1)
-# 3. Keyword-Sharing Distractors (15 queries) - True Label: IRRELEVANT (0)
-# 4. Out-of-Domain Controls (15 queries) - True Label: IRRELEVANT (0)
-# Total = 65 test queries
+def compute_file_sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
 
-eval_cases = [
-    # Cohort 1: Exact In-Scope
-    {"q": "What is the waiting period for pre-existing diseases?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What does the policy say about room rent?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "Are cataract treatments subject to specific conditions?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What does the policy say about pre-hospitalisation expenses?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What are the policy exclusions?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "How does automatic restoration of the sum insured work?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What are the rules regarding organ donor expenses?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "Is domiciliary hospitalization covered under the policy?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "Are day care treatments covered under this policy?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What is the coverage limit for road ambulance charges?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What is the initial waiting period after taking a new policy?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "Are AYUSH and alternative system treatments covered?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What waiting period applies for hernia, hydrocele, and piles?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What waiting period applies to maternity expenses?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "Does the policy cover mental illnesses or psychiatric disorders?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What is the cumulative bonus percentage for claim-free years?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What is the timeline to intimate a planned cashless hospitalization?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "Within how many days must reimbursement claim documents be submitted?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What is the role of the Insurance Ombudsman?", "label": 1, "cohort": "exact_in_scope"},
-    {"q": "What is the free-look period duration for review of a newly issued policy?", "label": 1, "cohort": "exact_in_scope"},
+def run_evidence_gate_evaluation():
+    db = SessionLocal()
+    benchmark_path = Path("data/evaluation/benchmark_qa_60.json")
+    benchmark_hash = compute_file_sha256(benchmark_path)
 
-    # Cohort 2: Semantic Paraphrases / Synonyms
-    {"q": "How long must I be covered before chronic ailments diagnosed prior to enrollment are paid?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "What are the limits on daily hospital ward and boarding fees?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Can I claim medical bills paid for consultations prior to hospital admission?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Are pharmacy bills paid during recovery after leaving hospital covered?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Is eye lens replacement surgery for cloudy vision capped?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Does the contract reimburse harvesting organs from a living body donor?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Is medical therapy administered at home when hospital beds are full covered?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Are short surgical operations without overnight stay covered?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Does the insurer pay for emergency patient van transit to clinic?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Are homeopathic remedies and ayurvedic hospital therapies payable?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "How much extra coverage is granted when no claims are registered during annual term?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "If basic coverage is exhausted mid-year does the policy refill the limit?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "When can a pregnant mother claim delivery hospital expenses?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "How many hours in advance must the hospital insurance desk file authorization?", "label": 1, "cohort": "semantic_paraphrase"},
-    {"q": "Where can an aggrieved customer file an appeal if insurer rejects medical settlement?", "label": 1, "cohort": "semantic_paraphrase"},
+    with open(benchmark_path, "r", encoding="utf-8") as f:
+        benchmark_data = json.load(f)
 
-    # Cohort 3: Keyword-Sharing Distractors (Shares keywords, but asks for unsupported or false premise)
-    {"q": "What does the policy say about room rent in private clinics in United Kingdom?", "label": 0, "cohort": "distractor"},
-    {"q": "What is the waiting period for pre-existing disease in pet dogs and cats?", "label": 0, "cohort": "distractor"},
-    {"q": "Are cataract treatments covered when performed for cosmetic iris color change?", "label": 0, "cohort": "distractor"},
-    {"q": "What is the road ambulance expense limit for helicopter flights to Mount Everest?", "label": 0, "cohort": "distractor"},
-    {"q": "Does the policy cover exclusions for stock market losses and financial bankruptcy?", "label": 0, "cohort": "distractor"},
-    {"q": "What is the reimbursement procedure for purchasing luxury sports cars after hospital discharge?", "label": 0, "cohort": "distractor"},
-    {"q": "How does automatic restoration apply when building real estate apartments?", "label": 0, "cohort": "distractor"},
-    {"q": "What are the rules regarding organ donor compensation for black market sales?", "label": 0, "cohort": "distractor"},
-    {"q": "Is domiciliary hospitalization covered for regular beauty sleep treatments?", "label": 0, "cohort": "distractor"},
-    {"q": "What day care treatments apply to repairing smartphone cracked screens?", "label": 0, "cohort": "distractor"},
-    {"q": "Can I intimate cashless claims for dining at 5-star hotel restaurants?", "label": 0, "cohort": "distractor"},
-    {"q": "Does the Ombudsman have jurisdiction over speeding traffic tickets?", "label": 0, "cohort": "distractor"},
-    {"q": "What is the cumulative bonus for achieving high scores in video games?", "label": 0, "cohort": "distractor"},
-    {"q": "Are psychiatric disorders covered for artificial intelligence software algorithms?", "label": 0, "cohort": "distractor"},
-    {"q": "What is the free-look period for canceling Netflix movie streaming subscriptions?", "label": 0, "cohort": "distractor"},
+    queries = benchmark_data["queries"]
+    print(f"Loaded {len(queries)} queries from {benchmark_path} (SHA-256: {benchmark_hash[:12]}...)")
 
-    # Cohort 4: Out-of-Domain Negative Controls
-    {"q": "How do I bake sourdough bread at high altitude with starter?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "What is the policy for orbital space flight and planetary excursion?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "How to repair automobile engine carburetor spark plug failure?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "What is the market price of Ethereum and Bitcoin mining hardware?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "How do I prune bonsai trees during winter season in Tokyo?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "What are the best tourist sightseeing spots in Venice Italy?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "How do convolutional neural networks optimize gradient descent weights?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "What is the recipe for cooking homemade authentic Italian pizza dough?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "How do airplanes generate aerodynamic lift over supersonic wings?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "What is the capital city of Madagascar in Southern Africa?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "How do I set up quantum computing qubit logic gates?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "Can I claim insurance reimbursement for buying fresh grocery apples?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "What is the compensation for lost airline luggage in airport terminal?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "How to tune an acoustic guitar in open D major tuning?", "label": 0, "cohort": "out_of_domain"},
-    {"q": "What are the rules of playing contract bridge with card trump suits?", "label": 0, "cohort": "out_of_domain"},
-]
+    # Load MiniLM model
+    print("Loading SentenceTransformer all-MiniLM-L6-v2 for semantic cosine gate...")
+    model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Gate mechanisms:
-# 1. Standard Keyword Gate: m >= 2 if |W| >= 3 else 1
-# 2. Strict Keyword Gate: m >= 3 if |W| >= 3 else 2
-# 3. Cosine Gate (threshold tau = 0.40)
-# 4. Hybrid Gate: Keyword hits >= 1 AND Cosine >= 0.35
+    gate_names = [
+        "old_gate_substring",
+        "new_gate_word_boundary",
+        "strict_gate_m3",
+        "cosine_gate_minilm_tau45",
+        "hybrid_gate_kw_minilm",
+    ]
 
-gate_mechanisms = ["keyword_gate_standard", "keyword_gate_strict", "cosine_gate_tau40", "hybrid_gate_kw_cos"]
-gate_stats = {gm: {"TP": 0, "FP": 0, "TN": 0, "FN": 0} for gm in gate_mechanisms}
-cohort_breakdowns = {gm: {c: {"total": 0, "accepted": 0, "rejected": 0} for c in ["exact_in_scope", "semantic_paraphrase", "distractor", "out_of_domain"]} for gm in gate_mechanisms}
+    # Passage-level tracking
+    # TP: Gate accepts passage AND passage is gold
+    # FP: Gate accepts passage AND passage is NOT gold (distractor or OOD)
+    # TN: Gate rejects passage AND passage is NOT gold
+    # FN: Gate rejects passage AND passage is gold
+    passage_stats = {g: {"TP": 0, "FP": 0, "TN": 0, "FN": 0} for g in gate_names}
 
-for item in eval_cases:
-    q = item["q"]
-    true_label = item["label"]
-    cohort = item["cohort"]
-    
-    # 1. Retrieve candidates via BM25
-    candidates = search_document_chunks(db=db, query_text=q, limit=5)
-    q_vec = np.array(embedder.embed_text(q), dtype=np.float32)
-    kw = extract_meaningful_keywords(q)
-    
-    # Decisions for each gate
-    decisions = {}
-    
-    # Standard keyword gate:
-    # Accepted if at least one candidate has hits >= required
-    m_std = 2 if len(kw) >= 3 else 1
-    std_accepted = False
-    for c_item in candidates:
-        full_c = (f"{c_item.get('section_heading', '')} {c_item.get('full_text', '')} {c_item.get('excerpt', '')}").lower()
-        hits = sum(1 for w in kw if w in full_c)
-        if hits >= m_std:
-            std_accepted = True
-            break
-    decisions["keyword_gate_standard"] = 1 if std_accepted else 0
-    
-    # Strict keyword gate:
-    m_strict = 3 if len(kw) >= 3 else 2
-    strict_accepted = False
-    for c_item in candidates:
-        full_c = (f"{c_item.get('section_heading', '')} {c_item.get('full_text', '')} {c_item.get('excerpt', '')}").lower()
-        hits = sum(1 for w in kw if w in full_c)
-        if hits >= m_strict:
-            strict_accepted = True
-            break
-    decisions["keyword_gate_strict"] = 1 if strict_accepted else 0
-    
-    # Cosine gate:
-    cos_accepted = False
-    for c_item in candidates:
-        full_c = f"{c_item.get('section_heading', '')} {c_item.get('full_text', '')}"
-        c_vec = np.array(embedder.embed_text(full_c), dtype=np.float32)
-        sim = float(np.dot(q_vec, c_vec))
-        if sim >= 0.40:
-            cos_accepted = True
-            break
-    decisions["cosine_gate_tau40"] = 1 if cos_accepted else 0
-    
-    # Hybrid gate: keyword hits >= 1 and cosine >= 0.35
-    hyb_accepted = False
-    for c_item in candidates:
-        full_c = (f"{c_item.get('section_heading', '')} {c_item.get('full_text', '')} {c_item.get('excerpt', '')}").lower()
-        hits = sum(1 for w in kw if w in full_c)
-        c_vec = np.array(embedder.embed_text(full_c), dtype=np.float32)
-        sim = float(np.dot(q_vec, c_vec))
-        if hits >= 1 and sim >= 0.35:
-            hyb_accepted = True
-            break
-    decisions["hybrid_gate_kw_cos"] = 1 if hyb_accepted else 0
-    
-    for gm in gate_mechanisms:
-        pred = decisions[gm]
-        cohort_breakdowns[gm][cohort]["total"] += 1
-        if pred == 1:
-            cohort_breakdowns[gm][cohort]["accepted"] += 1
+    # Query-level tracking for OOD (N=12) and Answerable (N=53)
+    ood_query_total = 0
+    ood_abstained = {g: 0 for g in gate_names}
+
+    answerable_query_total = 0
+    answerable_accepted = {g: 0 for g in gate_names}
+
+    # Distractor passage tracking (retrieved passages for answerable queries that are NOT gold)
+    distractor_passage_total = 0
+    distractor_passage_rejected = {g: 0 for g in gate_names}
+
+    # Pre-fetch candidate embeddings caching for efficiency
+    for q_idx, q_item in enumerate(queries):
+        qid = q_item["id"]
+        q_text = q_item["question"]
+        is_ood = q_item.get("expected_status") == "insufficient_evidence"
+        gold_ids = set(q_item.get("gold_chunk_ids", []))
+
+        if is_ood:
+            ood_query_total += 1
         else:
-            cohort_breakdowns[gm][cohort]["rejected"] += 1
-            
-        if pred == 1 and true_label == 1:
-            gate_stats[gm]["TP"] += 1
-        elif pred == 1 and true_label == 0:
-            gate_stats[gm]["FP"] += 1
-        elif pred == 0 and true_label == 0:
-            gate_stats[gm]["TN"] += 1
-        elif pred == 0 and true_label == 1:
-            gate_stats[gm]["FN"] += 1
+            answerable_query_total += 1
 
-db.close()
+        # Retrieve top-5 candidate passages from BM25
+        candidates = search_document_chunks(db=db, query_text=q_text, limit=5)
 
-# Calculate Precision, Recall, Specificity, F1, FRR, FAR
-metrics_summary = {}
-for gm in gate_mechanisms:
-    st = gate_stats[gm]
-    tp, fp, tn, fn = st["TP"], st["FP"], st["TN"], st["FN"]
-    
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
-    frr = fn / (tp + fn) if (tp + fn) > 0 else 0.0  # False Rejection Rate
-    far = fp / (tn + fp) if (tn + fp) > 0 else 0.0  # False Acceptance Rate
-    accuracy = (tp + tn) / (tp + fp + tn + fn)
-    
-    metrics_summary[gm] = {
-        "confusion_matrix": st,
-        "precision": round(precision, 4),
-        "recall": round(recall, 4),
-        "specificity": round(specificity, 4),
-        "accuracy": round(accuracy, 4),
-        "f1_score": round(f1, 4),
-        "false_rejection_rate": round(frr, 4),
-        "false_acceptance_rate": round(far, 4),
-        "cohort_breakdown": cohort_breakdowns[gm]
+        # Precompute query representations
+        kw_legacy = extract_meaningful_keywords(q_text, legacy=True)
+        kw_new = extract_meaningful_keywords(q_text, legacy=False)
+        q_emb = model.encode(q_text, convert_to_numpy=True)
+        q_norm = np.linalg.norm(q_emb)
+        if q_norm > 1e-6:
+            q_emb = q_emb / q_norm
+
+        # Track which gates accepted at least one passage for this query
+        query_has_accepted_passage = {g: False for g in gate_names}
+
+        for cand in candidates:
+            chunk_id = cand["chunk_id"]
+            is_gold = (chunk_id in gold_ids) if not is_ood else False
+
+            if not is_ood and not is_gold:
+                distractor_passage_total += 1
+
+            full_c = (f"{cand.get('section_heading', '')} {cand.get('full_text', '')} {cand.get('supporting_text', '')} {cand.get('excerpt', '')}").lower()
+            norm_c = normalize_insurance_query_text(full_c)
+
+            # 1. Old Gate (substring)
+            req_old = 2 if len(kw_legacy) >= 3 else 1
+            hits_old = sum(1 for w in kw_legacy if w in full_c)
+            pass_old = (hits_old >= req_old)
+
+            # 2. New Gate (word-boundary regex + normalization)
+            req_new = 2 if len(kw_new) >= 3 else 1
+            hits_new = sum(1 for w in kw_new if re.search(rf"\b{re.escape(w)}\b", norm_c))
+            pass_new = (hits_new >= req_new)
+
+            # 3. Strict Gate (m >= 3 if |W| >= 3 else 2)
+            req_strict = 3 if len(kw_new) >= 3 else 2
+            hits_strict = sum(1 for w in kw_new if re.search(rf"\b{re.escape(w)}\b", norm_c))
+            pass_strict = (hits_strict >= req_strict)
+
+            # 4. Cosine Gate with real MiniLM (tau = 0.45)
+            # Encode chunk text
+            cand_text = f"{cand.get('section_heading', '')}. {cand.get('supporting_text', '') or cand.get('full_text', '')}"
+            cand_emb = model.encode(cand_text, convert_to_numpy=True)
+            cand_norm = np.linalg.norm(cand_emb)
+            if cand_norm > 1e-6:
+                cand_emb = cand_emb / cand_norm
+            sim = float(np.dot(q_emb, cand_emb))
+            pass_cosine = (sim >= 0.45)
+
+            # 5. Hybrid Gate (kw hits >= 1 and cosine >= 0.35)
+            pass_hybrid = (hits_new >= 1 and sim >= 0.35)
+
+            decisions = {
+                "old_gate_substring": pass_old,
+                "new_gate_word_boundary": pass_new,
+                "strict_gate_m3": pass_strict,
+                "cosine_gate_minilm_tau45": pass_cosine,
+                "hybrid_gate_kw_minilm": pass_hybrid,
+            }
+
+            for g in gate_names:
+                accepted = decisions[g]
+                if accepted:
+                    query_has_accepted_passage[g] = True
+
+                # Passage-level confusion matrix
+                if is_gold:
+                    if accepted:
+                        passage_stats[g]["TP"] += 1
+                    else:
+                        passage_stats[g]["FN"] += 1
+                else:
+                    if accepted:
+                        passage_stats[g]["FP"] += 1
+                    else:
+                        passage_stats[g]["TN"] += 1
+                        if not is_ood:
+                            distractor_passage_rejected[g] += 1
+
+        # Query-level updates
+        for g in gate_names:
+            if is_ood:
+                if not query_has_accepted_passage[g]:
+                    ood_abstained[g] += 1
+            else:
+                if query_has_accepted_passage[g]:
+                    answerable_accepted[g] += 1
+
+    db.close()
+
+    # Compute metrics
+    metrics = {}
+    print("\n" + "=" * 105)
+    print(f"EVIDENCE GATE COMPARATIVE EVALUATION (N={len(queries)} queries: {answerable_query_total} in-domain, {ood_query_total} OOD)")
+    print("=" * 105)
+    print(f"{'MECHANISM':<25} | {'PREC':<6} | {'REC':<6} | {'F1':<6} | {'SPEC':<6} | {'FAR':<6} | {'DIST REJ %':<11} | {'OOD ABSTAIN %'}")
+    print("=" * 105)
+
+    for g in gate_names:
+        st = passage_stats[g]
+        tp, fp, tn, fn = st["TP"], st["FP"], st["TN"], st["FN"]
+
+        prec = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        rec = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0.0
+        spec = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+        far = fp / (tn + fp) if (tn + fp) > 0 else 0.0
+        frr = fn / (tp + fn) if (tp + fn) > 0 else 0.0
+
+        dist_rej_pct = (distractor_passage_rejected[g] / distractor_passage_total * 100.0) if distractor_passage_total > 0 else 0.0
+        ood_abstain_pct = (ood_abstained[g] / ood_query_total * 100.0) if ood_query_total > 0 else 0.0
+        ans_accept_pct = (answerable_accepted[g] / answerable_query_total * 100.0) if answerable_query_total > 0 else 0.0
+
+        metrics[g] = {
+            "passage_confusion_matrix": st,
+            "precision": round(prec, 4),
+            "recall": round(rec, 4),
+            "f1_score": round(f1, 4),
+            "specificity": round(spec, 4),
+            "false_acceptance_rate": round(far, 4),
+            "false_rejection_rate": round(frr, 4),
+            "distractor_passages": {
+                "total": distractor_passage_total,
+                "rejected": distractor_passage_rejected[g],
+                "rejection_rate_pct": round(dist_rej_pct, 2),
+            },
+            "ood_abstention": {
+                "total_queries": ood_query_total,
+                "abstained_queries": ood_abstained[g],
+                "abstention_rate_pct": round(ood_abstain_pct, 2),
+            },
+            "answerable_coverage": {
+                "total_queries": answerable_query_total,
+                "accepted_queries": answerable_accepted[g],
+                "coverage_pct": round(ans_accept_pct, 2),
+            },
+        }
+
+        print(f"{g:<25} | {prec:<6.4f} | {rec:<6.4f} | {f1:<6.4f} | {spec:<6.4f} | {far:<6.4f} | {dist_rej_pct:<11.1f} | {ood_abstain_pct:.1f}%")
+
+    print("=" * 105)
+
+    output_data = {
+        "metadata": {
+            "command": "python scripts/evaluate_evidence_gate.py",
+            "git_commit": get_git_commit(),
+            "date": datetime.now(timezone.utc).isoformat(),
+            "random_seed": RANDOM_SEED,
+            "benchmark_file": "data/evaluation/benchmark_qa_60.json",
+            "benchmark_sha256": benchmark_hash,
+            "total_queries": len(queries),
+            "answerable_queries": answerable_query_total,
+            "ood_queries": ood_query_total,
+            "distractor_passages_evaluated": distractor_passage_total,
+            "candidate_retrieval_limit": 5,
+        },
+        "gates": metrics,
     }
 
-output_path = Path("data/evaluation/evidence_gate_results.json")
-with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(metrics_summary, f, indent=2)
+    out_file = Path("data/evaluation/evidence_gate_results.json")
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump(output_data, f, indent=2)
+    print(f"\nSaved real evidence gate evaluation to {out_file}\n")
 
-print("\n" + "="*95)
-print(f"{'EVIDENCE GATE MECHANISM':<25} | {'PREC':<6} | {'REC':<6} | {'SPEC':<6} | {'ACC':<6} | {'F1':<6} | {'FRR':<6} | {'FAR':<6}")
-print("="*95)
-for gm, data in metrics_summary.items():
-    print(f"{gm:<25} | {data['precision']:<6.4f} | {data['recall']:<6.4f} | {data['specificity']:<6.4f} | {data['accuracy']:<6.4f} | {data['f1_score']:<6.4f} | {data['false_rejection_rate']:<6.4f} | {data['false_acceptance_rate']:<6.4f}")
-print("="*95)
-
-print("\nCOHORT REJECTION RATES (True Negative Rate on Adversarial / OOD):")
-for gm in gate_mechanisms:
-    cb = cohort_breakdowns[gm]
-    ood_rej = cb["out_of_domain"]["rejected"] / cb["out_of_domain"]["total"] * 100
-    dist_rej = cb["distractor"]["rejected"] / cb["distractor"]["total"] * 100
-    para_acc = cb["semantic_paraphrase"]["accepted"] / cb["semantic_paraphrase"]["total"] * 100
-    print(f"  {gm:<25}: OOD Abstention={ood_rej:.1f}%, Distractor Rejection={dist_rej:.1f}%, Paraphrase Recall={para_acc:.1f}%")
-
-print(f"\nResults successfully written to {output_path.resolve()}\n")
+if __name__ == "__main__":
+    run_evidence_gate_evaluation()

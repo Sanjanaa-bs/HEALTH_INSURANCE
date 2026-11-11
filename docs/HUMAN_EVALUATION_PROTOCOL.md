@@ -122,3 +122,4 @@ Once Rater 1 and Rater 2 finish the spreadsheet and the benchmark answers are va
 2. Update Table I in `docs/camera_ready_paper.tex` and Table IV in `docs/REVISED_RESEARCH_PAPER_ICICF2027.md` with verified IR numbers.
 3. Update Table IV in `docs/camera_ready_paper.tex` and Table VII in `docs/REVISED_RESEARCH_PAPER_ICICF2027.md` with verified generation quality numbers.
 4. Compile final PDF with `pdflatex docs/camera_ready_paper.tex`.
+

@@ -1,127 +1,84 @@
 {
-  "corpus_summary": {
-    "unique_words": 3155,
-    "unique_bigrams": 12099,
-    "unique_4grams": 20593,
-    "total_extracted_features": 35847
+  "metadata": {
+    "command": "python scripts/evaluate_embeddings_and_collisions.py",
+    "git_commit": "7fc8e410687f5b2753a2ad97b4b555bfd7eed753",
+    "date": "2026-11-11T04:52:08.945042+00:00",
+    "random_seed": 42,
+    "hash_algorithm": "polynomial_mod (h * 31 + ord(char)) & 0xFFFFFFFF % dim",
+    "corpus_chunks_count": 263,
+    "minilm_cpu_latency_ms": 65.33
   },
-  "collision_analysis": [
-    {
+  "vocabulary_stats": {
+    "unique_words": 3155,
+    "unique_bigrams": 12786,
+    "unique_4grams": 20593
+  },
+  "dimension_ablation": {
+    "64": {
       "dimension": 64,
-      "word_collision_rate": 97.97,
-      "feature_collision_rate": 99.82,
-      "theoretical_collision_rate": 99.82,
-      "occupied_buckets": 64,
-      "bucket_occupancy_ratio": 100.0,
-      "avg_items_per_bucket": 560.11,
-      "max_items_per_bucket": 621
+      "unique_words_count": 3155,
+      "word_collision_pct": 97.97,
+      "unique_bigrams_count": 12786,
+      "bigram_collision_pct": 99.5,
+      "unique_subwords_count": 20593,
+      "subword_collision_pct": 99.69,
+      "latency_ms": 0.8126,
+      "zero_dependencies": true
     },
-    {
+    "128": {
       "dimension": 128,
-      "word_collision_rate": 95.94,
-      "feature_collision_rate": 99.64,
-      "theoretical_collision_rate": 99.64,
-      "occupied_buckets": 128,
-      "bucket_occupancy_ratio": 100.0,
-      "avg_items_per_bucket": 280.05,
-      "max_items_per_bucket": 336
+      "unique_words_count": 3155,
+      "word_collision_pct": 95.94,
+      "unique_bigrams_count": 12786,
+      "bigram_collision_pct": 99.0,
+      "unique_subwords_count": 20593,
+      "subword_collision_pct": 99.38,
+      "latency_ms": 0.8237,
+      "zero_dependencies": true
     },
-    {
+    "256": {
       "dimension": 256,
-      "word_collision_rate": 91.89,
-      "feature_collision_rate": 99.29,
-      "theoretical_collision_rate": 99.29,
-      "occupied_buckets": 256,
-      "bucket_occupancy_ratio": 100.0,
-      "avg_items_per_bucket": 140.03,
-      "max_items_per_bucket": 173
+      "unique_words_count": 3155,
+      "word_collision_pct": 91.89,
+      "unique_bigrams_count": 12786,
+      "bigram_collision_pct": 98.0,
+      "unique_subwords_count": 20593,
+      "subword_collision_pct": 98.76,
+      "latency_ms": 0.8744,
+      "zero_dependencies": true
     },
-    {
+    "512": {
       "dimension": 512,
-      "word_collision_rate": 83.77,
-      "feature_collision_rate": 98.57,
-      "theoretical_collision_rate": 98.57,
-      "occupied_buckets": 512,
-      "bucket_occupancy_ratio": 100.0,
-      "avg_items_per_bucket": 70.01,
-      "max_items_per_bucket": 96
+      "unique_words_count": 3155,
+      "word_collision_pct": 83.77,
+      "unique_bigrams_count": 12786,
+      "bigram_collision_pct": 96.0,
+      "unique_subwords_count": 20593,
+      "subword_collision_pct": 97.51,
+      "latency_ms": 0.9974,
+      "zero_dependencies": true
     },
-    {
+    "1024": {
       "dimension": 1024,
-      "word_collision_rate": 68.84,
-      "feature_collision_rate": 97.14,
-      "theoretical_collision_rate": 97.14,
-      "occupied_buckets": 1024,
-      "bucket_occupancy_ratio": 100.0,
-      "avg_items_per_bucket": 35.01,
-      "max_items_per_bucket": 51
+      "unique_words_count": 3155,
+      "word_collision_pct": 68.84,
+      "unique_bigrams_count": 12786,
+      "bigram_collision_pct": 91.99,
+      "unique_subwords_count": 20593,
+      "subword_collision_pct": 95.03,
+      "latency_ms": 0.838,
+      "zero_dependencies": true
     },
-    {
-      "dimension": 2048,
-      "word_collision_rate": 49.35,
-      "feature_collision_rate": 94.29,
-      "theoretical_collision_rate": 94.29,
-      "occupied_buckets": 2048,
-      "bucket_occupancy_ratio": 100.0,
-      "avg_items_per_bucket": 17.5,
-      "max_items_per_bucket": 34
-    },
-    {
+    "4096": {
       "dimension": 4096,
-      "word_collision_rate": 30.68,
-      "feature_collision_rate": 88.58,
-      "theoretical_collision_rate": 88.58,
-      "occupied_buckets": 4094,
-      "bucket_occupancy_ratio": 99.95,
-      "avg_items_per_bucket": 8.75,
-      "max_items_per_bucket": 23
+      "unique_words_count": 3155,
+      "word_collision_pct": 30.68,
+      "unique_bigrams_count": 12786,
+      "bigram_collision_pct": 69.4,
+      "unique_subwords_count": 20593,
+      "subword_collision_pct": 80.24,
+      "latency_ms": 0.8087,
+      "zero_dependencies": true
     }
-  ],
-  "model_comparison": [
-    {
-      "model": "LocalDense-128d",
-      "dimension": 128,
-      "parameters": 0,
-      "latency_ms_per_query_cpu": 0.105,
-      "storage_kb_per_1k_chunks": 500,
-      "gpu_required": false,
-      "zero_dependency_pure_numpy": true
-    },
-    {
-      "model": "LocalDense-256d",
-      "dimension": 256,
-      "parameters": 0,
-      "latency_ms_per_query_cpu": 0.139,
-      "storage_kb_per_1k_chunks": 1000,
-      "gpu_required": false,
-      "zero_dependency_pure_numpy": true
-    },
-    {
-      "model": "LocalDense-512d",
-      "dimension": 512,
-      "parameters": 0,
-      "latency_ms_per_query_cpu": 0.135,
-      "storage_kb_per_1k_chunks": 2000,
-      "gpu_required": false,
-      "zero_dependency_pure_numpy": true
-    },
-    {
-      "model": "all-MiniLM-L6-v2",
-      "dimension": 384,
-      "parameters": 22700000,
-      "latency_ms_per_query_cpu": 18.4,
-      "storage_kb_per_1k_chunks": 1500,
-      "gpu_required": false,
-      "zero_dependency_pure_numpy": false
-    },
-    {
-      "model": "bge-small-en-v1.5",
-      "dimension": 384,
-      "parameters": 33400000,
-      "latency_ms_per_query_cpu": 28.6,
-      "storage_kb_per_1k_chunks": 1500,
-      "gpu_required": false,
-      "zero_dependency_pure_numpy": false
-    }
-  ]
+  }
 }

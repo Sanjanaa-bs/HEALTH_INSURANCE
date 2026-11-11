@@ -1,47 +1,327 @@
 {
-  "total_test_pairs": 75,
-  "correct_predictions": 74,
-  "accuracy": 98.67,
-  "precision": 100.0,
-  "recall": 97.37,
-  "specificity": 100.0,
-  "f1_score": 98.67,
-  "confusion_matrix": {
-    "TP": 37,
-    "FP": 0,
-    "TN": 37,
-    "FN": 1
+  "metadata": {
+    "command": "python scripts/evaluate_hospital_matcher_extended.py",
+    "git_commit": "7fc8e410687f5b2753a2ad97b4b555bfd7eed753",
+    "date": "2026-11-11T05:14:13.030787+00:00",
+    "random_seed": 42,
+    "total_pairs": 75,
+    "dev_pairs_count": 30,
+    "test_pairs_count": 45,
+    "synthetic_pairs_count": 40,
+    "curated_pairs_count": 35
   },
-  "category_breakdown": {
-    "formatting": {
-      "total": 15,
-      "correct": 14,
-      "accuracy_pct": 93.33
+  "dev_evaluation": {
+    "total_pairs": 30,
+    "correct": 30,
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "specificity": 1.0,
+    "f1_score": 1.0,
+    "confusion_matrix": {
+      "TP": 16,
+      "FP": 0,
+      "TN": 14,
+      "FN": 0
     },
-    "legal_suffixes": {
-      "total": 10,
-      "correct": 10,
-      "accuracy_pct": 100.0
-    },
-    "abbreviations": {
-      "total": 15,
-      "correct": 15,
-      "accuracy_pct": 100.0
-    },
-    "distinct_facilities": {
-      "total": 15,
-      "correct": 15,
-      "accuracy_pct": 100.0
-    },
-    "renamed_facilities": {
-      "total": 10,
-      "correct": 10,
-      "accuracy_pct": 100.0
-    },
-    "geographic_mismatches": {
-      "total": 10,
-      "correct": 10,
-      "accuracy_pct": 100.0
+    "category_breakdown": {
+      "corporate_legal_suffixes": {
+        "total": 4,
+        "correct": 4,
+        "accuracy": 1.0
+      },
+      "corporate_rebranding": {
+        "total": 4,
+        "correct": 4,
+        "accuracy": 1.0
+      },
+      "formatting_variations": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      },
+      "geographic_cross_jurisdiction": {
+        "total": 4,
+        "correct": 4,
+        "accuracy": 1.0
+      },
+      "medical_acronyms_and_specialties": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      },
+      "shared_brand_distinct_facilities": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      }
     }
-  }
+  },
+  "test_evaluation_strict_location": {
+    "total_pairs": 45,
+    "correct": 44,
+    "accuracy": 0.9778,
+    "precision": 1.0,
+    "recall": 0.9545,
+    "specificity": 1.0,
+    "f1_score": 0.9767,
+    "confusion_matrix": {
+      "TP": 21,
+      "FP": 0,
+      "TN": 23,
+      "FN": 1
+    },
+    "category_breakdown": {
+      "corporate_legal_suffixes": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      },
+      "corporate_rebranding": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      },
+      "formatting_variations": {
+        "total": 9,
+        "correct": 8,
+        "accuracy": 0.8889
+      },
+      "geographic_cross_jurisdiction": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      },
+      "medical_acronyms_and_specialties": {
+        "total": 9,
+        "correct": 9,
+        "accuracy": 1.0
+      },
+      "shared_brand_distinct_facilities": {
+        "total": 9,
+        "correct": 9,
+        "accuracy": 1.0
+      }
+    }
+  },
+  "test_ablation_no_location_check": {
+    "total_pairs": 45,
+    "correct": 38,
+    "accuracy": 0.8444,
+    "precision": 0.7778,
+    "recall": 0.9545,
+    "specificity": 0.7391,
+    "f1_score": 0.8571,
+    "confusion_matrix": {
+      "TP": 21,
+      "FP": 6,
+      "TN": 17,
+      "FN": 1
+    },
+    "category_breakdown": {
+      "corporate_legal_suffixes": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      },
+      "corporate_rebranding": {
+        "total": 6,
+        "correct": 6,
+        "accuracy": 1.0
+      },
+      "formatting_variations": {
+        "total": 9,
+        "correct": 8,
+        "accuracy": 0.8889
+      },
+      "geographic_cross_jurisdiction": {
+        "total": 6,
+        "correct": 0,
+        "accuracy": 0.0
+      },
+      "medical_acronyms_and_specialties": {
+        "total": 9,
+        "correct": 9,
+        "accuracy": 1.0
+      },
+      "shared_brand_distinct_facilities": {
+        "total": 9,
+        "correct": 9,
+        "accuracy": 1.0
+      }
+    }
+  },
+  "full_evaluation_strict_location": {
+    "total_pairs": 75,
+    "correct": 74,
+    "accuracy": 0.9867,
+    "precision": 1.0,
+    "recall": 0.9737,
+    "specificity": 1.0,
+    "f1_score": 0.9867,
+    "confusion_matrix": {
+      "TP": 37,
+      "FP": 0,
+      "TN": 37,
+      "FN": 1
+    },
+    "category_breakdown": {
+      "formatting_variations": {
+        "total": 15,
+        "correct": 14,
+        "accuracy": 0.9333
+      },
+      "corporate_legal_suffixes": {
+        "total": 10,
+        "correct": 10,
+        "accuracy": 1.0
+      },
+      "medical_acronyms_and_specialties": {
+        "total": 15,
+        "correct": 15,
+        "accuracy": 1.0
+      },
+      "shared_brand_distinct_facilities": {
+        "total": 15,
+        "correct": 15,
+        "accuracy": 1.0
+      },
+      "corporate_rebranding": {
+        "total": 10,
+        "correct": 10,
+        "accuracy": 1.0
+      },
+      "geographic_cross_jurisdiction": {
+        "total": 10,
+        "correct": 10,
+        "accuracy": 1.0
+      }
+    }
+  },
+  "full_ablation_no_location_check": {
+    "total_pairs": 75,
+    "correct": 64,
+    "accuracy": 0.8533,
+    "precision": 0.7872,
+    "recall": 0.9737,
+    "specificity": 0.7297,
+    "f1_score": 0.8706,
+    "confusion_matrix": {
+      "TP": 37,
+      "FP": 10,
+      "TN": 27,
+      "FN": 1
+    },
+    "category_breakdown": {
+      "formatting_variations": {
+        "total": 15,
+        "correct": 14,
+        "accuracy": 0.9333
+      },
+      "corporate_legal_suffixes": {
+        "total": 10,
+        "correct": 10,
+        "accuracy": 1.0
+      },
+      "medical_acronyms_and_specialties": {
+        "total": 15,
+        "correct": 15,
+        "accuracy": 1.0
+      },
+      "shared_brand_distinct_facilities": {
+        "total": 15,
+        "correct": 15,
+        "accuracy": 1.0
+      },
+      "corporate_rebranding": {
+        "total": 10,
+        "correct": 10,
+        "accuracy": 1.0
+      },
+      "geographic_cross_jurisdiction": {
+        "total": 10,
+        "correct": 0,
+        "accuracy": 0.0
+      }
+    }
+  },
+  "test_pair_ids": [
+    "P21",
+    "P22",
+    "P25",
+    "P20",
+    "P16",
+    "P17",
+    "P57",
+    "P64",
+    "P63",
+    "P56",
+    "P62",
+    "P65",
+    "P05",
+    "P08",
+    "P14",
+    "P07",
+    "P15",
+    "P11",
+    "P12",
+    "P04",
+    "P09",
+    "P66",
+    "P73",
+    "P67",
+    "P68",
+    "P70",
+    "P71",
+    "P29",
+    "P27",
+    "P33",
+    "P26",
+    "P30",
+    "P35",
+    "P40",
+    "P39",
+    "P31",
+    "P47",
+    "P53",
+    "P45",
+    "P54",
+    "P41",
+    "P42",
+    "P52",
+    "P44",
+    "P50"
+  ],
+  "dev_pair_ids": [
+    "P23",
+    "P19",
+    "P18",
+    "P24",
+    "P59",
+    "P61",
+    "P58",
+    "P60",
+    "P10",
+    "P13",
+    "P06",
+    "P02",
+    "P01",
+    "P03",
+    "P75",
+    "P69",
+    "P72",
+    "P74",
+    "P38",
+    "P34",
+    "P32",
+    "P28",
+    "P36",
+    "P37",
+    "P49",
+    "P43",
+    "P46",
+    "P55",
+    "P51",
+    "P48"
+  ]
 }

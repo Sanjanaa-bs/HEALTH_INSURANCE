@@ -1,77 +1,124 @@
-[
-  {
-    "framework": "Vanilla Dense RAG (Dense Top-K + Generative LLM)",
-    "retrieval_mechanism": "Single Dense Cosine (MiniLM / Ada-002)",
-    "fusion_method": "None (Dense Only)",
-    "chunking_strategy": "Fixed-size (512 chars), No legal heading context",
-    "citation_granularity": "Document-level only (No exact page coordinate)",
-    "evidence_gate": "None (Always generates answer)",
-    "offline_deployability": "Partial (Requires Heavy Transformer/GPU)",
-    "avg_latency_ms": 145.2,
-    "citation_integrity_pct": 22.0,
-    "hallucination_rate_pct": 28.5,
-    "abstention_precision_pct": 18.2,
-    "network_separation_precision_pct": 35.0,
-    "zero_dependency_pure_cpu": false
+{
+  "metadata": {
+    "command": "python scripts/evaluate_rag_frameworks_comparison.py",
+    "git_commit": "7fc8e410687f5b2753a2ad97b4b555bfd7eed753",
+    "date": "2026-11-11T05:24:29.697439+00:00",
+    "note": "Empirical metrics are derived directly from real runs on the 53-query benchmark. Advanced paradigms are analyzed qualitatively per literature specifications without fabricated metrics."
   },
-  {
-    "framework": "Lexical-Only RAG (BM25 FTS5 + Extractive)",
-    "retrieval_mechanism": "SQLite FTS5 Porter Unicode61",
-    "fusion_method": "None (BM25 Only)",
-    "chunking_strategy": "Heading-aware (800-1000 chars)",
-    "citation_granularity": "Physical Page Only",
-    "evidence_gate": "Simple BM25 score threshold",
-    "offline_deployability": "Full (Runs in SQLite)",
-    "avg_latency_ms": 4.1,
-    "citation_integrity_pct": 91.5,
-    "hallucination_rate_pct": 8.5,
-    "abstention_precision_pct": 78.4,
-    "network_separation_precision_pct": 72.0,
-    "zero_dependency_pure_cpu": true
-  },
-  {
-    "framework": "Standard LangChain / LlamaIndex Baseline",
-    "retrieval_mechanism": "ChromaDB / FAISS + Vector Store",
-    "fusion_method": "EnsembleRetriever (Dense + BM25)",
-    "chunking_strategy": "RecursiveCharacterTextSplitter (500 tokens)",
-    "citation_granularity": "Estimated Page Number (Unverified)",
-    "evidence_gate": "Prompt-based instruction ('Answer only if you know')",
-    "offline_deployability": "Partial (Requires PyTorch / Torchvision / CUDA)",
-    "avg_latency_ms": 95.8,
-    "citation_integrity_pct": 45.2,
-    "hallucination_rate_pct": 21.4,
-    "abstention_precision_pct": 32.6,
-    "network_separation_precision_pct": 48.5,
-    "zero_dependency_pure_cpu": false
-  },
-  {
-    "framework": "Corrective RAG (CRAG) [Yan et al. 2024]",
-    "retrieval_mechanism": "Dense Retriever + T5 Evaluator",
-    "fusion_method": "Multi-pass Reranking + Web Search Fallback",
-    "chunking_strategy": "Fixed Token (256 tokens)",
-    "citation_granularity": "Document URL / Title",
-    "evidence_gate": "Confidence Classifier (Correct / Ambiguous / Incorrect)",
-    "offline_deployability": "Infeasible (Relies on external web search fallback)",
-    "avg_latency_ms": 1420.0,
-    "citation_integrity_pct": 58.0,
-    "hallucination_rate_pct": 14.2,
-    "abstention_precision_pct": 68.0,
-    "network_separation_precision_pct": 42.0,
-    "zero_dependency_pure_cpu": false
-  },
-  {
-    "framework": "Proposed Architecture (Deterministic Grounded Hybrid RAG)",
-    "retrieval_mechanism": "Dual-tier: FTS5 BM25 + 128-d Feature Hash / MiniLM",
-    "fusion_method": "Reciprocal Rank Fusion (RRF, alpha=0.5, k=60)",
-    "chunking_strategy": "Heading-Preserving Micro-Chunking (800 chars, 1-line carry, SHA-256)",
-    "citation_granularity": "Dual Page Coordinate (Physical + Printed Page + SHA-256 Digest)",
-    "evidence_gate": "Deterministic Keyword Overlap Gate (m >= 2, strict abstention)",
-    "offline_deployability": "Full (100% On-Premise, Zero External Weights, Zero Cloud API)",
-    "avg_latency_ms": 6.4,
-    "citation_integrity_pct": 100.0,
-    "hallucination_rate_pct": 0.0,
-    "abstention_precision_pct": 100.0,
-    "network_separation_precision_pct": 100.0,
-    "zero_dependency_pure_cpu": true
-  }
-]
+  "empirical_implemented_systems": [
+    {
+      "name": "SQLite FTS5 BM25 (Lexical Only)",
+      "retrieval_type": "sparse_lexical",
+      "model": "SQLite FTS5 Porter Stemmer / unicode61",
+      "zero_dependencies": true,
+      "offline_cpu_only": true,
+      "vector_dimension": 0,
+      "latency_ms": 1.25,
+      "metrics": {
+        "P@1": 0.283,
+        "P@5": 0.2113,
+        "R@5": 0.4241,
+        "MRR": 0.4379,
+        "nDCG@5": 0.3537
+      }
+    },
+    {
+      "name": "128-d Feature Hash Dense (Unsupervised Projection)",
+      "retrieval_type": "dense_feature_hash",
+      "model": "Polynomial subword hash (h*31 + ord(c)) & 0xFFFFFFFF % 128",
+      "zero_dependencies": true,
+      "offline_cpu_only": true,
+      "vector_dimension": 128,
+      "latency_ms": 0.8237,
+      "metrics": {
+        "P@1": 0.1132,
+        "P@5": 0.0943,
+        "R@5": 0.1713,
+        "MRR": 0.2187,
+        "nDCG@5": 0.1415
+      }
+    },
+    {
+      "name": "Sentence-Transformers all-MiniLM-L6-v2",
+      "retrieval_type": "dense_pretrained_neural",
+      "model": "all-MiniLM-L6-v2 (384-dimensional pretrained transformer)",
+      "zero_dependencies": false,
+      "offline_cpu_only": true,
+      "vector_dimension": 384,
+      "latency_ms": 65.33,
+      "metrics": {
+        "P@1": 0.2453,
+        "P@5": 0.166,
+        "R@5": 0.2747,
+        "MRR": 0.3648,
+        "nDCG@5": 0.2665
+      }
+    },
+    {
+      "name": "Hybrid BM25 + 128-d Hash (RRF, Proposed Zero-Dep)",
+      "retrieval_type": "hybrid_reciprocal_rank_fusion",
+      "model": "Reciprocal Rank Fusion (k=60, alpha=0.5) over FTS5 + Hash-128",
+      "zero_dependencies": true,
+      "offline_cpu_only": true,
+      "vector_dimension": 128,
+      "latency_ms": 2.07,
+      "metrics": {
+        "P@1": 0.2453,
+        "P@5": 0.1736,
+        "R@5": 0.323,
+        "MRR": 0.375,
+        "nDCG@5": 0.2779
+      }
+    },
+    {
+      "name": "Hybrid BM25 + MiniLM-L6-v2 (RRF, Neural Hybrid)",
+      "retrieval_type": "hybrid_reciprocal_rank_fusion",
+      "model": "Reciprocal Rank Fusion (k=60, alpha=0.5) over FTS5 + MiniLM-384",
+      "zero_dependencies": false,
+      "offline_cpu_only": true,
+      "vector_dimension": 384,
+      "latency_ms": 66.58,
+      "metrics": {
+        "P@1": 0.283,
+        "P@5": 0.2226,
+        "R@5": 0.4088,
+        "MRR": 0.4243,
+        "nDCG@5": 0.3499
+      }
+    }
+  ],
+  "qualitative_literature_survey": [
+    {
+      "paradigm": "Corrective RAG (CRAG)",
+      "primary_citation": "Yan et al., 'Corrective Retrieval Augmented Generation', arXiv:2401.15884, 2024",
+      "retrieval_and_filtering": "Retrieval evaluator assigns confidence score (Correct, Ambiguous, Incorrect). If incorrect/ambiguous, triggers web search fallback.",
+      "offline_feasibility": "Infeasible in strictly air-gapped or offline enterprise deployments due to core dependence on live external web search fallback.",
+      "citation_granularity": "Document / URL level; does not map dual physical and printed page coordinates or clause-level cryptographic hashes.",
+      "computational_overhead": "Requires separate evaluator model (e.g., T5) plus multiple web query expansions."
+    },
+    {
+      "paradigm": "Self-RAG",
+      "primary_citation": "Asai et al., 'Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection', ICLR 2024",
+      "retrieval_and_filtering": "Decodes reflection tokens ([Retrieve], [IsRel], [IsSup], [IsUse]) during generation to dynamically evaluate relevance and support.",
+      "offline_feasibility": "Feasible offline if model weights are hosted locally, but requires fine-tuned specialized open-weights models (e.g. 7B/13B parameters).",
+      "citation_granularity": "Sentence-level reflection tokens; does not maintain verified physical insurance page numbers.",
+      "computational_overhead": "High beam-search decode overhead across reflection tokens; impractical on resource-constrained pure-CPU hardware."
+    },
+    {
+      "paradigm": "GraphRAG",
+      "primary_citation": "Edge et al., 'From Local to Global: A Graph RAG Approach to Query-Focused Summarization', arXiv:2404.16130, 2024",
+      "retrieval_and_filtering": "Extracts knowledge graph entities, relationships, and hierarchical Leiden communities to generate macro-level summaries.",
+      "offline_feasibility": "Feasible offline once graph is built, but index generation requires hundreds of LLM calls per document.",
+      "citation_granularity": "Community report and entity subgraphs; obscures exact physical PDF page clause boundaries required for legal disputes.",
+      "computational_overhead": "Prohibitive offline indexing cost and memory graph traversal complexity."
+    },
+    {
+      "paradigm": "Proposed Architecture (Deterministic Grounded Hybrid RAG)",
+      "primary_citation": "This Work (Paper ID [907], ICICF-2027)",
+      "retrieval_and_filtering": "Dual-tier BM25 + subword feature hash / MiniLM with deterministic keyword-overlap evidence gating (m >= 2) and hard abstention.",
+      "offline_feasibility": "Fully offline and air-gapped; pure-CPU execution with zero external cloud dependencies and optional neural embedding upgrade.",
+      "citation_granularity": "Dual physical and printed page numbers, section headings, and SHA-256 chunk content digests.",
+      "computational_overhead": "Under 10 ms pure-CPU latency on SQLite FTS5; sub-millisecond feature hash projection."
+    }
+  ]
+}

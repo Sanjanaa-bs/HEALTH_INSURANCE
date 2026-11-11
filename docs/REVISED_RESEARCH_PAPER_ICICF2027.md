@@ -17,9 +17,9 @@
 
 Most Indian policyholders face immense difficulty deciphering dense, clause-filled health insurance policies, verifying whether a hospital belongs to an insurer's cashless network, and navigating complex claim procedures. General-purpose Large Language Models (LLMs) frequently hallucinate non-existent benefits, misquote waiting periods, or fabricate page citations, introducing legal and financial risks for patients during emergency hospitalizations. 
 
-In this paper, the authors present a locally deployable, privacy-preserving assistant combining a hybrid retrieval pipeline with a strict deterministic abstention policy and spatial entity resolution. Regulatory documents, customer information sheets, claims guidance, and standardized policies across four insurers and regulatory bodies are segmented into 441 chunks with dual-page coordinate binding (physical and printed page numbers) and SHA-256 cryptographic provenance. Passages are indexed via SQLite FTS5 (BM25) and a lightweight 128-dimensional feature-hashing dense channel fused through Reciprocal Rank Fusion (RRF, $\alpha = 0.5, k = 60$), filtered by a keyword-overlap evidence gate ($m \ge 2$), and synthesized into grounded answers with verified citations. When evidence is insufficient, the system enforces clean abstention. A conservative entity resolution algorithm connects 29,974 facilities from the national registry with insurer network records across nine major cities, enforcing a tri-state network status (`LISTED`, `NOT_FOUND`, `UNVERIFIED`). 
+In this paper, the authors present a locally deployable, privacy-preserving assistant combining a hybrid retrieval pipeline with a strict deterministic abstention policy and spatial entity resolution. Regulatory documents, customer information sheets, claims guidance, and standardized policies are segmented into 263 chunks with dual-page coordinate binding (physical and printed page numbers) and SHA-256 cryptographic provenance. Passages are indexed via SQLite FTS5 (BM25) and a lightweight 128-dimensional feature-hashing dense channel fused through Reciprocal Rank Fusion (RRF, $\alpha = 0.5, k = 60$), filtered by a keyword-overlap evidence gate ($m \ge 2$), and synthesized into grounded answers with verified citations. When evidence is insufficient, the system enforces clean abstention. A conservative entity resolution algorithm connects 29,974 facilities from the national registry with insurer network records, enforcing a tri-state network status (`LISTED`, `NOT_FOUND`, `UNVERIFIED`). 
 
-In extensive empirical benchmarks across 65 independently validated clinical and statutory queries, the hybrid retrieval engine achieves an **MRR of 0.7234**, an **nDCG@5 of 0.8591**, **60.38% exact page citation accuracy** (vs. 20.75% for unconstrained LLMs), and an **86.77% faithfulness ratio** with zero contractual hallucinations in extractive mode. The hospital matching mechanism achieves **98.67% accuracy** and **100.0% precision** across 75 challenging name variations, abbreviations, renamings, and geographical mismatches, while maintaining **100.0% network separation precision** over 125 multi-city network facilities. The entire architecture runs 100% on-premise without GPU dependencies, preserving full compliance with India's Digital Personal Data Protection Act 2023 with an average query latency of 6.02 ms.
+In extensive empirical benchmarks across 65 clinical and statutory queries (53 answerable, 12 out-of-domain), the BM25 retrieval engine achieves an **MRR of 0.4379**, **nDCG@5 of 0.3537**, and **P@1 of 0.2830**, while a dense neural model (all-MiniLM-L6-v2) achieves **MRR of 0.3648** and **nDCG@5 of 0.2665**, and neural hybrid fusion achieves **MRR of 0.4243** and **nDCG@5 of 0.3499**. The deterministic extractive synthesis mode eliminates parametric hallucinations by construction (100% verbatim passage grounding). The hospital matching mechanism achieves **97.78% accuracy** and **100.0% precision** on a held-out test set (N=45) under strict location checking, eliminating false positive cross-jurisdiction linkages. The entire architecture runs 100% on-premise without GPU dependencies, preserving full compliance with India's Digital Personal Data Protection Act 2023 with an average pure-CPU query retrieval latency of ~2.07 ms.
 
 **Index Terms**—Abstention, BM25, cashless hospital verification, evidence-grounded question answering, health insurance, hybrid information retrieval, hospital network matching, policy clause retrieval, reciprocal rank fusion, offline deployment, DPDP Act 2023.
 
@@ -41,17 +41,17 @@ General-purpose Large Language Models (LLMs) appear attractive, but ungrounded g
 - **Facility Conflation**: Confusing public government-registered healthcare directories with private insurer-negotiated cashless networks.
 
 To address these vulnerabilities, this paper proposes an offline-capable, evidence-grounded architecture with four main contributions:
-1. **Dual-Tier Hybrid Retrieval Pipeline**: Unifying BM25 lexical ranking and an unsupervised 128-dimensional dense feature-hashing channel via Reciprocal Rank Fusion (RRF), running entirely in CPU memory without external vector databases or PyTorch dependencies.
+1. **Dual-Tier Hybrid Retrieval Pipeline**: Unifying BM25 lexical ranking and an unsupervised 128-dimensional dense feature-hashing channel via Reciprocal Rank Fusion (RRF), running entirely in CPU memory without external vector databases or PyTorch dependencies, with an optional neural transformer upgrade.
 2. **Dual-Coordinate Provenance & Micro-Chunking**: A heading-aware sliding-window chunking algorithm capturing hierarchical legal headings, SHA-256 cryptographic digests, and simultaneous physical and printed page coordinates.
 3. **Deterministic Evidence Gate**: A non-parametric lexical gate enforcing strict abstention on unanswerable and adversarial queries, preventing parametric hallucination.
-4. **Conservative Spatial Entity Resolution**: A normalizer and location-compatibility validator mapping 29,974 national healthcare facilities to dynamic insurer network records, outputting a tri-state status (`LISTED`, `NOT_FOUND`, `UNVERIFIED`) with mandatory pre-authorization disclaimers.
+4. **Conservative Spatial Entity Resolution**: A normalizer and location-compatibility validator mapping 29,974 national healthcare facilities to insurer network records, outputting a tri-state status (`LISTED`, `NOT_FOUND`, `UNVERIFIED`) with mandatory pre-authorization disclaimers.
 
 ---
 
 ## II. Related Work
 
 ### A. RAG for Legal and Healthcare Question Answering
-Retrieval-Augmented Generation (RAG) grounds language model generations in retrieved context passages rather than relying solely on parametric memory [1]. In insurance, InsuranceRAG [1] introduces a multi-module assistant, while InsQABench [2] benchmarks Chinese insurance question answering. Our focus is distinct: exact dual-page policy citations, enforced mathematical abstention, and multi-city hospital cashless verification under Indian regulatory jurisprudence (IRDAI). Medical RAG studies emphasize that retrieval quality dominates generation faithfulness [3]–[6].
+Retrieval-Augmented Generation (RAG) grounds language model generations in retrieved context passages rather than relying solely on parametric memory [1]. In insurance, InsuranceRAG [1] introduces a multi-module assistant, while InsQABench [2] benchmarks Chinese insurance question answering. Our focus is distinct: exact dual-page policy citations, enforced mathematical abstention, and hospital cashless verification under Indian regulatory jurisprudence (IRDAI). Medical RAG studies emphasize that retrieval quality dominates generation faithfulness [3]–[6].
 
 ### B. Adaptive, Self-Reflective, and Agentic RAG
 Recent work investigates adaptive retrieval strategies [7], self-reflective critique (Self-RAG) [8], corrective retrieval (CRAG) [9], and agentic multi-hop planning [10]. While effective in cloud settings, these architectures demand heavy GPU resources and multi-pass inference (>1.5 s latency). In contrast, our platform targets low-resource edge deployment at hospital billing desks, achieving deterministic verification in under 7 ms.
@@ -66,7 +66,7 @@ RAGAs [12] and ARES [13] establish standard metrics for context relevance, groun
 
 ## III. Problem Formulation
 
-Let $\mathcal{C} = \{c_1, \dots, c_N\}$ be the indexed document corpus of $N$ text chunks. Each chunk $c$ carries metadata:
+Let $\mathcal{C} = \{c_1, \dots, c_N\}$ be the indexed document corpus of $N$ text chunks ($N = 263$). Each chunk $c$ carries metadata:
 $$m(c) = (\text{doc}, \text{page}_{\text{phys}}, \text{page}_{\text{print}}, \text{heading}, h)$$
 where $h = \text{SHA256}(\text{text}(c))$ guarantees cryptographic provenance.
 
@@ -82,8 +82,8 @@ $$\sigma(x, \mathcal{I}) \in \{\text{LISTED}, \text{NOT\_FOUND}, \text{UNVERIFIE
 TABLE I: NOTATION
 | Symbol | Meaning | Value / Definition |
 | :--- | :--- | :--- |
-| $\mathcal{C}, N$ | Chunk set and its total size | $N = 441$ (multi-policy), $N = 263$ (base) |
-| $d$ | Dense vector feature dimension | $d = 128$ (unsupervised polynomial hash) |
+| $\mathcal{C}, N$ | Chunk set and its total size | $N = 263$ active chunks across 7 regulatory/policy documents |
+| $d$ | Dense vector feature dimension | $d = 128$ (polynomial feature hash) / $d = 384$ (MiniLM) |
 | $K$ | Maximum cited passages | $K = 5$ |
 | $r_b(c), r_v(c)$ | Rank of chunk $c$ in BM25 / vector channel | 1-indexed ranks |
 | $\alpha$ | BM25 fusion weighting coefficient | $\alpha = 0.5$ |
@@ -102,27 +102,25 @@ The platform operates across two foundational corpora: (i) Structured Healthcare
 ### A. National Hospital Directory
 Exported from the National Health Authority (NHA) public portal, containing 30,273 raw records. Following de-duplication and filtering of empty records, **29,974 valid healthcare facilities** across all 36 States and Union Territories are loaded into SQLite. Attributes include facility name, state, district, subdistrict, pincode, hospital category (public/private), care type, bed count, and contact details.
 
-### B. Multi-City Insurer Network Dataset
-To evaluate network verification across diverse geographies, we expanded the insurer network dataset from 10 local records to **125 verified network facilities across nine major urban centers**:
-- **Metropolitan Hubs**: Bengaluru (25), Mumbai (20), Chennai (20), Hyderabad (15), Kolkata (10).
-- **Secondary Hubs**: Pune (15), Ahmedabad (10), Lucknow (5), Jaipur (5).
-- **Provider Diversity**: Multi-hospital corporate chains (Apollo, Fortis, Manipal, Max, Narayana Health, Gleneagles), eye hospitals, specialty institutes, and local nursing homes.
+### B. Insurer Network Dataset & Geographic Scope
+The verified insurer dataset in the production SQLite database contains **10 Star Health network records from Bengaluru, Karnataka**, of which 6 are linked via foreign keys to directory facilities and 4 are unlinked. Because this sample is geographically restricted to Bengaluru, queries for facilities outside Bengaluru (such as Bagalkot, Karnataka or South Andaman) are strictly classified as `UNVERIFIED` rather than `NOT_FOUND`. To evaluate algorithmic scaling and multi-city geographic isolation, an offline synthetic stress-test benchmark of 125 records across 9 urban centers (`data/synthetic/synthetic_hospital_stress_sample.json`) was generated from national directory entries.
 
-### C. Multi-Policy & Regulatory Corpus
-The text knowledge base spans **8 documents, 188 physical pages, 441 chunks, and 399,597 characters**:
+### C. Active Document Corpus
+The indexed text knowledge base contains **7 documents and 263 chunks** verified in SQLite:
 
-TABLE II: MULTI-POLICY & REGULATORY CORPUS
-| Document Entity | Insurer / Authority | Pages | Chunks | Characters | Document Scope |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Star Comprehensive Policy Terms** | Star Health | 48 | 179 | 134,147 | Active Policy Wording (`POL/COMP/V.24/2025`) |
-| **Customer Information Sheet (CIS)** | Star Health | 20 | 60 | 39,754 | Mandated Summary Table (`V.2/2025`) |
-| **IRDAI Regulations FAQ** | IRDAI Regulator | 6 | 16 | 38,029 | Statutory Guidelines & Ombudsman Norms |
-| **Star Claims Guidance (4 SOPs)** | Star Health | 4 | 8 | 35,307 | Cashless, Reimbursement & Portal SOPs |
-| **IRDAI Master Circular 2024** | IRDAI Regulator | 28 | 52 | 44,810 | Standardized Waiting Periods & Definitions |
-| **Arogya Sanjeevani Standard Policy** | Multi-Insurer Standard | 24 | 46 | 38,920 | Basic Standard (1% Room Rent Cap) |
-| **HDFC ERGO Optima Secure Policy** | HDFC ERGO | 32 | 42 | 36,450 | Comparative Terms (2X Base Coverage) |
-| **Care Health Advantage Policy** | Care Health | 26 | 38 | 32,180 | Comparative Terms (No Room Rent Cap) |
-| **Total Multi-Policy Corpus** | **4 Insurers / Authorities** | **188** | **441** | **399,597** | **Multi-Policy Knowledge Base** |
+TABLE II: ACTIVE DOCUMENT CORPUS
+| Document Entity | Insurer / Authority | File Format | Chunks | Document Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **Star Comprehensive Policy Terms** | Star Health | PDF (`data/policies/Policy_Star_Comprehensive_clean.pdf`) | 179 | Active Policy Wording (`POL/COMP/V.24/2025`) |
+| **Customer Information Sheet (CIS)** | Star Health | PDF (`data/policies/CIS_Star_Comprehensive_Insurance_Policy_V_2_69c15a9ee1.pdf`) | 60 | Mandated Summary Table (`V.2/2025`) |
+| **IRDAI Regulations FAQ** | IRDAI Regulator | MHTML (`data/claim_guidance/irdai_health_insurance_faqs.mhtml`) | 16 | Statutory Guidelines & Ombudsman Norms |
+| **Cashless Claim SOP** | Star Health | MHTML (`data/claim_guidance/star_cashless_claims.mhtml`) | 2 | Online Cashless Pre-Auth Procedure |
+| **Claim Document Upload SOP** | Star Health | MHTML (`data/claim_guidance/star_claim_document_upload.mhtml`) | 2 | Portal Document Submission SOP |
+| **Claim Status SOP** | Star Health | MHTML (`data/claim_guidance/star_claim_status.mhtml`) | 2 | Online Claim Tracking SOP |
+| **Reimbursement SOP** | Star Health | MHTML (`data/claim_guidance/star_reimbursement_claims.mhtml`) | 2 | Reimbursement Filing Guidance |
+| **Total Active Corpus** | **Star Health & IRDAI** | **PDF / MHTML** | **263** | **Active Statutory Corpus** |
+
+*Note*: Full file metadata and cryptographic hashes are tracked in `data/policies/manifest.json`.
 
 ---
 
@@ -133,11 +131,10 @@ The platform comprises a three-layer decoupled architecture: a React 18 / TypeSc
 ### A. Heading-Aware Sliding-Window Chunking
 PDFs are parsed with `pypdf` (with `PyMuPDF` fallback). Heading detection enforces:
 $$\text{Heading} = \text{Uppercase} \lor \text{Matches}(\wedge(\text{section}|\text{clause}|\text{part}|\text{table}|\text{item}|\text{coverage}|\text{benefit}|\text{exclusion}|\text{condition})\backslash b) \lor \text{EndsWith}(":")$$
-Chunks accumulate sentences until reaching **800 characters** ($\sim 160$ words). Upon boundary completion, a dynamic 1-line carryover is injected into the subsequent chunk to preserve antecedent contractual conditions. Dual-page mapping computes physical and printed page numbers ($P_{\text{print}} = P_{\text{phys}} - 1$ for cover-paged documents), stamped with SHA-256 digests.
+Chunks accumulate sentences until reaching **800 characters** ($\sim 160$ words). Upon boundary completion, a dynamic 1-line carryover is injected into the subsequent chunk to preserve antecedent contractual conditions. Dual-page mapping dynamically resolves total extracted pages from document metadata, stamped with SHA-256 digests.
 
 ### B. Lexical Retrieval Channel
-Chunks are indexed in SQLite FTS5 using the `porter unicode61` tokenizer. Queries are lower-cased, expanded for common insurance terms ("before hospitalization" $\to$ "prehospitalization"), and filtered of domain stopwords. Strict `AND` matching is attempted first, falling back to `OR` matching with native BM25 ranking:
-$$\text{score}_{\text{BM25}}(c, q) = -\text{bm25}(c)$$
+Chunks are indexed in SQLite FTS5 using the `porter unicode61` tokenizer. Queries are lower-cased, expanded for common insurance terms ("before hospitalization" $\to$ "prehospitalization"), and filtered of domain stopwords. Strict `AND` matching is attempted first, falling back to `OR` matching with native BM25 ranking.
 
 ### C. Dense Feature-Hashing Channel
 The default dense encoder requires zero training parameters and zero external model weights. For text $t$, let $U$ be its word tokens ($\ge 2$ characters), $B$ its adjacent word bigrams, and $G$ its character 4-grams. The unnormalized vector $\tilde{v}(t) \in \mathbb{R}^d$ ($d = 128$) is:
@@ -147,15 +144,15 @@ where $\mathbf{e}_j$ is the $j$-th standard basis vector and $\eta(s) = \left( \
 ### D. Reciprocal Rank Fusion (RRF)
 Given zero-indexed ranks $r_b(c)$ and $r_v(c)$ from BM25 and vector search:
 $$S(c) = \frac{\alpha}{k + r_b(c) + 1} + \frac{1 - \alpha}{k + r_v(c) + 1} \tag{2}$$
-with $\alpha = 0.5$ and $k = 60.0$. Agreement across channels significantly boosts confidence.
+with $\alpha = 0.5$ and $k = 60.0$.
 
 ### E. Deterministic Evidence Gate
 Let $W(q)$ be the stopword-filtered keywords of query $q$. A fused candidate passage $c$ is accepted only if:
 $$\text{hits}(c, q) \ge m, \quad m = \begin{cases} 2, & |W(q)| \ge 3 \\ 1, & \text{otherwise} \end{cases} \tag{3}$$
-where $\text{hits}(c, q) = |\{w \in W(q) : w \in \text{text}(c)\}|$. If no candidate satisfies Eq. (3), the system emits `insufficient_evidence`, returns an explicit warning banner, and bypasses the language model.
+where $\text{hits}(c, q) = |\{w \in W(q) : w \in \text{text}(c)\}|$ using whole-word boundary regex and insurance term normalization. If no candidate satisfies Eq. (3), the system emits `insufficient_evidence`, returns an explicit warning banner, and bypasses generation.
 
-### F. Grounded Generation
-When citations clear the evidence gate, passages are supplied to an extractive synthesis engine or local LLM (Ollama LLaMA-3.2) instructed to use only provided facts, state limitations, and avoid extrapolating unmentioned terms. Every response appends human-verifiable citations and statutory disclaimers.
+### F. Grounded Extractive Synthesis
+When citations clear the evidence gate, passages are supplied to a deterministic extractive synthesis engine that extracts verbatim clauses from retrieved text. Every response appends human-verifiable citations with physical and printed page coordinates and statutory disclaimers.
 
 ### G. Conservative Hospital Network Entity Resolution
 To prevent falsely declaring a facility as in-network:
@@ -170,142 +167,127 @@ $$\sigma(x, \mathcal{I}) = \begin{cases}
 
 ---
 
-## VI. Implementation Details
+## VI. Experimental Results & Benchmarks
 
-The system is implemented in Python 3.10 with FastAPI and SQLAlchemy 2.0 over SQLite in Write-Ahead Logging (WAL) mode. The frontend is built in React 18, TypeScript, and Vite with Tailwind CSS.
+All reported metrics are generated directly from execution scripts logged with commit hashes, random seeds, and SHA-256 data hashes.
 
-TABLE III: SYSTEM CONFIGURATION PARAMETERS
-| Parameter | Setting | Architectural Purpose |
-| :--- | :--- | :--- |
-| Chunk Threshold / Carryover | 800 chars / 1 line | Preserves legal clause boundary |
-| Dense Vector Dimension ($d$) | 128 dimensions | Zero-dependency polynomial hash |
-| BM25 Fusion Weight ($\alpha$) | 0.5 | Balances lexical and semantic recall |
-| RRF Constant ($k$) | 60.0 | Standard smoothing factor |
-| Citation Limit ($K$) | 5 passages | Upper bound on cited context |
-| Evidence Gate Threshold ($m$) | 2 if $\|W\| \ge 3$, else 1 | Prevents ungrounded hallucination |
-| LLM Synthesis Mode | Extractive (Default) / LLaMA-3.2 | Zero hallucination guarantee |
-| Hospital Pincode Match Prefix | First 3 digits | Regional postal compatibility |
+### A. Information Retrieval Benchmark Performance
+Evaluated across 53 answerable statutory queries aligned with gold database chunk IDs:
 
----
-
-## VII. Experimental Results & Benchmarks
-
-### A. Standard Information Retrieval Metrics
-We evaluated retrieval performance across the 65-question benchmark against five distinct retrieval configurations:
-
-TABLE IV: INFORMATION RETRIEVAL BENCHMARK PERFORMANCE *(Under Script Review & Audit)*
-| Retrieval Architecture | P@1 | P@3 | P@5 | R@1 | R@3 | R@5 | MRR | nDCG@3 | nDCG@5 |
+TABLE IV: INFORMATION RETRIEVAL BENCHMARK PERFORMANCE (N=53 QUERIES)
+| Retrieval Architecture | P@1 | P@3 | P@5 | R@1 | R@3 | R@5 | MRR | nDCG@5 | 95% CI (MRR) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Lexical BM25 (SQLite FTS5)** | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] |
-| **Dense Hashed (128-d)** | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] |
-| **Dense Semantic (MiniLM)** | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] |
-| **Hybrid BM25 + Hashed (RRF, $\\alpha = 0.5$) [Ours]** | **[Audit]** | **[Audit]** | **[Audit]** | **[Audit]** | **[Audit]** | **[Audit]** | **[Audit]** | **[Audit]** | **[Audit]** |
-| **Hybrid BM25 + MiniLM (RRF, $\\alpha = 0.5$)** | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] | [Audit] |
+| **Lexical BM25 (SQLite FTS5)** | **0.2830** | 0.2516 | 0.2113 | **0.0893** | 0.3243 | **0.4241** | **0.4379** | **0.3537** | [0.3280, 0.5450] |
+| **Dense Hashed (128-d)** | 0.1132 | 0.1006 | 0.0943 | 0.0381 | 0.1077 | 0.1713 | 0.2187 | 0.1415 | [0.1357, 0.3099] |
+| **Dense Semantic (all-MiniLM-L6-v2)** | 0.2453 | 0.2075 | 0.1660 | 0.0767 | 0.2077 | 0.2747 | 0.3648 | 0.2665 | [0.2649, 0.4709] |
+| **Hybrid BM25 + Hash-128 (RRF)** | 0.2453 | 0.2075 | 0.1736 | 0.0767 | 0.2307 | 0.3230 | 0.3750 | 0.2779 | [0.2775, 0.4887] |
+| **Hybrid BM25 + MiniLM (RRF)** | **0.2830** | **0.2642** | **0.2226** | **0.0893** | **0.3344** | 0.4088 | 0.4243 | 0.3499 | [0.3234, 0.5323] |
 
-*Note*: Script execution source is provided in scripts/evaluate_ir_metrics.py. Numerical figures are withheld pending independent audit of the script and ground truth query alignments.
+*Key Finding*: On formal insurance clauses, BM25 outperforms standalone dense hashing and dense MiniLM due to strict lexical matching on statutory terms ("Code Excl 04", "single private A/C room"). Hybrid BM25 + MiniLM achieves comparable performance (P@5 = 0.2226 vs 0.2113 for BM25) while smoothing ranking.
 
 ### B. Vector Collisions & Embedding Representation Comparison
 Evaluating feature hashing across the 3,155-token corpus vocabulary:
 
 TABLE V: DENSE FEATURE HASHING COLLISION & LATENCY ABLATION
-| Dimension ($d$) | Word Collision Rate (%) | Total Feature Collision (%) | Occupied Buckets | CPU Latency (ms) | Storage (KB / 1k Chunks) |
+| Dimension ($d$) | Word Collision Rate (%) | Bigram Collision (%) | Subword 4-gram Collision (%) | CPU Latency (ms) | Zero-Dependencies |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **64** | 97.97% | 99.82% | 64 / 64 (100.0%) | 0.082 ms | 250 KB |
-| **128 (Ours)** | **95.94%** | **99.64%** | **128 / 128 (100.0%)** | **0.105 ms** | **500 KB** |
-| **256** | 91.89% | 99.29% | 256 / 256 (100.0%) | 0.139 ms | 1,000 KB |
-| **512** | 83.77% | 98.57% | 512 / 512 (100.0%) | 0.135 ms | 2,000 KB |
-| **1024** | 68.84% | 97.14% | 1,024 / 1,024 (100.0%) | 0.180 ms | 4,000 KB |
-| **`all-MiniLM-L6-v2`** | N/A (Trained) | N/A (Dense 384-d) | 384 continuous | 18.400 ms | 1,500 KB |
-| **`bge-small-en-v1.5`** | N/A (Trained) | N/A (Dense 384-d) | 384 continuous | 28.600 ms | 1,500 KB |
+| **64** | 97.97% | 99.50% | 99.69% | 0.8126 ms | Yes |
+| **128 (Ours)** | **95.94%** | **99.00%** | **99.38%** | **0.8237 ms** | **Yes** |
+| **256** | 91.89% | 98.00% | 98.76% | 0.8744 ms | Yes |
+| **512** | 83.77% | 96.00% | 97.51% | 0.9974 ms | Yes |
+| **1024** | 68.84% | 91.99% | 95.03% | 0.8380 ms | Yes |
+| **4096** | 30.68% | 69.40% | 80.24% | 0.8087 ms | Yes |
+| **all-MiniLM-L6-v2 (384-d)** | N/A (Trained) | N/A (Trained) | N/A (Trained) | 65.33 ms | No (PyTorch/Transformers) |
 
-LocalDense-128d operates **175$\times$ faster than MiniLM on commodity CPU**, with zero parameter storage and pure NumPy execution.
+Feature hashing operates with sub-millisecond CPU latency and zero external dependencies, though high collision rates explain its lower retrieval metrics compared to BM25.
 
 ### C. Evidence Gate Precision, Recall, and Specificity
-Evaluating the evidence gate across 65 queries (in-scope exact, semantic paraphrases, keyword-sharing distractors, and out-of-domain controls):
+Evaluating gate mechanisms across all 65 queries at the passage level:
 
-TABLE VI: EVIDENCE GATE EVALUATION
-| Evidence Gate Mechanism | Precision | Recall | Specificity | Accuracy | F1-Score | False Rejection (FRR) | False Acceptance (FAR) |
+TABLE VI: EVIDENCE GATE PASSAGE-LEVEL EVALUATION
+| Evidence Gate Mechanism | Precision | Recall | Specificity | F1-Score | FAR | Distractor Rejection (%) | OOD Abstention (%) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Standard Keyword Gate ($m \ge 2$) [Ours]** | **0.6863** | **1.0000** | **0.4667** | **0.7538** | **0.8140** | **0.0000** | **0.5333** |
-| **Strict Keyword Gate ($m \ge 3$)** | 0.7714 | 0.7714 | 0.7333 | 0.7538 | 0.7714 | 0.2286 | 0.2667 |
-| **Cosine Gate ($\tau = 0.40$)** | 0.5484 | 0.9714 | 0.0667 | 0.5538 | 0.7010 | 0.0286 | 0.9333 |
-| **Hybrid Gate (Keyword + Cosine)** | 0.5738 | 1.0000 | 0.1333 | 0.6000 | 0.7292 | 0.0000 | 0.8667 |
+| **Old Gate (Substring)** | 0.2054 | **0.9464** | 0.2379 | 0.3376 | 0.7621 | 15.8% | 25.0% |
+| **New Gate (Word Boundary) [Ours]** | **0.2208** | **0.9464** | 0.3048 | **0.3581** | 0.6952 | 20.6% | 41.7% |
+| **Strict Gate ($m \ge 3$)** | 0.2384 | 0.6429 | 0.5725 | 0.3478 | 0.4275 | 46.9% | 75.0% |
+| **Cosine Gate (MiniLM $\tau = 0.45$)** | 0.2519 | 0.6071 | **0.6245** | 0.3560 | **0.3755** | **52.6%** | **83.3%** |
+| **Hybrid Gate (KW + MiniLM)** | 0.2244 | 0.8214 | 0.4089 | 0.3525 | 0.5911 | 29.2% | 41.7% |
 
-The standard keyword gate guarantees **100% recall on supported queries** and **86.7% clean abstention on out-of-domain queries**, with zero false rejections of valid policy inquiries.
+The new word-boundary gate with normalization improves specificity from 0.2379 to 0.3048 and OOD abstention from 25.0% to 41.7% while maintaining high recall (0.9464). Higher thresholds (Strict Gate or Cosine Gate) increase OOD abstention (75.0%–83.3%) at the cost of reduced recall (0.6071–0.6429).
 
-### D. Generation Quality, Faithfulness & Hallucination Suppression
+### D. Generation Quality & Abstention Performance
 
-TABLE VII: GENERATION BENCHMARK EVALUATION (65 QUERIES) *(Pending Double-Blind Human Rating & Benchmark Review)*
-| Synthesis Mode | Factual Correctness (%) | Exact Page Citation Acc. (%) | Completeness (%) | Faithfulness Ratio ($\\mathcal{F}$, %) | Hallucination Rate ($\\mathcal{H}$, %) | Clean Abstention on OOD ($\\mathcal{A}_p$, %) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Deterministic Extractive (Ours)** | **[Pending]** | **[Pending]** | **[Pending]** | **[Pending]** | **[Pending]** | **[Pending]** |
-| **Grounded RAG + LLM (LLaMA-3.2)** | **[Pending]** | **[Pending]** | **[Pending]** | **[Pending]** | **[Pending]** | **[Pending]** |
-| **Unconstrained LLM Baseline** | [Pending] | [Pending] | [Pending] | [Pending] | [Pending] | [Pending] |
+TABLE VII: GENERATION EVALUATION (65 BENCHMARK QUERIES)
+| Metric | Deterministic Extractive (Ours) | Grounded Local LLM | Unconstrained LLM |
+| :--- | :--- | :--- | :--- |
+| **Answerable Coverage** | 51 / 53 (96.2%) | [NOT RUN - LLM offline] | [NOT RUN - LLM offline] |
+| **OOD Abstention Rate** | 6 / 12 (50.0%) | [NOT RUN - LLM offline] | [NOT RUN - LLM offline] |
+| **Gold Chunk Citation Precision** | 35 / 132 (26.5%) | [NOT RUN - LLM offline] | [NOT RUN - LLM offline] |
+| **Expected Page Citation Precision** | 50 / 132 (37.9%) | [NOT RUN - LLM offline] | [NOT RUN - LLM offline] |
+| **Benchmark Key Phrase Recall** | 91 / 171 (53.2%) | [NOT RUN - LLM offline] | [NOT RUN - LLM offline] |
+| **Verbatim Grounding** | 100.0% (by construction) | [NOT RUN - LLM offline] | [NOT RUN - LLM offline] |
+| **Parametric Hallucination** | 0.0% (by construction) | [NOT RUN - LLM offline] | [NOT RUN - LLM offline] |
+| **Human Rating (1–5 Likert)** | [Pending Human Rating] | [Pending Human Rating] | [Pending Human Rating] |
 
-*Note*: Heuristic simulations are withheld from the final camera-ready text until the two-rater human evaluation protocol (data/evaluation/generation_quality_human_rating_sheet.csv) and independent benchmark answer review (data/evaluation/benchmark_answers_human_review_sheet.csv) are completed.
+*Note*: In accordance with scientific integrity guidelines, local LLM evaluation is reported as NOT RUN because Ollama chat inference was offline. Human evaluation sheets (`data/evaluation/generation_quality_human_rating_sheet.csv`) are prepared for double-blind human rating by two independent raters.
 
 ### E. Extended Hospital Normalization & Spatial Verification
-Tested against 75 challenging real-world hospital pairs:
+Evaluated on 75 benchmark pairs split into a development set (N=30) and held-out test set (N=45):
 
-TABLE VIII: EXTENDED HOSPITAL MATCHING PERFORMANCE (75 PAIRS)
-| Challenge Category | Test Pairs | Correct | Accuracy (%) | Precision (%) | False Positive Matches |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Punctuation & Formatting Variations** | 15 | 14 | 93.33% | 100.00% | 0 |
-| **Legal & Corporate Suffixes** | 10 | 10 | 100.00% | 100.00% | 0 |
-| **Medical Abbreviations & Acronyms** | 15 | 15 | 100.00% | 100.00% | 0 |
-| **Distinct Facilities with Similar Prefixes** | 15 | 15 | 100.00% | 100.00% | 0 |
-| **Renamed Facilities & Rebranding** | 10 | 10 | 100.00% | 100.00% | 0 |
-| **Geographic, District & Pincode Mismatches** | 10 | 10 | 100.00% | 100.00% | 0 |
-| **Overall Extended Matcher Aggregate** | **75** | **74** | **98.67%** | **100.00%** | **0 (0.00% FPR)** |
+TABLE VIII: HOSPITAL ENTITY MATCHING PERFORMANCE
+| Split / Configuration | Strict Location Check | Accuracy | Precision | Recall | Specificity | F1-Score |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Dev Set (N=30)** | Yes | 1.0000 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| **Held-out Test (N=45) [Ours]** | **Yes** | **0.9778** | **1.0000** | **0.9545** | **1.0000** | **0.9767** |
+| **Held-out Test (N=45) [Ablation]** | No | 0.8444 | 0.7778 | 0.9545 | 0.7391 | 0.8571 |
+| **Full Set (N=75) [Ours]** | Yes | 0.9867 | 1.0000 | 0.9737 | 1.0000 | 0.9867 |
+| **Full Set (N=75) [Ablation]** | No | 0.8533 | 0.7872 | 0.9737 | 0.7297 | 0.8706 |
 
-### F. Multi-City Hospital Verification Network Scale
-Evaluating 125 multi-city network records against the 29,974 national directory:
-- **In-Sample Matched Facilities (125)**: 125 / 125 correctly identified as `LISTED` (100.0% recall).
-- **In-Scope Unlisted Facilities (50)**: 50 / 50 correctly identified as `NOT_FOUND` (100.0% absence detection).
-- **Out-of-Scope Facilities (50)**: 50 / 50 correctly isolated as `UNVERIFIED` (100.0% out-of-scope isolation).
-- **Overall Network Separation Precision**: **100.00%** (0 false cashless claims).
+Ablating strict location verification drops test precision from 1.0000 to 0.7778 and specificity from 1.0000 to 0.7391 due to false positive matches between facilities in different districts and states with identical names (e.g., City Hospital in Bagalkot vs. Bengaluru).
+
+### F. Real Hospital Network Status & Synthetic Stress Benchmark
+1. **Real Star Health Sample (10 records in SQLite, Bengaluru)**:
+   - Linked Facilities ($N=6$): 6 / 6 correctly returned `LISTED` (100.0% recall).
+   - Bagalkot Facilities ($N=20$, including Kerudi Hospital): 20 / 20 correctly returned `UNVERIFIED` (100.0% isolation).
+   - Distant State Facilities ($N=50$, Andaman, Assam, Bihar): 50 / 50 correctly returned `UNVERIFIED` (100.0% isolation).
+   - False positive `LISTED` rate: 0.0%.
+2. **Synthetic Multi-City Stress Benchmark (125 synthetic records, 9 cities)**:
+   - Evaluated as an offline algorithm stress test (`data/synthetic/synthetic_hospital_stress_sample.json`).
+   - Target facilities ($N=125$): 125 / 125 returned `LISTED` (100.0%).
+   - In-scope unlisted ($N=50$): 50 / 50 returned `NOT_FOUND` (100.0%).
+   - Out-of-scope ($N=50$): 50 / 50 returned `UNVERIFIED` (100.0%).
 
 ### G. Comparative Framework Analysis
 
-TABLE IX: COMPARATIVE ARCHITECTURAL BENCHMARK AGAINST EXISTING RAG FRAMEWORKS
-| Metric / Capability | Vanilla Dense RAG | Lexical-Only (BM25) | LangChain Baseline | Corrective RAG (CRAG) | Proposed Grounded Hybrid RAG |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Average Query Latency (ms)** | 145.2 ms | 4.1 ms | 95.8 ms | 1,420.0 ms | **6.4 ms (Offline CPU)** |
-| **Citation Integrity Rate** | 22.0% | 91.5% | 45.2% | 58.0% | **100.0%** |
-| **Hallucination Rate** | 28.5% | 8.5% | 21.4% | 14.2% | **0.0% (Extractive) / 12.3% (LLM)** |
-| **Abstention Precision** | 18.2% | 78.4% | 32.6% | 68.0% | **100.0%** |
-| **Network Separation Precision** | 35.0% | 72.0% | 48.5% | 42.0% | **100.0%** |
-| **Offline Deployability (Zero GPU/Cloud)** | No | Yes | No | No | **Yes (Pure NumPy + SQLite)** |
+TABLE IX: COMPARATIVE ARCHITECTURAL BENCHMARK OF IMPLEMENTED SYSTEMS
+| System | Retrieval Mechanism | P@1 | P@5 | R@5 | MRR | nDCG@5 | Latency (ms) | Zero-Deps |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **SQLite FTS5 BM25** | Sparse Lexical | 0.2830 | 0.2113 | 0.4241 | 0.4379 | 0.3537 | 1.25 ms | Yes |
+| **128-d Feature Hash** | Dense Hash Projection | 0.1132 | 0.0943 | 0.1713 | 0.2187 | 0.1415 | 0.82 ms | Yes |
+| **MiniLM-L6-v2 (384-d)** | Dense Neural | 0.2453 | 0.1660 | 0.2747 | 0.3648 | 0.2665 | 65.33 ms | No |
+| **Hybrid BM25 + Hash-128** | RRF Fusion ($\alpha=0.5$) | 0.2453 | 0.1736 | 0.3230 | 0.3750 | 0.2779 | 2.07 ms | Yes |
+| **Hybrid BM25 + MiniLM** | RRF Fusion ($\alpha=0.5$) | 0.2830 | 0.2226 | 0.4088 | 0.4243 | 0.3499 | 66.58 ms | No |
+
+**Qualitative Comparison with Advanced Paradigms**:
+- **Corrective RAG (CRAG)** [9]: Evaluates retrieval confidence and falls back to live web search when confidence is low. While effective in cloud settings, reliance on external web search makes CRAG unviable for strictly offline or air-gapped deployments.
+- **Self-RAG** [8]: Dynamically decodes self-reflection tokens (`[Retrieve]`, `[IsRel]`, `[IsSup]`), requiring fine-tuned decoder models (7B+ parameters) with high GPU memory and decoding latency impractical on edge CPUs.
+- **GraphRAG** [11]: Constructs hierarchical entity-relationship graphs. While offering macro-level query summarization, it obscures the exact dual physical/printed page coordinates required for legal policy disputes and incurs heavy indexing costs.
 
 ---
 
-## VIII. Discussion & Practical Deployment
+## VII. Limitations
 
-### A. Privacy & Regulatory Compliance (DPDP Act 2023)
-Health insurance inquiries inherently disclose sensitive medical conditions, pre-existing illnesses, and policy identifiers. Under India's Digital Personal Data Protection (DPDP) Act 2023 and global healthcare privacy frameworks, transmitting unencrypted patient disclosures to commercial LLM APIs exposes users to profiling risks and data leakages. Our architecture enforces **100% local on-premise execution**: SQLite FTS5 queries, vector similarity matrix multiplications, and extractive synthesis occur entirely within host memory without generating outbound network traffic.
-
-### B. Security & Prompt Injection Mitigation
-Adversarial prompt injection attacks (e.g., attempting to override exclusions or fabricate cashless approvals) pose severe legal liability for insurers. In our system, the **deterministic evidence gate operates as a non-parametric firewall**: user input is never passed directly to an unconstrained generative model. If verbatim supporting clauses are absent from the indexed regulatory text, generation is bypassed entirely. All chunks are authenticated via SHA-256 cryptographic digests, preventing local database tampering.
-
-### C. Data Freshness & Dynamic Network Roster Churn
-In Indian urban healthcare markets, insurer cashless hospital rosters exhibit an estimated **15% to 20% annual turnover** driven by tariff renegotiations, TPA agreement renewals, and credentialing audits. The platform addresses this dynamic churn by decoupling static public directories from insurer network tables:
-- Incremental updates to network rosters are ingested in seconds without requiring re-indexing of the 29,974-entry national registry.
-- Atomic file replacement (`os.replace`) ensures zero-downtime updates to the vector index.
-
-### D. Practical Edge Deployment at Hospital TPA Desks
-Hospital cashless insurance desks operate under severe time constraints and frequently encounter intermittent Internet connectivity. The entire platform (FastAPI backend, React frontend, SQLite database, and vector index) requires less than **50 MB of disk space** and runs comfortably on a standard dual-core laptop with 4 GB RAM. Cold-start initialization requires **1.2 seconds**, with average query responses under **7 milliseconds**, enabling seamless local integration into existing Hospital Management Information Systems (HMIS).
+1. **Corpus Scope**: The indexed document corpus currently contains 263 chunks across 7 regulatory and policy documents primarily centered on Star Health Comprehensive Insurance and IRDAI regulations. Generalization across other private and public insurers requires ingesting and indexing additional policy contracts.
+2. **Benchmark Authorship & Validation Status**: The 65-question benchmark was prepared by the authors based on common policyholder queries and statutory terms. Double-blind human rating across two raters (`data/evaluation/generation_quality_human_rating_sheet.csv`) and independent audit of answer ground truths (`data/evaluation/benchmark_answers_human_review_sheet.csv`) are currently underway.
+3. **Insurer Network Sample**: The production database contains 10 verified Star Health records covering Bengaluru (6 linked). The 125-record multi-city dataset evaluated in Section VI-F is a synthetic stress-test benchmark generated from the national directory to test multi-city algorithm scalability and is not a real insurer network dataset.
+4. **Temporal Policy Tracking**: In the current implementation, versioning is tracked via static document version strings and SHA-256 digests. A full bi-temporal database schema (`valid_from`, `valid_to`) to track mid-term policy amendments and regulatory circular effective dates is proposed as architectural future work.
+5. **Cashless Turnaround Standards**: The 100% cashless claims turnaround standards referenced in this work reflect statutory regulatory mandates established by the Insurance Regulatory and Development Authority of India (IRDAI), rather than internally measured empirical hospital processing SLAs.
 
 ---
 
-## IX. Conclusion
+## VIII. Conclusion
 
-We presented an offline-capable, evidence-grounded intelligent assistant for cashless hospital verification and health insurance policy clause retrieval. By unifying FTS5 BM25 lexical indexing with a 128-dimensional feature-hashing dense channel via Reciprocal Rank Fusion, implementing heading-aware chunking with dual-page coordinate binding, enforcing deterministic evidence gating, and applying conservative spatial entity resolution, the system delivers verifiable, legally grounded guidance without hallucination. Rigorous evaluations across 65 benchmark queries, 441 multi-policy chunks, 125 multi-city network records, and 75 hospital matching test pairs demonstrate superior latency (6.02 ms), 100% network separation precision, and complete regulatory compliance.
-
----
-
-## Acknowledgment
-
-This work was supported by the Department of Computer Science & Engineering (AI & ML), Dayananda Sagar University, Bengaluru. The authors thank the National Health Authority (NHA), Insurance Regulatory and Development Authority of India (IRDAI), and Star Health and Allied Insurance for making regulatory texts and hospital directories publicly available.
+We presented an offline-capable, evidence-grounded intelligent assistant for cashless hospital verification and health insurance policy clause retrieval. By unifying FTS5 BM25 lexical indexing with a 128-dimensional feature-hashing dense channel via Reciprocal Rank Fusion, implementing heading-aware chunking with dual-page coordinate binding, enforcing deterministic evidence gating, and applying conservative spatial entity resolution, the system delivers verifiable, legally grounded guidance. Rigorous evaluations on real data establish baseline retrieval metrics (BM25 MRR 0.4379, Hybrid MiniLM MRR 0.4243), eliminate cross-jurisdiction hospital mismatching (100% test precision with strict location checks), and verify offline CPU execution.
 
 ---
 
@@ -336,4 +318,3 @@ This work was supported by the Department of Computer Science & Engineering (AI 
 23. N. Reimers and I. Gurevych, "Sentence-BERT: Sentence embeddings using Siamese BERT-networks," in *Proc. EMNLP*, 2019.
 24. Insurance Regulatory and Development Authority of India (IRDAI), "Master Circular on Standardization of Health Insurance Contracts," Ref: IRDAI/HLT/REG/CIR/193/07/2024, New Delhi, India.
 25. Ministry of Law and Justice, Government of India, "Digital Personal Data Protection Act, 2023 (Act No. 22 of 2023)," *The Gazette of India*, Aug. 2023.
-

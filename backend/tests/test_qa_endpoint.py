@@ -16,6 +16,7 @@ def seed_qa_documents(db_session: Session):
         source_path="data/policies/Policy_Star_Comprehensive_clean.pdf",
         file_format="pdf",
         version="POL / COMP / V.24 / 2025 (UIN: SHAHLIP26044V092526)",
+        metadata_json='{"extracted_pages": 48, "uin": "SHAHLIP26044V092526"}',
         is_processed=True,
     )
     # 2. CIS
@@ -25,6 +26,7 @@ def seed_qa_documents(db_session: Session):
         source_path="data/policies/CIS_Star.pdf",
         file_format="pdf",
         version="V.2 / 2025",
+        metadata_json='{"extracted_pages": 20, "uin": "CIS-V.2"}',
         is_processed=True,
     )
     # 3. Claims Guidance

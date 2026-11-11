@@ -1,0 +1,26 @@
+{
+  "deterministic_extractive": {
+    "factual_correctness_pct": 78.46,
+    "citation_accuracy_pct": 60.38,
+    "completeness_pct": 78.46,
+    "faithfulness_ratio_pct": 86.77,
+    "hallucination_rate_pct": 12.31,
+    "abstention_precision_pct": 33.33
+  },
+  "grounded_rag_llm": {
+    "factual_correctness_pct": 87.69,
+    "citation_accuracy_pct": 60.38,
+    "completeness_pct": 87.69,
+    "faithfulness_ratio_pct": 84.84,
+    "hallucination_rate_pct": 12.31,
+    "abstention_precision_pct": 33.33
+  },
+  "unconstrained_llm_baseline": {
+    "factual_correctness_pct": 76.92,
+    "citation_accuracy_pct": 20.75,
+    "completeness_pct": 0.0,
+    "faithfulness_ratio_pct": 57.77,
+    "hallucination_rate_pct": 23.08,
+    "abstention_precision_pct": 0.0
+  }
+}

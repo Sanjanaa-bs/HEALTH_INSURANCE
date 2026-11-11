@@ -34,12 +34,19 @@ def normalize_hospital_name(value: Optional[str]) -> str:
     return " ".join(tokens)
 
 
-def match_directory_hospital(db: Session, card: Dict[str, Any]) -> Optional[Hospital]:
+def match_directory_hospital(
+    db: Session,
+    card: Dict[str, Any],
+    strict_location_check: bool = True,
+) -> Optional[Hospital]:
     """Link only a unique, high-confidence name match in the same state.
 
     The old first-token substring query could associate a network entry with an
     unrelated directory facility (for example, every hospital starting with
     "Apollo"). Ambiguous matches are left unlinked rather than guessed.
+    
+    When strict_location_check=True, exact-name candidates are only accepted if
+    pincode matches or the city is confirmed in the facility's district, city, or address.
     """
     normalized_name = normalize_hospital_name(card["hospital_name"])
     if not normalized_name:
@@ -57,8 +64,28 @@ def match_directory_hospital(db: Session, card: Dict[str, Any]) -> Optional[Hosp
         if pincode_matches:
             exact_matches = pincode_matches
 
-    if len(exact_matches) == 1:
-        return exact_matches[0]
+    if not strict_location_check:
+        # Legacy behavior: linked solely on state-wide exact name uniqueness
+        if len(exact_matches) == 1:
+            return exact_matches[0]
+    else:
+        # Strict location check: verify pincode agreement or city presence in district/city/address
+        locality = normalize_hospital_name(card.get("city") or "")
+        verified_exact_matches = []
+        for hospital in exact_matches:
+            if pincode and hospital.pincode and hospital.pincode == pincode:
+                verified_exact_matches.append(hospital)
+                continue
+            if locality:
+                h_location = normalize_hospital_name(
+                    f"{hospital.district or ''} {hospital.subdistrict or ''} {hospital.address or ''}"
+                )
+                if locality in h_location:
+                    verified_exact_matches.append(hospital)
+                    continue
+
+        if len(verified_exact_matches) == 1:
+            return verified_exact_matches[0]
 
     # Permit a minor spelling variation only when locality agrees and the best
     # candidate is clearly unique; otherwise leave the FK unset.

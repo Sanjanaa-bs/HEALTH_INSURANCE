@@ -13,7 +13,7 @@ from backend.app.schemas.qa import (
     CitationItem,
 )
 from backend.app.config import settings
-from backend.app.search import search_document_chunks
+from backend.app.search import search_document_chunks, normalize_insurance_query_text
 from backend.app.services.retrieval import hybrid_search
 from backend.app.services.llm_provider import get_llm_provider
 
@@ -41,13 +41,27 @@ NETWORK_STATUS_CLARIFICATION = (
 )
 
 
-def extract_meaningful_keywords(text_str: str) -> List[str]:
-    """Extract non-trivial query keywords for relevance verification."""
-    expanded = text_str.lower()
-    expanded = re.sub(r"\b(before|prior to)\s+(hospitali[sz]ation)\b", "prehospitalization", expanded)
-    expanded = re.sub(r"\b(after|post|following)\s+(hospitali[sz]ation)\b", "posthospitalization", expanded)
+def extract_meaningful_keywords(text_str: str, legacy: bool = False) -> List[str]:
+    """
+    Extract query keywords for relevance verification.
+    By default returns unique keywords using shared whole-word insurance term normalization.
+    """
+    if legacy:
+        expanded = text_str.lower()
+        expanded = re.sub(r"\b(before|prior to)\s+(hospitali[sz]ation)\b", "prehospitalization", expanded)
+        expanded = re.sub(r"\b(after|post|following)\s+(hospitali[sz]ation)\b", "posthospitalization", expanded)
+        tokens = [w.lower() for w in re.findall(r"\b[a-zA-Z0-9]+\b", expanded)]
+        return [t for t in tokens if t not in STOPWORDS and len(t) > 2]
+
+    expanded = normalize_insurance_query_text(text_str)
     tokens = [w.lower() for w in re.findall(r"\b[a-zA-Z0-9]+\b", expanded)]
-    return [t for t in tokens if t not in STOPWORDS and len(t) > 2]
+    seen = set()
+    unique_tokens = []
+    for t in tokens:
+        if t not in STOPWORDS and len(t) > 2 and t not in seen:
+            seen.add(t)
+            unique_tokens.append(t)
+    return unique_tokens
 
 
 def build_evidence_grounded_answer(
@@ -93,6 +107,7 @@ def build_evidence_grounded_answer(
 def answer_insurance_question(
     db: Session,
     request: QuestionRequest,
+    use_legacy_gate: bool = False,
 ) -> QuestionResponse:
     """
     Core question answering service:
@@ -129,7 +144,7 @@ def answer_insurance_question(
         retrieval_mode = "keyword"
 
     # Extract keywords for relevance check
-    keywords = extract_meaningful_keywords(clean_q)
+    keywords = extract_meaningful_keywords(clean_q, legacy=use_legacy_gate)
 
     # Check relevance overlap between question keywords and retrieved text
     is_relevant = False
@@ -139,7 +154,14 @@ def answer_insurance_question(
         required_matches = 2 if len(keywords) >= 3 else 1
         for r in raw_results:
             full_content = (f"{r.get('section_heading', '')} {r.get('full_text', '')} {r.get('supporting_text', '')} {r.get('excerpt', '')}").lower()
-            matching_kw = [kw for kw in keywords if kw in full_content]
+            if use_legacy_gate:
+                matching_kw = [kw for kw in keywords if kw in full_content]
+            else:
+                norm_content = normalize_insurance_query_text(full_content)
+                matching_kw = [
+                    kw for kw in keywords
+                    if re.search(rf"\b{re.escape(kw)}\b", norm_content)
+                ]
             if len(matching_kw) >= required_matches:
                 is_relevant = True
                 clean_passage = (

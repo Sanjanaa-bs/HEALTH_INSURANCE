@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 from typing import List, Dict, Any, Optional
@@ -76,21 +77,46 @@ def generate_excerpt(text_content: str, query: str, max_chars: int = 250) -> str
     return pattern.sub(r"<b>\1</b>", snippet)
 
 
-def format_page_label(doc_type: str, page_number: Optional[int]) -> tuple:
-    """Return (printed_page_number, formatted_page_label) for citations."""
+def normalize_insurance_query_text(raw_query: str) -> str:
+    """
+    Standardize conversational insurance terminology, hyphenation, and British/American spelling.
+    Ensures 'pre-hospitalization', 'pre hospitalization', 'prehospitalization',
+    and 'prior to hospitalization' map to the canonical token 'prehospitalization'.
+    """
+    if not raw_query:
+        return ""
+    q = raw_query.lower()
+    # Normalize pre-hospitalization variants
+    q = re.sub(r"\bpre[\s\-]+hospitali[sz]ation\b", "prehospitalization", q)
+    q = re.sub(r"\b(before|prior to)\s+hospitali[sz]ation\b", "prehospitalization", q)
+    # Normalize post-hospitalization variants
+    q = re.sub(r"\bpost[\s\-]+hospitali[sz]ation\b", "posthospitalization", q)
+    q = re.sub(r"\b(after|following)\s+hospitali[sz]ation\b", "posthospitalization", q)
+    # Normalize day-care variants
+    q = re.sub(r"\bday[\s\-]+care\b", "daycare", q)
+    return q
+
+
+def format_page_label(
+    doc_type: str,
+    page_number: Optional[int],
+    total_pages: Optional[int] = None,
+) -> tuple:
+    """
+    Return (printed_page_number, formatted_page_label) for citations.
+    Derives printed-page totals dynamically from document metadata without hardcoding.
+    """
     if page_number is None:
         return None, None
-    if doc_type == "policy":
+    if doc_type in {"policy", "cis"}:
         if page_number == 1:
-            return None, "Physical Page 1 (Cover Page)"
+            desc = "Cover Page" if doc_type == "policy" else "Cover / Header"
+            return None, f"Physical Page 1 ({desc})"
         printed = page_number - 1
-        return printed, f"Physical Page {page_number} (Printed Page {printed}/47)"
-    elif doc_type == "cis":
-        if page_number == 1:
-            return None, "Physical Page 1 (Cover / Header)"
-        printed = page_number - 1
-        return printed, f"Physical Page {page_number} (Printed Page {printed}/19)"
-    return page_number, f"Page {page_number}"
+        denom = f"/{total_pages - 1}" if total_pages and total_pages > 1 else ""
+        return printed, f"Physical Page {page_number} (Printed Page {printed}{denom})"
+    denom = f"/{total_pages}" if total_pages and total_pages > 0 else ""
+    return page_number, f"Page {page_number}{denom}"
 
 
 QUERY_STOPWORDS = {
@@ -113,10 +139,7 @@ SPELLING_VARIANTS = {
 
 def normalize_query_words(raw_query: str) -> List[str]:
     """Extract and normalize meaningful search tokens from natural language query."""
-    expanded_query = raw_query.lower()
-    # Expand conversational pre- and post-hospitalisation phrases to standard insurance terms
-    expanded_query = re.sub(r"\b(before|prior to)\s+(hospitali[sz]ation)\b", "pre hospitalization", expanded_query)
-    expanded_query = re.sub(r"\b(after|post|following)\s+(hospitali[sz]ation)\b", "post hospitalization", expanded_query)
+    expanded_query = normalize_insurance_query_text(raw_query)
 
     raw_tokens = re.findall(r"\b[a-zA-Z0-9]+\b", expanded_query)
     cleaned = []
@@ -126,8 +149,19 @@ def normalize_query_words(raw_query: str) -> List[str]:
             continue
         normalized = SPELLING_VARIANTS.get(lower_t, lower_t)
         cleaned.append(normalized)
+        # If prehospitalization was normalized, add individual tokens so FTS matches hyphenated text
+        if normalized == "prehospitalization":
+            cleaned.extend(["pre", "hospitalization"])
+        elif normalized == "posthospitalization":
+            cleaned.extend(["post", "hospitalization"])
     
-    meaningful = [w for w in cleaned if w not in QUERY_STOPWORDS]
+    # Deduplicate while preserving order
+    seen = set()
+    meaningful = []
+    for w in cleaned:
+        if w not in QUERY_STOPWORDS and w not in seen:
+            seen.add(w)
+            meaningful.append(w)
     return meaningful if meaningful else cleaned
 
 
@@ -160,7 +194,8 @@ def search_document_chunks(
                 d.title as doc_title, d.document_type as doc_type,
                 snippet(document_chunks_fts, 2, '<b>', '</b>', '...', 32) as snippet_text,
                 bm25(document_chunks_fts) as rank,
-                d.version as doc_version
+                d.version as doc_version,
+                d.metadata_json as doc_metadata
             FROM document_chunks_fts
             JOIN document_chunks c ON c.id = document_chunks_fts.chunk_id
             JOIN documents d ON d.id = c.document_id
@@ -196,7 +231,15 @@ def search_document_chunks(
             doc_t = r[7]
             pg_num = r[3]
             doc_ver = r[10] if len(r) > 10 else None
-            printed_pg, page_lbl = format_page_label(doc_t, pg_num)
+            doc_meta_raw = r[11] if len(r) > 11 else None
+            total_pages = None
+            if doc_meta_raw:
+                try:
+                    meta_dict = json.loads(doc_meta_raw) if isinstance(doc_meta_raw, str) else doc_meta_raw
+                    total_pages = meta_dict.get("extracted_pages") or meta_dict.get("total_pages")
+                except Exception:
+                    pass
+            printed_pg, page_lbl = format_page_label(doc_t, pg_num, total_pages=total_pages)
             results.append({
                 "chunk_id": r[0],
                 "document_id": r[1],
@@ -236,7 +279,14 @@ def search_document_chunks(
     for c in matched_chunks:
         doc_t = c.document.document_type if c.document else "unknown"
         doc_ver = c.document.version if c.document else None
-        printed_pg, page_lbl = format_page_label(doc_t, c.page_number)
+        total_pages = None
+        if c.document and c.document.metadata_json:
+            try:
+                meta_dict = json.loads(c.document.metadata_json) if isinstance(c.document.metadata_json, str) else c.document.metadata_json
+                total_pages = meta_dict.get("extracted_pages") or meta_dict.get("total_pages")
+            except Exception:
+                pass
+        printed_pg, page_lbl = format_page_label(doc_t, c.page_number, total_pages=total_pages)
         results.append({
             "chunk_id": c.id,
             "document_id": c.document_id,

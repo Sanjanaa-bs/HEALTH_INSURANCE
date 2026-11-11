@@ -58,7 +58,7 @@ class LocalVectorStore:
         self,
         query_vector: List[float],
         top_k: int = 5,
-        document_type: Optional[str] = None,
+        document_type: Optional[Any] = None,
     ) -> List[Dict[str, Any]]:
         """
         Search vector store using dot product / cosine similarity.
@@ -83,8 +83,12 @@ class LocalVectorStore:
             meta = self.metadata[idx]
 
             # Apply document_type filter if specified
-            if document_type and meta.get("document_type") != document_type:
-                continue
+            if document_type:
+                if isinstance(document_type, (list, set, tuple)):
+                    if meta.get("document_type") not in document_type:
+                        continue
+                elif meta.get("document_type") != document_type:
+                    continue
 
             item = dict(meta)
             item["similarity_score"] = float(score)
