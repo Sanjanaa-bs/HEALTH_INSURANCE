@@ -81,3 +81,25 @@ def ensure_hospital_data_loaded() -> None:
     finally:
         db.close()
 
+
+def ensure_vector_index_consistent() -> None:
+    """Align the persisted vector index with the chunk IDs in the local database."""
+    import sys
+    import os
+    import logging
+
+    logger = logging.getLogger("vector_index")
+
+    if "pytest" in sys.modules or os.environ.get("PYTEST_CURRENT_TEST") or settings.APP_ENV == "testing":
+        return
+
+    from backend.app.services.vector_store import vector_store_instance
+
+    db = SessionLocal()
+    try:
+        outcome = vector_store_instance.reconcile_with_database(db)
+        logger.info(f"Vector index {outcome}: {len(vector_store_instance.vectors)} embeddings.")
+    except Exception as e:
+        logger.error(f"Error reconciling vector index with database: {e}")
+    finally:
+        db.close()
