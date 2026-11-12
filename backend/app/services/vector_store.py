@@ -143,6 +143,84 @@ class LocalVectorStore:
         except Exception:
             return False
 
+    def rebuild_from_database(self, db, embedder=None, save: bool = True) -> int:
+        """Embed every DocumentChunk in the database and replace the index contents."""
+        from backend.app.models.document import DocumentChunk
+        from backend.app.services.embeddings import get_embedding_provider
+
+        embedder = embedder or get_embedding_provider()
+        self.clear()
+        for chunk in db.query(DocumentChunk).order_by(DocumentChunk.id).all():
+            meta = _chunk_metadata(chunk)
+            text_to_embed = f"{meta['document_title']} {chunk.section_heading or ''} {chunk.text}"
+            self.vectors.append(embedder.embed_text(text_to_embed))
+            self.metadata.append(meta)
+        if save:
+            self.save()
+        return len(self.vectors)
+
+    def reconcile_with_database(self, db, embedder=None) -> str:
+        """
+        Align the loaded index with the chunks currently stored in the database.
+
+        The index file is portable between machines but chunk/document IDs are not:
+        re-running ingestion assigns new auto-increment IDs. Entries are therefore
+        matched by content hash and their IDs and citation metadata refreshed from the
+        database. If the chunk contents or embedding dimensions differ, the index is
+        rebuilt and saved.
+
+        Returns "in_sync", "remapped", or "rebuilt".
+        """
+        from backend.app.models.document import DocumentChunk
+        from backend.app.services.embeddings import get_embedding_provider
+
+        embedder = embedder or get_embedding_provider()
+        chunks = db.query(DocumentChunk).all()
+        by_hash = {c.content_hash: c for c in chunks if c.content_hash}
+
+        index_hashes = [m.get("content_hash") for m in self.metadata]
+        expected_dim = len(embedder.embed_text("dimension probe"))
+        content_matches = (
+            len(self.vectors) == len(chunks)
+            and len(by_hash) == len(chunks)
+            and set(index_hashes) == set(by_hash)
+        )
+        dims_match = all(len(v) == expected_dim for v in self.vectors)
+
+        if not content_matches or not dims_match:
+            self.rebuild_from_database(db, embedder=embedder)
+            return "rebuilt"
+
+        changed = False
+        for idx, content_hash in enumerate(index_hashes):
+            fresh = _chunk_metadata(by_hash[content_hash])
+            if self.metadata[idx] != fresh:
+                self.metadata[idx] = fresh
+                changed = True
+        return "remapped" if changed else "in_sync"
+
+
+def _chunk_metadata(chunk) -> Dict[str, Any]:
+    """Build citation metadata for a chunk, matching the FTS5 search result format."""
+    from backend.app.search import format_page_label
+
+    doc = chunk.document
+    doc_type = doc.document_type if doc else "policy"
+    printed_page, page_label = format_page_label(doc_type, chunk.page_number)
+    return {
+        "chunk_id": chunk.id,
+        "document_id": chunk.document_id,
+        "document_title": doc.title if doc else "Star Comprehensive Policy",
+        "document_type": doc_type,
+        "version": doc.version if doc else None,
+        "page_number": chunk.page_number,
+        "printed_page_number": printed_page,
+        "page_label": page_label,
+        "section_heading": chunk.section_heading,
+        "supporting_text": chunk.text,
+        "content_hash": chunk.content_hash or f"chunk_{chunk.id}",
+    }
+
 
 # Global singleton instance shared by startup, retrieval, and indexing.
 vector_store_instance = LocalVectorStore()

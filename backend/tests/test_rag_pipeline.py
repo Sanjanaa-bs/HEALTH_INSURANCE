@@ -292,3 +292,48 @@ def test_api_response_schema_compatibility(client: TestClient, rag_seed_docs):
     assert "citations" in data
     assert "disclaimer" in data
     assert "conversation_id" in data
+
+
+def _store_with_stale_ids(db_session: Session, tmp_path) -> LocalVectorStore:
+    """Build an index from the DB, then shift its IDs as if built on another machine."""
+    store = LocalVectorStore(filepath=str(tmp_path / "index.json"))
+    store.rebuild_from_database(db_session, embedder=LocalDenseEmbeddingProvider(vector_dim=128), save=False)
+    for meta in store.metadata:
+        meta["chunk_id"] += 1000
+    return store
+
+
+def test_reconcile_remaps_stale_chunk_ids_by_content_hash(db_session: Session, rag_seed_docs, tmp_path):
+    store = _store_with_stale_ids(db_session, tmp_path)
+    original_vectors = [list(v) for v in store.vectors]
+
+    outcome = store.reconcile_with_database(db_session, embedder=LocalDenseEmbeddingProvider(vector_dim=128))
+
+    db_ids = {c.id: c.content_hash for c in db_session.query(DocumentChunk).all()}
+    assert outcome == "remapped"
+    assert {m["chunk_id"]: m["content_hash"] for m in store.metadata} == db_ids
+    assert store.vectors == original_vectors
+    assert not (tmp_path / "index.json").exists()  # remapping happens in memory only
+
+
+def test_reconcile_is_noop_when_index_matches(db_session: Session, rag_seed_docs, tmp_path):
+    store = LocalVectorStore(filepath=str(tmp_path / "index.json"))
+    embedder = LocalDenseEmbeddingProvider(vector_dim=128)
+    store.rebuild_from_database(db_session, embedder=embedder, save=False)
+
+    assert store.reconcile_with_database(db_session, embedder=embedder) == "in_sync"
+
+
+def test_reconcile_rebuilds_when_content_or_dimensions_differ(db_session: Session, rag_seed_docs, tmp_path):
+    embedder = LocalDenseEmbeddingProvider(vector_dim=128)
+
+    store = _store_with_stale_ids(db_session, tmp_path)
+    store.metadata[0]["content_hash"] = "hash_not_in_database"
+    assert store.reconcile_with_database(db_session, embedder=embedder) == "rebuilt"
+    assert (tmp_path / "index.json").exists()
+
+    store = _store_with_stale_ids(db_session, tmp_path)
+    store.vectors = [v[:64] for v in store.vectors]
+    assert store.reconcile_with_database(db_session, embedder=embedder) == "rebuilt"
+    assert all(len(v) == 128 for v in store.vectors)
+    assert {m["chunk_id"] for m in store.metadata} == {c.id for c in db_session.query(DocumentChunk).all()}

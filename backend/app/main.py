@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from backend.app.config import settings
-from backend.app.database import init_db, ensure_hospital_data_loaded
+from backend.app.database import init_db, ensure_hospital_data_loaded, ensure_vector_index_consistent
 from backend.app.api.v1.router import api_v1_router
 from backend.app.schemas.common import ErrorResponse, ErrorDetail
 
@@ -22,8 +22,9 @@ async def lifespan(app: FastAPI):
     init_db()
     # Ensure hospital directory datasets are loaded if database is empty
     ensure_hospital_data_loaded()
-    # Load persistent vector store index
+    # Load persistent vector store index and align it with the current database
     vector_store_instance.load()
+    ensure_vector_index_consistent()
     yield
 
 
